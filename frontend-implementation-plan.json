@@ -1,0 +1,475 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Quick Bee AI Growth Engine — Frontend Implementation",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Apply premium dark agency visual theme with teal-green gradient, glassmorphism, and bold typography",
+      "acceptanceCriteria": [
+        "All pages use dark background (#0a0a0a or similar deep black)",
+        "Cards have glassmorphism effect (backdrop-blur, translucent background, subtle border)",
+        "Teal-green gradient (#00b4a6–#00d4c8) used for primary CTAs, highlights, and headings",
+        "Bold typography is consistent across headings and body text",
+        "No login page — app routes directly to the dashboard on load"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/tailwind.config.js",
+          "operation": "modify",
+          "description": "Extend theme configuration with custom teal-green gradient colors (#00b4a6, #00d4c8), deep black (#0a0a0a), and bold sans-serif font families (Inter, Space Grotesk). Add custom backdrop-blur utilities for glassmorphism effects."
+        },
+        {
+          "path": "frontend/src/index.css",
+          "operation": "modify",
+          "description": "Set global dark background (#0a0a0a), define CSS custom properties for teal-green gradient stops, apply bold typography base styles, and add reusable glassmorphism card classes with backdrop-blur, semi-transparent backgrounds, and subtle borders."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Bypass authentication and route directly to dashboard",
+      "acceptanceCriteria": [
+        "Navigating to '/' renders the dashboard immediately",
+        "No login screen, auth guard, or identity prompt is shown",
+        "All routes are publicly accessible"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Remove any authentication providers or identity wrappers. Ensure the app renders directly without auth checks."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Build persistent sidebar navigation with 12 section links and Quick Bee branding",
+      "acceptanceCriteria": [
+        "Sidebar is visible on all pages",
+        "All 12 sections are reachable via sidebar links",
+        "Active route is visually highlighted",
+        "Sidebar collapses to icon-only on mobile/small viewports"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/Sidebar.tsx",
+          "operation": "create",
+          "description": "Create a persistent sidebar component displaying the Quick Bee logo (frontend/public/assets/generated/quickbee-logo.dim_256x256.png) and navigation links to all 12 sections: Dashboard (/), Lead Management (/leads), Services Catalog (/services), Service Management (/service-management), AI Smart Systems (/ai-tools), Sales Configuration (/settings), Automation Dashboard (/automation), Automation Workflows (/workflows), Analytics Engine (/analytics), AI Content Creator (/content-creator), Webhook Logs (/webhook-logs), and Checkout (/checkout). Highlight the active route using TanStack Router's useMatchRoute hook. Implement responsive collapse to icon-only view on mobile using Tailwind breakpoints. Apply glassmorphism styling consistent with REQ-1."
+        },
+        {
+          "path": "frontend/src/components/Layout.tsx",
+          "operation": "create",
+          "description": "Create a layout wrapper component that renders the Sidebar and an outlet for page content. Apply the dark background and ensure the layout is responsive."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Build Lead Management CRM frontend with table/Kanban views, CRUD operations, and CSV/PDF export",
+      "acceptanceCriteria": [
+        "Table view shows all lead fields with edit/delete actions per row",
+        "Kanban view shows leads grouped by status in draggable columns",
+        "Add Lead modal collects all 6 fields and submits to backend",
+        "CSV export downloads a correctly formatted .csv file",
+        "PDF export triggers a print-ready view or downloads a PDF",
+        "Lead status changes update the backend via updateLead"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/LeadsPage.tsx",
+          "operation": "create",
+          "description": "Create the Lead Management CRM page with a toggle to switch between table and Kanban views. Table view displays all lead fields (id, name, email, phone, serviceInterest, status, notes) with inline edit/delete actions. Kanban view groups leads by the 6 status values (New, Contacted, Qualified, Proposal Sent, Closed Won, Closed Lost) in draggable columns using a drag-and-drop library. Include an Add Lead button that opens a modal form, CSV export button (generates .csv from lead data), and PDF export button (uses window.print or jsPDF). Use React Query to fetch leads via getLeads, createLead, updateLead, and deleteLead from backend interface. Reference the 3D icon frontend/public/assets/generated/icon-leads.dim_128x128.png for visual branding. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/components/AddLeadModal.tsx",
+          "operation": "create",
+          "description": "Create a modal component with form fields for name, email, phone, serviceInterest, status (dropdown with 6 values), and notes. On submit, call createLead mutation. Apply glassmorphism modal styling."
+        },
+        {
+          "path": "frontend/src/components/EditLeadModal.tsx",
+          "operation": "create",
+          "description": "Create a modal component pre-populated with existing lead data. On submit, call updateLead mutation. Apply glassmorphism modal styling."
+        },
+        {
+          "path": "frontend/src/hooks/useLeads.ts",
+          "operation": "create",
+          "description": "Create a custom hook wrapping React Query queries and mutations for getLeads, createLead, updateLead, and deleteLead backend methods."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Build Agency Services Catalog with 7 categories, 30 services, tiered pricing, and 3 Master Plans",
+      "acceptanceCriteria": [
+        "7 category filter tabs are displayed and functional",
+        "At least 30 service cards are pre-seeded across categories",
+        "Each card shows INR pricing for all 4 tiers",
+        "Preview modal shows packages, add-ons, and dynamic price calculator",
+        "3 Master Plan cards (Spark/Surge/Titan) are displayed prominently",
+        "Buy Now button on every card adds item to the cart",
+        "Maintenance plan pricing is shown on applicable cards"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ServicesCatalogPage.tsx",
+          "operation": "create",
+          "description": "Create the Agency Services Catalog page with 7 category filter tabs (Web Dev, App Dev, AI Automation, Digital Marketing, Branding, SaaS, Business Setup). Display service cards fetched via getServices, filtered by selected category. Each card shows name, category badge, tiered pricing (Student/Business/Premium/Enterprise in INR), a Buy Now button (adds to cart context), and a Preview button (opens modal). Include a prominent section displaying 3 Master Agency Plan cards (Spark, Surge, Titan) with full feature lists and Buy Now CTAs. Show monthly maintenance plan pricing on cards where maintenancePlan > 0. Use React Query to fetch services. Reference frontend/public/assets/generated/icon-services.dim_128x128.png for branding. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/components/ServicePreviewModal.tsx",
+          "operation": "create",
+          "description": "Create a modal displaying full service details: packages (with tier, price, features), add-ons (name, price), and a dynamic price calculator that updates total based on selected package tier, quantity, and checked add-ons. Apply glassmorphism modal styling."
+        },
+        {
+          "path": "frontend/src/contexts/CartContext.tsx",
+          "operation": "create",
+          "description": "Create a React context and provider for shopping cart state. Store cart items in localStorage under 'quickbee_cart'. Each cart item includes: serviceId, serviceName, selectedTier, selectedAddons, quantity, and totalPrice. Expose addToCart, removeFromCart, updateQuantity, and clearCart functions."
+        },
+        {
+          "path": "frontend/src/hooks/useServices.ts",
+          "operation": "create",
+          "description": "Create a custom hook wrapping React Query queries for getServices backend method."
+        },
+        {
+          "path": "frontend/src/data/masterPlans.ts",
+          "operation": "create",
+          "description": "Export a constant array of 3 Master Agency Plan objects (Spark, Surge, Titan) with name, priceINR, features array, and description. These are frontend-only data, not backend services."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Build Service Management admin page with drag-and-drop reorder, CRUD, and preview",
+      "acceptanceCriteria": [
+        "Services list is drag-and-drop reorderable and order persists to backend",
+        "Edit modal has fields for all service attributes including packages, add-ons, and maintenance",
+        "Duplicate creates a copy of the service",
+        "Delete removes the service after confirmation",
+        "Visibility toggle updates isVisible on the backend",
+        "Preview modal shows how the service card will appear on the catalog",
+        "Dynamic price calculator in the preview responds to quantity and selected add-ons"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ServiceManagementPage.tsx",
+          "operation": "create",
+          "description": "Create the Service Management admin page displaying all services in a drag-and-drop reorderable list using a drag-and-drop library. Each service row/card has: Edit button (opens EditServiceModal), Duplicate button (calls duplicateService mutation then refetches), Delete button (shows confirmation, calls deleteService mutation), and Visibility toggle (calls updateService with isVisible). On drag-end, call reorderServices mutation with new ordered array of service IDs. Include a Create New Service button opening a blank EditServiceModal. Use React Query for all backend operations. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/components/EditServiceModal.tsx",
+          "operation": "create",
+          "description": "Create a comprehensive modal for creating/editing services. Fields: name, category (dropdown with 7 values), description, packages array (tier, priceINR, features list), addons array (name, price), maintenancePlan (number in INR), isVisible (checkbox). Include dynamic form sections to add/remove packages and add-ons. On submit, call createService or updateService mutation. Include a Preview button that opens ServicePreviewModal with current form data. Apply glassmorphism modal styling."
+        },
+        {
+          "path": "frontend/src/hooks/useServiceManagement.ts",
+          "operation": "create",
+          "description": "Create a custom hook wrapping React Query mutations for createService, updateService, deleteService, duplicateService, and reorderServices backend methods."
+        }
+      ]
+    },
+    {
+      "id": "REQ-9",
+      "summary": "Build AI Smart Systems page with 6 AI-powered tool panels",
+      "acceptanceCriteria": [
+        "All 6 tool panels are rendered on the page",
+        "Each tool posts to the saved API endpoint with correct Authorization header",
+        "Generated output is displayed in a readable formatted box",
+        "Export button downloads the output as a text or PDF file",
+        "Warning message shown if API endpoint or key is not configured",
+        "Each API call is logged to the Webhook Logs store"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AISmartSystemsPage.tsx",
+          "operation": "create",
+          "description": "Create the AI Smart Systems page with 6 tool panels: Service Recommender, Proposal Generator, Pricing Strategy, Closing Scripts, Follow-Up Messages, and Lead Qualification. Each panel has a dedicated input form, a Generate button that POSTs to the API endpoint from localStorage ('quickbee_sales_config'), displays the streamed/returned AI result in a formatted output box, and an Export button to download result as .txt or .pdf. If API endpoint or key is not configured, show a warning with a link to /settings. Use the shared logWebhookCall utility to log each API call. Reference frontend/public/assets/generated/icon-ai.dim_128x128.png for branding. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/utils/aiClient.ts",
+          "operation": "create",
+          "description": "Create a utility module that reads API Endpoint and API Key from localStorage, constructs the POST request with Authorization header, and calls the OpenAI-compatible API. Return the generated text. Throw an error if credentials are missing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-10",
+      "summary": "Build Sales System Configuration settings page",
+      "acceptanceCriteria": [
+        "All 9 credential fields are present with input and toggle",
+        "Values persist to localStorage on Save",
+        "Page loads saved values from localStorage on mount",
+        "Each field shows correct status badge based on whether a value is saved",
+        "Test Connection on webhook URLs fires a POST and updates badge to Connected or Error",
+        "Toggling OFF disables the credential from being used in automations"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/SalesConfigPage.tsx",
+          "operation": "create",
+          "description": "Create the Sales System Configuration page with input fields and ON/OFF toggles for 9 credentials: API Endpoint, API Key, WhatsApp Token, Razorpay Key ID, Razorpay Secret, Email API Key, CRM Webhook URL, Automation Webhook URL, and Calendly URL. Each field displays a status badge (Not Configured / Connected / Error) based on whether a value is saved. CRM Webhook URL and Automation Webhook URL each have a Test Connection button that fires a POST request and updates the badge. All values are saved to and loaded from localStorage under 'quickbee_sales_config'. Include a Save button that persists all changes. Apply glassmorphism card styling from REQ-1."
+        }
+      ]
+    },
+    {
+      "id": "REQ-11",
+      "summary": "Build Automation Dashboard with 5 automation toggles",
+      "acceptanceCriteria": [
+        "5 toggle switches are shown, each labeled with the automation name",
+        "Toggle state persists to localStorage under 'quickbee_automation_config'",
+        "Automation trigger utility function checks toggle state before firing",
+        "POST request includes JSON payload with event type and relevant data",
+        "POST includes Authorization header using saved API Key",
+        "If toggle is OFF or webhook URL is not configured, the POST is skipped",
+        "Each fired request is logged to the Webhook Logs store"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AutomationDashboardPage.tsx",
+          "operation": "create",
+          "description": "Create the Automation Dashboard page with 5 toggle switches: WhatsApp Auto-Reply, Proposal Auto-Send, Lead Follow-Up Sequences, Payment Confirmation, and Project Onboarding. Toggles read from and write to localStorage under 'quickbee_automation_config'. Apply glassmorphism card styling from REQ-1. Reference frontend/public/assets/generated/icon-automation.dim_128x128.png for branding."
+        },
+        {
+          "path": "frontend/src/utils/automationTrigger.ts",
+          "operation": "create",
+          "description": "Create a utility function that checks if a given automation toggle is ON and the Automation Webhook URL is configured. If both are true, POST to the webhook with JSON payload (event type, relevant data) and Authorization header using the saved API Key. Use the shared logWebhookCall utility to log the request. If toggle is OFF or URL is missing, skip the POST."
+        }
+      ]
+    },
+    {
+      "id": "REQ-12",
+      "summary": "Build Automation Workflows page with 5 workflow cards",
+      "acceptanceCriteria": [
+        "5 workflow cards are displayed",
+        "Each card shows current status with color-coded badge",
+        "Run button triggers a POST to the Automation Webhook URL with workflow-specific payload",
+        "Last execution result JSON is displayed in a formatted code block",
+        "Status transitions to Running while the request is in-flight",
+        "Status updates to Success or Error based on HTTP response",
+        "Each run is logged to the Webhook Logs store"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AutomationWorkflowsPage.tsx",
+          "operation": "create",
+          "description": "Create the Automation Workflows page displaying 5 workflow cards: New Lead Submission, Meeting Scheduling, Payment Processing, Analytics Engine, and AI Content Creation. Each card shows: workflow name, current status indicator (Idle/Running/Success/Error with color-coded badge), a Run button that fires a POST to the Automation Webhook URL with workflow-specific payload, and a result panel displaying the last execution result as formatted/syntax-highlighted JSON. Store workflow execution state in React state. Use the shared logWebhookCall utility to log each run. Apply glassmorphism card styling from REQ-1."
+        }
+      ]
+    },
+    {
+      "id": "REQ-13",
+      "summary": "Build Analytics Engine page with date range picker and GA4-style report",
+      "acceptanceCriteria": [
+        "Date range picker with start and end date inputs is shown",
+        "Submit button POSTs date range to Automation Webhook URL",
+        "Growth summary section shows 4 KPI cards (sessions, users, revenue, conversion)",
+        "Line chart displays sessions trend over the selected date range",
+        "Bar chart shows traffic sources breakdown",
+        "Top pages table shows page path, views, and avg session duration",
+        "If webhook is not configured, simulated data is shown with a notice"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AnalyticsEnginePage.tsx",
+          "operation": "create",
+          "description": "Create the Analytics Engine page with a date range picker (start date, end date inputs). On submit, POST date range to the Automation Webhook URL. Display a simulated GA4-style analytics report below: Growth Summary with 4 KPI cards (total sessions, new users, revenue, conversion rate), a sessions-over-time line chart (use a charting library like recharts), top traffic sources bar chart, and top performing pages table. If the webhook is not configured, display simulated data with a notice. Use the shared logWebhookCall utility to log the POST. Reference frontend/public/assets/generated/icon-analytics.dim_128x128.png for branding. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/utils/mockAnalyticsData.ts",
+          "operation": "create",
+          "description": "Export a function that generates simulated GA4-style analytics data (sessions trend, traffic sources, top pages) for a given date range."
+        }
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "summary": "Build AI Content Creator page with keyword-driven multi-format content generation",
+      "acceptanceCriteria": [
+        "Keyword input and Generate button are displayed",
+        "API call uses saved API Endpoint and API Key from Sales Configuration",
+        "4 content sections are rendered: SEO Blog, Social Captions, LinkedIn Post, Instagram Carousel",
+        "Each section has an individual Copy button that copies content to clipboard",
+        "Export button downloads all content as a single file",
+        "Loading state shown while API call is in progress",
+        "API call is logged to the Webhook Logs store"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AIContentCreatorPage.tsx",
+          "operation": "create",
+          "description": "Create the AI Content Creator page with a keyword input field and Generate Content button. On submission, call the AI API (using aiClient utility) to generate: an SEO blog post (title + full content), 5 social media captions, a LinkedIn post, and an Instagram carousel outline (5 slides). Display each section in a separate labeled panel with a Copy button (copies to clipboard using navigator.clipboard). Include a full Export button that downloads all generated content as a single .txt or .pdf file. Show loading state during API call. Use the shared logWebhookCall utility to log the API call. Apply glassmorphism card styling from REQ-1."
+        }
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "summary": "Build Webhook Logs page with filterable chronological table",
+      "acceptanceCriteria": [
+        "Log table shows all entries with all 6 fields",
+        "Success rows are highlighted green, error rows red",
+        "Filter by tool name dropdown filters the table",
+        "Filter by status (All/Success/Error) filters the table",
+        "Clear Logs button empties the localStorage log store and clears the table",
+        "All modules (AI tools, automations, workflows, analytics, content creator) write to this shared log store"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/WebhookLogsPage.tsx",
+          "operation": "create",
+          "description": "Create the Webhook Logs page displaying a chronological table of all outgoing webhook and AI API calls. Each entry shows: timestamp, tool/workflow name, target URL, payload summary (first 100 chars), HTTP status code, and success/failure indicator (green for 2xx, red otherwise). Include filter controls for tool name (dropdown) and status (All/Success/Error). Include a Clear Logs button that wipes the 'quickbee_webhook_logs' localStorage key and clears the table. Load logs from localStorage on mount. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/utils/webhookLogger.ts",
+          "operation": "create",
+          "description": "Export a logWebhookCall function that appends a log entry (timestamp, toolName, url, payloadSummary, statusCode, success) to the 'quickbee_webhook_logs' localStorage array. This shared utility is used by all modules that make external API/webhook calls."
+        }
+      ]
+    },
+    {
+      "id": "REQ-16",
+      "summary": "Implement shopping cart and Razorpay checkout with payment success/failure pages",
+      "acceptanceCriteria": [
+        "Buy Now buttons on service cards add items to cart",
+        "Checkout page shows all cart items with INR pricing and a grand total",
+        "Razorpay checkout opens using the saved Razorpay Key ID",
+        "PaymentSuccessPage displays invoice reference in format QBA-{timestamp}",
+        "PaymentSuccessPage fires the Payment Processing workflow POST",
+        "PaymentFailurePage shows an error message and a Retry button",
+        "Cart persists across page navigation (localStorage or React context)"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CheckoutPage.tsx",
+          "operation": "create",
+          "description": "Create the Checkout page displaying all cart items with name, selected tier, add-ons, quantity, and price in INR. Show a grand total. Include a Pay with Razorpay button that integrates Razorpay checkout using the Razorpay Key ID from localStorage ('quickbee_sales_config'). On successful payment, navigate to /payment-success. On failure, navigate to /payment-failure. Use the CartContext to access cart items. Reference frontend/public/assets/generated/icon-payment.dim_128x128.png for branding. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/pages/PaymentSuccessPage.tsx",
+          "operation": "create",
+          "description": "Create the Payment Success page displaying an invoice reference in format QBA-{timestamp} and a success message. On mount, fire the Payment Processing automation workflow POST using the automationTrigger utility. Clear the cart using CartContext. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/pages/PaymentFailurePage.tsx",
+          "operation": "create",
+          "description": "Create the Payment Failure page showing an error message and a Retry button that navigates back to /checkout. Apply glassmorphism card styling from REQ-1."
+        },
+        {
+          "path": "frontend/src/utils/razorpayCheckout.ts",
+          "operation": "create",
+          "description": "Export a function that initializes Razorpay checkout with the saved Razorpay Key ID, total amount in paise, and success/failure callbacks. Load the Razorpay SDK script dynamically if not already loaded."
+        }
+      ]
+    },
+    {
+      "id": "REQ-17",
+      "summary": "Set up TanStack Router with all 14 routes and React Query provider",
+      "acceptanceCriteria": [
+        "All 14 routes are defined and render the correct page component",
+        "Navigating directly to any route renders the correct page",
+        "React Query QueryClientProvider wraps the app",
+        "TanStack Router is the routing solution (not React Router)"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/main.tsx",
+          "operation": "modify",
+          "description": "Wrap the app with React Query QueryClientProvider and TanStack Router RouterProvider. Remove any authentication wrappers per REQ-2."
+        },
+        {
+          "path": "frontend/src/routes/__root.tsx",
+          "operation": "create",
+          "description": "Create the TanStack Router root route that renders the Layout component (which includes the Sidebar and outlet)."
+        },
+        {
+          "path": "frontend/src/routes/index.tsx",
+          "operation": "create",
+          "description": "Create the route for / that renders the DashboardPage component."
+        },
+        {
+          "path": "frontend/src/routes/leads.tsx",
+          "operation": "create",
+          "description": "Create the route for /leads that renders the LeadsPage component."
+        },
+        {
+          "path": "frontend/src/routes/services.tsx",
+          "operation": "create",
+          "description": "Create the route for /services that renders the ServicesCatalogPage component."
+        },
+        {
+          "path": "frontend/src/routes/service-management.tsx",
+          "operation": "create",
+          "description": "Create the route for /service-management that renders the ServiceManagementPage component."
+        },
+        {
+          "path": "frontend/src/routes/ai-tools.tsx",
+          "operation": "create",
+          "description": "Create the route for /ai-tools that renders the AISmartSystemsPage component."
+        },
+        {
+          "path": "frontend/src/routes/settings.tsx",
+          "operation": "create",
+          "description": "Create the route for /settings that renders the SalesConfigPage component."
+        },
+        {
+          "path": "frontend/src/routes/automation.tsx",
+          "operation": "create",
+          "description": "Create the route for /automation that renders the AutomationDashboardPage component."
+        },
+        {
+          "path": "frontend/src/routes/workflows.tsx",
+          "operation": "create",
+          "description": "Create the route for /workflows that renders the AutomationWorkflowsPage component."
+        },
+        {
+          "path": "frontend/src/routes/analytics.tsx",
+          "operation": "create",
+          "description": "Create the route for /analytics that renders the AnalyticsEnginePage component."
+        },
+        {
+          "path": "frontend/src/routes/content-creator.tsx",
+          "operation": "create",
+          "description": "Create the route for /content-creator that renders the AIContentCreatorPage component."
+        },
+        {
+          "path": "frontend/src/routes/webhook-logs.tsx",
+          "operation": "create",
+          "description": "Create the route for /webhook-logs that renders the WebhookLogsPage component."
+        },
+        {
+          "path": "frontend/src/routes/checkout.tsx",
+          "operation": "create",
+          "description": "Create the route for /checkout that renders the CheckoutPage component."
+        },
+        {
+          "path": "frontend/src/routes/payment-success.tsx",
+          "operation": "create",
+          "description": "Create the route for /payment-success that renders the PaymentSuccessPage component."
+        },
+        {
+          "path": "frontend/src/routes/payment-failure.tsx",
+          "operation": "create",
+          "description": "Create the route for /payment-failure that renders the PaymentFailurePage component."
+        }
+      ]
+    },
+    {
+      "id": "REQ-18",
+      "summary": "Build Dashboard home page with summary overview and quick-action cards",
+      "acceptanceCriteria": [
+        "Dashboard shows lead count KPI card with status breakdown",
+        "Dashboard shows total services count",
+        "Last 5 webhook log entries are displayed",
+        "Automation ON/OFF summary is shown",
+        "Quick-action cards link to all major sections",
+        "All cards use glassmorphism styling"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/DashboardPage.tsx",
+          "operation": "create",
+          "description": "Create the Dashboard home page displaying a summary overview. Show a hero section with the hero background image frontend/public/assets/generated/hero-bg.dim_1920x400.png. Display KPI cards: total leads count with status breakdown (fetched via getLeads), total services count (fetched via getServices), last 5 webhook log entries (from localStorage 'quickbee_webhook_logs'), and automation status summary (which automations are ON from 'quickbee_automation_config'). Include quick-action cards with icons linking to all 12 major sections. Apply glassmorphism card styling from REQ-1 to all widgets."
+        }
+      ]
+    }
+  ]
+}

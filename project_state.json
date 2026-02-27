@@ -1,0 +1,233 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Quick Bee AI Growth Engine — a full-stack AI agency platform dashboard. Dark-gold/teal-green glassmorphism theme. No auth (direct dashboard access). Stack: Motoko backend, React/TypeScript frontend, TanStack Router, React Query, Tailwind CSS.",
+  "architectural_notes": [
+    "Motoko backend handles CRUD for managed services; React/TypeScript frontend with TanStack Router, React Query, Tailwind CSS",
+    "No authentication — users are routed directly to the dashboard",
+    "All automation toggles and settings persist via localStorage-backed config store",
+    "Webhook/API calls include Authorization headers and fire only when respective toggle is ON",
+    "AI tools call an OpenAI-compatible API endpoint using credentials saved in Sales System Configuration"
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "imageRequirements": "## Required Images\n- Quick Bee brand logo — stylized bee with teal-green and black color scheme, geometric futuristic style, transparent background (quickbee-logo.dim_256x256.png)\n- Dashboard hero background — abstract teal-green and black geometric gradient with subtle hexagonal grid pattern, ultra-wide banner (hero-bg.dim_1920x400.png)\n- 3D icon for Lead Management — glowing teal CRM/contacts icon with depth and lighting, dark background (icon-leads.dim_128x128.png)\n- 3D icon for Services — glowing teal briefcase or grid icon with depth and lighting, dark background (icon-services.dim_128x128.png)\n- 3D icon for AI Smart Systems — glowing teal brain or circuit icon with depth and lighting, dark background (icon-ai.dim_128x128.png)\n- 3D icon for Automation — glowing teal gear/lightning bolt icon with depth and lighting, dark background (icon-automation.dim_128x128.png)\n- 3D icon for Analytics — glowing teal bar chart icon with depth and lighting, dark background (icon-analytics.dim_128x128.png)\n- 3D icon for Payments/Checkout — glowing teal credit card or wallet icon with depth and lighting, dark background (icon-payment.dim_128x128.png)",
+  "existing_features": [
+    {
+      "id": "feature-apply-a-premium-dark-agency-visual-theme-across-the-entire-frontend-teal-green-gradient-00b4a6-to-00d4c8-blended-with-deep-black-0a0a0a-and-white-ffffff-glassmorphism-card-surfaces-backdrop-blur-semi-transparent-borders-bold-sans-serif-typography-e-g-inter-space-grotesk-soft-colored-shadows-and-high-contrast-accent-highlights-enforce-this-theme-consistently-across-all-pages-and-components",
+      "title": "Apply a premium dark agency visual theme across the entire frontend: teal-green gradient (#00b4a6 to #00d4c8) blended with deep black (#0a0a0a) and white (#ffffff), glassmorphism card surfaces (backdrop-blur, semi-transparent borders), bold sans-serif typography (e.g. Inter/Space Grotesk), soft colored shadows, and high-contrast accent highlights. Enforce this theme consistently across all pages and components.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-bypass-all-authentication-the-app-must-route-users-directly-to-the-main-dashboard-on-load-without-any-login-registration-or-internet-identity-prompt",
+      "title": "Bypass all authentication. The app must route users directly to the main dashboard on load without any login, registration, or Internet Identity prompt.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-persistent-sidebar-navigation-with-links-to-all-major-sections-dashboard-home-lead-management-services-catalog-service-management-ai-smart-systems-sales-configuration-automation-dashboard-automation-workflows-analytics-engine-ai-content-creator-webhook-logs-and-checkout-the-sidebar-must-display-the-quick-bee-logo-brand-name-and-collapse-to-icon-only-on-smaller-screens",
+      "title": "Build a persistent sidebar navigation with links to all major sections: Dashboard (home), Lead Management, Services Catalog, Service Management, AI Smart Systems, Sales Configuration, Automation Dashboard, Automation Workflows, Analytics Engine, AI Content Creator, Webhook Logs, and Checkout. The sidebar must display the Quick Bee logo/brand name and collapse to icon-only on smaller screens.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-lead-management-crm-frontend-page-display-leads-in-a-table-and-a-kanban-style-pipeline-view-switchable-by-toggle-support-adding-editing-inline-modal-and-deleting-leads-include-a-csv-export-button-downloads-all-leads-as-csv-and-a-pdf-export-button-uses-browser-print-or-a-pdf-library-to-export-the-lead-table-each-pipeline-column-corresponds-to-one-of-the-6-status-values",
+      "title": "Build the Lead Management CRM frontend page. Display leads in a table and a Kanban-style pipeline view switchable by toggle. Support adding, editing (inline modal), and deleting leads. Include a CSV export button (downloads all leads as .csv) and a PDF export button (uses browser print or a PDF library to export the lead table). Each pipeline column corresponds to one of the 6 status values.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-agency-services-catalog-frontend-page-display-all-7-categories-as-filterable-tabs-show-30-pre-seeded-service-cards-across-categories-with-tiered-pricing-in-inr-student-business-premium-enterprise-each-service-card-has-name-category-badge-pricing-tiers-a-buy-now-button-that-adds-to-cart-and-a-preview-button-that-opens-a-modal-showing-full-details-packages-add-ons-price-calculator-include-a-section-for-3-master-agency-plans-spark-surge-and-titan-displayed-as-premium-plan-cards-with-full-feature-lists-and-buy-now-ctas-show-monthly-maintenance-plan-pricing-on-relevant-service-cards",
+      "title": "Build the Agency Services Catalog frontend page. Display all 7 categories as filterable tabs. Show 30 pre-seeded service cards across categories with tiered pricing in INR (Student / Business / Premium / Enterprise). Each service card has: name, category badge, pricing tiers, a Buy Now button that adds to cart, and a Preview button that opens a modal showing full details (packages, add-ons, price calculator). Include a section for 3 Master Agency Plans: Spark, Surge, and Titan — displayed as premium plan cards with full feature lists and Buy Now CTAs. Show monthly maintenance plan pricing on relevant service cards.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-service-management-admin-page-display-all-services-in-a-sortable-drag-and-drop-reorderable-list-each-row-card-supports-edit-opens-modal-to-update-all-fields-duplicate-clones-the-service-delete-with-confirmation-and-visibility-toggle-isvisible-the-edit-modal-supports-configuring-packages-basic-standard-premium-tiers-with-price-and-features-add-ons-name-price-each-and-maintenance-plan-pricing-drag-and-drop-reorder-calls-reorderservices-on-the-backend-to-persist-order-a-create-new-service-button-opens-a-blank-edit-modal",
+      "title": "Build a Service Management admin page. Display all services in a sortable, drag-and-drop reorderable list. Each row/card supports: Edit (opens modal to update all fields), Duplicate (clones the service), Delete (with confirmation), and Visibility toggle (isVisible). The Edit modal supports configuring packages (Basic/Standard/Premium tiers with price and features), add-ons (name + price each), and maintenance plan pricing. Drag-and-drop reorder calls reorderServices on the backend to persist order. A Create New Service button opens a blank edit modal.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-ai-smart-systems-page-with-6-ai-powered-tool-panels-service-recommender-proposal-generator-pricing-strategy-closing-scripts-follow-up-messages-and-lead-qualification-each-tool-has-a-dedicated-input-form-e-g-lead-details-service-type-budget-a-generate-button-that-posts-to-the-configured-openai-compatible-api-endpoint-from-sales-configuration-with-an-appropriate-prompt-displays-the-streamed-returned-result-in-a-formatted-output-box-and-provides-an-export-button-to-download-the-result-as-a-txt-or-pdf-file-if-api-credentials-are-not-configured-show-a-warning-linking-to-the-sales-configuration-page",
+      "title": "Build the AI Smart Systems page with 6 AI-powered tool panels: Service Recommender, Proposal Generator, Pricing Strategy, Closing Scripts, Follow-Up Messages, and Lead Qualification. Each tool has a dedicated input form (e.g., lead details, service type, budget), a Generate button that POSTs to the configured OpenAI-compatible API endpoint (from Sales Configuration) with an appropriate prompt, displays the streamed/returned result in a formatted output box, and provides an Export button to download the result as a .txt or .pdf file. If API credentials are not configured, show a warning linking to the Sales Configuration page.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-sales-system-configuration-settings-page-display-input-fields-and-on-off-toggles-for-api-endpoint-api-key-whatsapp-token-razorpay-key-id-razorpay-secret-email-api-key-crm-webhook-url-automation-webhook-url-and-calendly-url-each-credential-shows-a-connection-status-badge-not-configured-connected-error-crm-webhook-url-and-automation-webhook-url-each-have-a-test-connection-button-that-fires-a-post-request-and-updates-the-badge-based-on-response-all-values-are-saved-to-and-loaded-from-localstorage-a-save-button-persists-all-changes-at-once",
+      "title": "Build the Sales System Configuration settings page. Display input fields and ON/OFF toggles for: API Endpoint, API Key, WhatsApp Token, Razorpay Key ID, Razorpay Secret, Email API Key, CRM Webhook URL, Automation Webhook URL, and Calendly URL. Each credential shows a connection status badge (Not Configured / Connected / Error). CRM Webhook URL and Automation Webhook URL each have a Test Connection button that fires a POST request and updates the badge based on response. All values are saved to and loaded from localStorage. A Save button persists all changes at once.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-automation-dashboard-page-with-5-automation-toggles-whatsapp-auto-reply-proposal-auto-send-lead-follow-up-sequences-payment-confirmation-and-project-onboarding-toggles-read-from-and-write-to-a-centralized-localstorage-config-store-key-e-g-quickbee-automation-config-when-a-toggle-is-on-and-its-corresponding-trigger-fires-the-system-must-post-to-the-configured-automation-webhook-url-with-a-json-payload-describing-the-automation-event-and-an-authorization-header-using-the-saved-api-key-triggers-only-fire-when-the-toggle-is-on-and-the-webhook-url-is-configured",
+      "title": "Build the Automation Dashboard page with 5 automation toggles: WhatsApp Auto-Reply, Proposal Auto-Send, Lead Follow-Up Sequences, Payment Confirmation, and Project Onboarding. Toggles read from and write to a centralized localStorage config store key (e.g., 'quickbee_automation_config'). When a toggle is ON and its corresponding trigger fires, the system must POST to the configured Automation Webhook URL with a JSON payload describing the automation event and an Authorization header using the saved API Key. Triggers only fire when the toggle is ON and the webhook URL is configured.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-automation-workflows-page-displaying-5-workflow-cards-new-lead-submission-meeting-scheduling-payment-processing-analytics-engine-and-ai-content-creation-each-card-shows-workflow-name-current-status-indicator-idle-running-success-error-a-manual-run-button-that-fires-the-workflow-s-post-to-the-automation-webhook-url-and-a-result-panel-displaying-the-last-execution-result-as-formatted-syntax-highlighted-json",
+      "title": "Build the Automation Workflows page displaying 5 workflow cards: New Lead Submission, Meeting Scheduling, Payment Processing, Analytics Engine, and AI Content Creation. Each card shows: workflow name, current status indicator (Idle / Running / Success / Error), a manual Run button that fires the workflow's POST to the Automation Webhook URL, and a result panel displaying the last execution result as formatted/syntax-highlighted JSON.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-analytics-engine-page-display-a-date-range-picker-start-date-end-date-on-submit-post-to-the-configured-automation-webhook-url-with-the-date-range-payload-display-a-simulated-ga4-style-analytics-report-below-with-growth-summary-total-sessions-new-users-revenue-conversion-rate-a-sessions-over-time-line-chart-top-traffic-sources-bar-chart-and-top-performing-pages-table-simulate-the-report-data-on-the-frontend-if-the-webhook-returns-no-structured-analytics-data",
+      "title": "Build the Analytics Engine page. Display a date range picker (start date, end date). On submit, POST to the configured Automation Webhook URL with the date range payload. Display a simulated GA4-style analytics report below with: Growth Summary (total sessions, new users, revenue, conversion rate), a sessions-over-time line chart, top traffic sources bar chart, and top performing pages table. Simulate the report data on the frontend if the webhook returns no structured analytics data.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-ai-content-creator-page-display-a-keyword-input-field-and-a-generate-content-button-on-submission-call-the-configured-openai-compatible-api-with-a-prompt-to-generate-an-seo-blog-post-title-full-content-5-social-media-captions-a-linkedin-post-and-an-instagram-carousel-outline-5-slides-display-each-section-in-a-separate-labeled-panel-with-a-copy-button-per-section-include-a-full-export-button-that-downloads-all-generated-content-as-a-single-txt-or-pdf-file",
+      "title": "Build the AI Content Creator page. Display a keyword input field and a Generate Content button. On submission, call the configured OpenAI-compatible API with a prompt to generate: an SEO blog post (title + full content), 5 social media captions, a LinkedIn post, and an Instagram carousel outline (5 slides). Display each section in a separate labeled panel with a Copy button per section. Include a full Export button that downloads all generated content as a single .txt or .pdf file.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-webhook-logs-page-display-a-chronological-table-of-all-outgoing-webhook-and-ai-api-calls-each-entry-showing-timestamp-tool-workflow-name-target-url-payload-summary-first-100-chars-http-status-code-and-success-failure-indicator-green-for-2xx-red-for-others-include-filter-controls-for-tool-name-and-status-all-success-error-include-a-clear-logs-button-that-wipes-all-stored-logs-logs-must-be-stored-in-localstorage-under-a-key-like-quickbee-webhook-logs-and-written-by-a-shared-utility-function-used-across-all-modules",
+      "title": "Build the Webhook Logs page. Display a chronological table of all outgoing webhook and AI API calls, each entry showing: timestamp, tool/workflow name, target URL, payload summary (first 100 chars), HTTP status code, and success/failure indicator (green for 2xx, red for others). Include filter controls for tool name and status (All / Success / Error). Include a Clear Logs button that wipes all stored logs. Logs must be stored in localStorage under a key like 'quickbee_webhook_logs' and written by a shared utility function used across all modules.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-shopping-cart-system-each-service-card-s-buy-now-button-adds-the-item-with-selected-tier-add-ons-and-quantity-to-a-cart-stored-in-react-context-or-localstorage-build-a-checkout-page-that-displays-all-cart-items-with-prices-in-inr-a-total-and-a-pay-with-razorpay-button-integrate-razorpay-checkout-using-the-saved-razorpay-key-id-on-successful-payment-navigate-to-paymentsuccesspage-displaying-invoice-reference-in-format-qba-timestamp-and-fire-the-payment-processing-automation-workflow-post-on-failure-navigate-to-paymentfailurepage-with-an-error-message-and-retry-option",
+      "title": "Implement a shopping cart system. Each service card's Buy Now button adds the item (with selected tier, add-ons, and quantity) to a cart stored in React context or localStorage. Build a Checkout page that displays all cart items with prices in INR, a total, and a Pay with Razorpay button. Integrate Razorpay checkout using the saved Razorpay Key ID. On successful payment, navigate to PaymentSuccessPage displaying invoice reference in format QBA-{timestamp} and fire the Payment Processing automation workflow POST. On failure, navigate to PaymentFailurePage with an error message and retry option.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-set-up-tanstack-router-with-routes-for-all-pages-dashboard-home-leads-lead-management-services-services-catalog-service-management-service-management-ai-tools-ai-smart-systems-settings-sales-configuration-automation-automation-dashboard-workflows-automation-workflows-analytics-analytics-engine-content-creator-ai-content-creator-webhook-logs-webhook-logs-checkout-checkout-payment-success-paymentsuccesspage-payment-failure-paymentfailurepage-wrap-the-app-with-react-query-provider",
+      "title": "Set up TanStack Router with routes for all pages: / (Dashboard home), /leads (Lead Management), /services (Services Catalog), /service-management (Service Management), /ai-tools (AI Smart Systems), /settings (Sales Configuration), /automation (Automation Dashboard), /workflows (Automation Workflows), /analytics (Analytics Engine), /content-creator (AI Content Creator), /webhook-logs (Webhook Logs), /checkout (Checkout), /payment-success (PaymentSuccessPage), /payment-failure (PaymentFailurePage). Wrap the app with React Query provider.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-a-dashboard-home-page-that-shows-a-summary-overview-total-leads-count-with-status-breakdown-total-services-count-recent-webhook-activity-last-5-log-entries-automation-status-summary-which-automations-are-on-and-quick-action-cards-linking-to-each-major-section-apply-the-teal-green-glassmorphism-card-design-to-all-dashboard-widgets",
+      "title": "Build a Dashboard home page that shows a summary overview: total leads count (with status breakdown), total services count, recent webhook activity (last 5 log entries), automation status summary (which automations are ON), and quick-action cards linking to each major section. Apply the teal-green glassmorphism card design to all dashboard widgets.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Lead Management CRM — add/edit/delete leads (name, email, phone, service interest, status, notes), CSV/PDF export, lead status pipeline",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Agency Services Management — 7-category catalog, tiered INR pricing (Student/Business/Premium/Enterprise), 30 packages, maintenance plans, 3 master plans (Spark/Surge/Titan)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Service Management page — create/edit/duplicate/delete/reorder (drag-and-drop)/toggle visibility, packages, add-ons, quantity selector, price calculator, preview modal",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "AI Smart Systems — 6 tools (Service Recommender, Proposal Generator, Pricing Strategy, Closing Scripts, Follow-Up Messages, Lead Qualification) calling OpenAI-compatible API, display & export results",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Sales System Configuration — settings page for API/WhatsApp/Razorpay/Email/Webhook/Calendly credentials with ON/OFF toggles, connection status badges, and Test Connection buttons for webhook URLs",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Automation Dashboard — 5 toggles (WhatsApp Auto-Reply, Proposal Auto-Send, Lead Follow-Up, Payment Confirmation, Project Onboarding) backed by localStorage, firing POST webhooks with JSON payloads",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Automation Workflows Page — 5 workflow cards with status, manual Run button, and last execution JSON result",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Analytics Engine Page — date range POST to automation webhook, display simulated GA4 analytics report with growth summary",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "AI Content Creator Page — keyword input → AI-generated SEO blog, social captions, LinkedIn post, Instagram carousel outline; per-section copy buttons and full export",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Webhook Logs Page — timestamped logs of all outgoing webhook/API calls, colour-coded status, filterable by tool/status, Clear Logs button",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Checkout and Payment — cart with Razorpay integration, Buy Now buttons, PaymentSuccessPage and PaymentFailurePage, invoice reference format QBA-{timestamp}",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "Implement a Lead Management CRM backend in Motoko with stable storage for lead records. Each lead has fields: id (auto-generated), name, email, phone, serviceInterest, status (New / Contacted / Qualified / Proposal Sent / Closed Won / Closed Lost), and notes. Expose CRUD query/update functions: createLead, getLeads, updateLead, deleteLead.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-17",
+      "summary": "Implement Agency Services data in the Motoko backend with stable storage. Store managed services with fields: id, name, category (one of: Web Dev, App Dev, AI Automation, Digital Marketing, Branding, SaaS, Business Setup), description, packages (array of: tier name, price in INR, features list), addons (array of: name, price), maintenancePlan (monthly price), isVisible (bool), sortOrder (int). Expose CRUD: createService, getServices, updateService, deleteService, reorderServices.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Quick Bee AI Growth Engine",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

@@ -1,0 +1,3 @@
+{
+  "frontend/src/pages/AutomationWorkflowsPage.tsx": "Automation Workflows page displaying 5 workflow cards (New Lead Submission, Meeting Scheduling, Payment Processing, Analytics Engine, AI Content Creation) with status indicators, manual Run buttons, and last execution JSON results. Fixed TypeScript error by typing `result` as `Record<string, unknown> | null` instead of `unknown`, and using `state.result !== null` guard before rendering."
+}
