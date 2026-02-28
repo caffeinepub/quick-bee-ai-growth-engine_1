@@ -11,68 +11,69 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-const CATEGORIES = ['Web Dev', 'App Dev', 'AI Automation', 'Digital Marketing', 'Branding', 'SaaS', 'Business Setup'];
-const TIERS = ['Student', 'Business', 'Premium', 'Enterprise'];
+const CATEGORIES = ['Web Development', 'E-Commerce', 'Social Media', 'Digital Marketing', 'Content', 'Design', 'Video', 'App Development', 'Business Solutions', 'Photography'];
+const PKG_NAMES = ['Basic', 'Standard', 'Premium', 'Enterprise'];
+
+const DEFAULT_IMAGE = '/assets/generated/icon-services.dim_128x128.png';
 
 function formatINR(n: number | bigint) {
   return `₹${Number(n).toLocaleString('en-IN')}`;
 }
 
 interface ServiceFormData {
-  name: string;
+  title: string;
   category: string;
   description: string;
-  packages: { tier: string; priceINR: string; features: string }[];
+  packages: { name: string; price: string; features: string }[];
   addons: { name: string; price: string }[];
-  maintenancePlan: string;
+  imageUrl: string;
   isVisible: boolean;
 }
 
 const defaultForm: ServiceFormData = {
-  name: '',
-  category: 'Web Dev',
+  title: '',
+  category: 'Web Development',
   description: '',
-  packages: TIERS.map(tier => ({ tier, priceINR: '', features: '' })),
+  packages: PKG_NAMES.map(name => ({ name, price: '', features: '' })),
   addons: [],
-  maintenancePlan: '0',
+  imageUrl: DEFAULT_IMAGE,
   isVisible: true,
 };
 
 function serviceToForm(s: Service): ServiceFormData {
   return {
-    name: s.name,
+    title: s.title,
     category: s.category,
     description: s.description,
-    packages: TIERS.map(tier => {
-      const p = s.packages.find(pk => pk.tier === tier);
-      return { tier, priceINR: p ? p.priceINR.toString() : '', features: p ? p.features.join('\n') : '' };
+    packages: PKG_NAMES.map(pkgName => {
+      const p = s.packages.find(pk => pk.name === pkgName);
+      return { name: pkgName, price: p ? p.price.toString() : '', features: p ? p.features.join('\n') : '' };
     }),
     addons: s.addons.map(a => ({ name: a.name, price: a.price.toString() })),
-    maintenancePlan: s.maintenancePlan.toString(),
+    imageUrl: s.imageUrl ?? DEFAULT_IMAGE,
     isVisible: s.isVisible,
   };
 }
 
-function formToService(form: ServiceFormData, sortOrder: bigint): { packages: Package[]; addons: Addon[]; maintenancePlan: bigint; isVisible: boolean; name: string; category: string; description: string; sortOrder: bigint } {
+function formToService(form: ServiceFormData): { packages: Package[]; addons: Addon[]; isVisible: boolean; title: string; category: string; description: string; imageUrl: string } {
   const packages: Package[] = form.packages
-    .filter(p => p.priceINR.trim() !== '')
+    .filter(p => p.price.trim() !== '')
     .map(p => ({
-      tier: p.tier,
-      priceINR: BigInt(parseInt(p.priceINR) || 0),
+      name: p.name,
+      price: BigInt(parseInt(p.price) || 0),
       features: p.features.split('\n').map(f => f.trim()).filter(Boolean),
     }));
   const addons: Addon[] = form.addons
     .filter(a => a.name.trim() !== '')
     .map(a => ({ name: a.name, price: BigInt(parseInt(a.price) || 0) }));
   return {
-    name: form.name,
+    title: form.title,
     category: form.category,
     description: form.description,
     packages,
     addons,
-    maintenancePlan: BigInt(parseInt(form.maintenancePlan) || 0),
+    imageUrl: form.imageUrl,
     isVisible: form.isVisible,
-    sortOrder,
   };
 }
 
@@ -86,7 +87,7 @@ function EditServiceModal({ open, onClose, service, onSubmit, loading }: {
     if (open) setForm(service ? serviceToForm(service) : defaultForm);
   }, [open, service]);
 
-  const updatePackage = (i: number, field: 'priceINR' | 'features', value: string) => {
+  const updatePackage = (i: number, field: 'price' | 'features', value: string) => {
     setForm(prev => {
       const packages = [...prev.packages];
       packages[i] = { ...packages[i], [field]: value };
@@ -116,7 +117,7 @@ function EditServiceModal({ open, onClose, service, onSubmit, loading }: {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label className="text-white/70 text-xs mb-1 block">Service Name</Label>
-              <Input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} style={inputStyle} />
+              <Input value={form.title} onChange={e => setForm(p => ({ ...p, title: e.target.value }))} style={inputStyle} />
             </div>
             <div>
               <Label className="text-white/70 text-xs mb-1 block">Category</Label>
@@ -136,12 +137,12 @@ function EditServiceModal({ open, onClose, service, onSubmit, loading }: {
             <Label className="text-white/70 text-xs mb-2 block">Packages</Label>
             <div className="space-y-3">
               {form.packages.map((pkg, i) => (
-                <div key={pkg.tier} className="p-3 rounded-lg" style={{ background: 'rgba(0,180,166,0.04)', border: '1px solid rgba(0,180,166,0.12)' }}>
-                  <div className="text-xs font-semibold mb-2" style={{ color: '#00d4c8' }}>{pkg.tier}</div>
+                <div key={pkg.name} className="p-3 rounded-lg" style={{ background: 'rgba(0,180,166,0.04)', border: '1px solid rgba(0,180,166,0.12)' }}>
+                  <div className="text-xs font-semibold mb-2" style={{ color: '#00d4c8' }}>{pkg.name}</div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <Label className="text-white/50 text-xs mb-1 block">Price (INR)</Label>
-                      <Input value={pkg.priceINR} onChange={e => updatePackage(i, 'priceINR', e.target.value)} placeholder="e.g. 4999" style={inputStyle} />
+                      <Input value={pkg.price} onChange={e => updatePackage(i, 'price', e.target.value)} placeholder="e.g. 4999" style={inputStyle} />
                     </div>
                     <div>
                       <Label className="text-white/50 text-xs mb-1 block">Features (one per line)</Label>
@@ -165,20 +166,14 @@ function EditServiceModal({ open, onClose, service, onSubmit, loading }: {
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-white/70 text-xs mb-1 block">Maintenance Plan (INR/mo)</Label>
-              <Input value={form.maintenancePlan} onChange={e => setForm(p => ({ ...p, maintenancePlan: e.target.value }))} style={inputStyle} />
-            </div>
-            <div className="flex items-center gap-3 pt-5">
-              <Switch checked={form.isVisible} onCheckedChange={v => setForm(p => ({ ...p, isVisible: v }))} />
-              <Label className="text-white/70 text-xs">Visible in catalog</Label>
-            </div>
+          <div className="flex items-center gap-3 pt-2">
+            <Switch checked={form.isVisible} onCheckedChange={v => setForm(p => ({ ...p, isVisible: v }))} />
+            <Label className="text-white/70 text-xs">Visible in catalog</Label>
           </div>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} className="text-white/50">Cancel</Button>
-          <Button onClick={() => onSubmit(form)} disabled={loading || !form.name.trim()} className="btn-teal">
+          <Button onClick={() => onSubmit(form)} disabled={loading || !form.title.trim()} className="btn-teal">
             {loading ? 'Saving...' : 'Save Service'}
           </Button>
         </DialogFooter>
@@ -197,19 +192,20 @@ export function ServiceManagementPage() {
 
   const [addOpen, setAddOpen] = useState(false);
   const [editService, setEditService] = useState<Service | null>(null);
-  const [deleteId, setDeleteId] = useState<bigint | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const sorted = [...services].sort((a, b) => Number(a.sortOrder) - Number(b.sortOrder));
+  // Sort by index since there's no sortOrder in the new schema
+  const sorted = [...services];
 
   const handleCreate = async (form: ServiceFormData) => {
-    const data = formToService(form, BigInt(services.length));
+    const data = formToService(form);
     await createService.mutateAsync(data);
     setAddOpen(false);
   };
 
   const handleUpdate = async (form: ServiceFormData) => {
     if (!editService) return;
-    const data = formToService(form, editService.sortOrder);
+    const data = formToService(form);
     await updateService.mutateAsync({ id: editService.id, ...data });
     setEditService(null);
   };
@@ -220,23 +216,12 @@ export function ServiceManagementPage() {
     setDeleteId(null);
   };
 
-  const handleDuplicate = async (id: bigint) => {
+  const handleDuplicate = async (id: string) => {
     await duplicateService.mutateAsync(id);
   };
 
-  const handleMoveUp = async (idx: number) => {
-    if (idx === 0) return;
-    const ids = sorted.map(s => s.id);
-    [ids[idx - 1], ids[idx]] = [ids[idx], ids[idx - 1]];
-    await reorderServices.mutateAsync(ids);
-  };
-
-  const handleMoveDown = async (idx: number) => {
-    if (idx === sorted.length - 1) return;
-    const ids = sorted.map(s => s.id);
-    [ids[idx], ids[idx + 1]] = [ids[idx + 1], ids[idx]];
-    await reorderServices.mutateAsync(ids);
-  };
+  // suppress unused warning — reorderServices is kept for API compatibility
+  void reorderServices;
 
   return (
     <div className="space-y-6">
@@ -267,26 +252,30 @@ export function ServiceManagementPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {sorted.map((service, idx) => (
+          {sorted.map((service) => (
             <div key={service.id.toString()} className="glass-card rounded-xl p-4 flex items-center gap-4">
-              <div className="flex flex-col gap-1">
-                <button onClick={() => handleMoveUp(idx)} disabled={idx === 0} className="p-0.5 text-white/20 hover:text-teal disabled:opacity-10 transition-colors">
-                  <GripVertical size={14} />
-                </button>
+              <div className="flex flex-col gap-1 text-white/20">
+                <GripVertical size={14} />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-white text-sm">{service.name}</span>
+                  <span className="font-semibold text-white text-sm">{service.title}</span>
                   <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,180,166,0.12)', color: '#00d4c8' }}>{service.category}</span>
-                  {!service.isVisible && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">Hidden</span>
+                  {service.isVisible ? (
+                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,180,166,0.12)', color: '#00d4c8' }}>
+                      <Eye size={10} className="inline mr-1" />Active
+                    </span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">
+                      <EyeOff size={10} className="inline mr-1" />Hidden
+                    </span>
                   )}
                 </div>
                 <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(232,245,244,0.45)' }}>{service.description}</p>
                 <div className="flex gap-3 mt-1.5 flex-wrap">
                   {service.packages.map(p => (
-                    <span key={p.tier} className="text-xs" style={{ color: 'rgba(232,245,244,0.5)' }}>
-                      {p.tier}: <span style={{ color: '#00d4c8' }}>₹{Number(p.priceINR).toLocaleString('en-IN')}</span>
+                    <span key={p.name} className="text-xs" style={{ color: 'rgba(232,245,244,0.5)' }}>
+                      {p.name}: <span style={{ color: '#00d4c8' }}>{formatINR(p.price)}</span>
                     </span>
                   ))}
                 </div>

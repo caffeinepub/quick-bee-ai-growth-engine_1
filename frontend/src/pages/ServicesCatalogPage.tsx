@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Eye, Star } from 'lucide-react';
-import { useServices, useCreateService } from '../hooks/useQueries';
+import { useServices } from '../hooks/useQueries';
 import type { Service } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useCart } from '../contexts/CartContext';
 import { masterPlans } from '../data/masterPlans';
-import { seedServices } from '../data/seedServices';
 
-const CATEGORIES = ['All', 'Web Dev', 'App Dev', 'AI Automation', 'Digital Marketing', 'Branding', 'SaaS', 'Business Setup'];
+const CATEGORIES = ['All', 'Web Development', 'E-Commerce', 'Social Media', 'Digital Marketing', 'Content', 'Design', 'Video', 'App Development', 'Business Solutions', 'Photography'];
 
 function formatINR(n: number | bigint) {
   return `₹${Number(n).toLocaleString('en-IN')}`;
@@ -16,13 +15,13 @@ function formatINR(n: number | bigint) {
 
 function ServicePreviewModal({ service, open, onClose }: { service: Service | null; open: boolean; onClose: () => void }) {
   const { addToCart } = useCart();
-  const [selectedTier, setSelectedTier] = useState(0);
+  const [selectedPkgIdx, setSelectedPkgIdx] = useState(0);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
     if (open) {
-      setSelectedTier(0);
+      setSelectedPkgIdx(0);
       setSelectedAddons([]);
       setQty(1);
     }
@@ -30,21 +29,21 @@ function ServicePreviewModal({ service, open, onClose }: { service: Service | nu
 
   if (!service) return null;
 
-  const pkg = service.packages[selectedTier];
+  const pkg = service.packages[selectedPkgIdx];
   const addonTotal = service.addons
     .filter(a => selectedAddons.includes(a.name))
     .reduce((s, a) => s + Number(a.price), 0);
-  const total = pkg ? (Number(pkg.priceINR) + addonTotal) * qty : 0;
+  const total = pkg ? (Number(pkg.price) + addonTotal) * qty : 0;
 
   const handleBuy = () => {
     if (!pkg) return;
     addToCart({
       serviceId: service.id.toString(),
-      serviceName: service.name,
-      selectedTier: pkg.tier,
+      serviceName: service.title,
+      selectedTier: pkg.name,
       selectedAddons,
       quantity: qty,
-      unitPrice: Number(pkg.priceINR) + addonTotal,
+      unitPrice: Number(pkg.price) + addonTotal,
       totalPrice: total,
     });
     onClose();
@@ -54,7 +53,7 @@ function ServicePreviewModal({ service, open, onClose }: { service: Service | nu
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" style={{ background: 'rgba(8,12,12,0.98)', borderColor: 'rgba(0,180,166,0.2)', color: '#e8f5f4' }}>
         <DialogHeader>
-          <DialogTitle className="teal-gradient-text font-display text-xl">{service.name}</DialogTitle>
+          <DialogTitle className="teal-gradient-text font-display text-xl">{service.title}</DialogTitle>
           <p className="text-sm" style={{ color: 'rgba(232,245,244,0.6)' }}>{service.description}</p>
         </DialogHeader>
         <div className="space-y-5 py-2">
@@ -63,13 +62,13 @@ function ServicePreviewModal({ service, open, onClose }: { service: Service | nu
             <div className="grid grid-cols-2 gap-2">
               {service.packages.map((p, i) => (
                 <button
-                  key={p.tier}
-                  onClick={() => setSelectedTier(i)}
-                  className={`p-3 rounded-xl text-left transition-all border ${selectedTier === i ? '' : 'border-white/10 hover:border-teal/30'}`}
-                  style={selectedTier === i ? { borderColor: 'rgba(0,180,166,0.6)', background: 'rgba(0,180,166,0.1)', border: '1px solid rgba(0,180,166,0.6)' } : { border: '1px solid rgba(255,255,255,0.1)' }}
+                  key={p.name}
+                  onClick={() => setSelectedPkgIdx(i)}
+                  className={`p-3 rounded-xl text-left transition-all border ${selectedPkgIdx === i ? '' : 'border-white/10 hover:border-teal/30'}`}
+                  style={selectedPkgIdx === i ? { borderColor: 'rgba(0,180,166,0.6)', background: 'rgba(0,180,166,0.1)', border: '1px solid rgba(0,180,166,0.6)' } : { border: '1px solid rgba(255,255,255,0.1)' }}
                 >
-                  <div className="text-xs font-semibold" style={{ color: '#00d4c8' }}>{p.tier}</div>
-                  <div className="text-lg font-bold text-white">{formatINR(p.priceINR)}</div>
+                  <div className="text-xs font-semibold" style={{ color: '#00d4c8' }}>{p.name}</div>
+                  <div className="text-lg font-bold text-white">{formatINR(p.price)}</div>
                   <ul className="mt-2 space-y-1">
                     {p.features.slice(0, 3).map(f => (
                       <li key={f} className="text-xs flex items-center gap-1" style={{ color: 'rgba(232,245,244,0.6)' }}>
@@ -120,12 +119,6 @@ function ServicePreviewModal({ service, open, onClose }: { service: Service | nu
             </div>
           </div>
 
-          {Number(service.maintenancePlan) > 0 && (
-            <div className="text-xs p-2 rounded-lg" style={{ background: 'rgba(0,180,166,0.05)', color: 'rgba(232,245,244,0.6)' }}>
-              Monthly Maintenance: <span style={{ color: '#00d4c8' }}>{formatINR(service.maintenancePlan)}/mo</span>
-            </div>
-          )}
-
           <Button onClick={handleBuy} className="w-full btn-teal">
             <ShoppingCart size={16} className="mr-2" /> Add to Cart — {formatINR(total)}
           </Button>
@@ -139,18 +132,18 @@ function ServiceCard({ service }: { service: Service }) {
   const { addToCart } = useCart();
   const [previewOpen, setPreviewOpen] = useState(false);
 
-  const studentPkg = service.packages.find(p => p.tier === 'Student') || service.packages[0];
+  const firstPkg = service.packages[0];
 
   const handleBuyNow = () => {
-    if (!studentPkg) return;
+    if (!firstPkg) return;
     addToCart({
       serviceId: service.id.toString(),
-      serviceName: service.name,
-      selectedTier: studentPkg.tier,
+      serviceName: service.title,
+      selectedTier: firstPkg.name,
       selectedAddons: [],
       quantity: 1,
-      unitPrice: Number(studentPkg.priceINR),
-      totalPrice: Number(studentPkg.priceINR),
+      unitPrice: Number(firstPkg.price),
+      totalPrice: Number(firstPkg.price),
     });
   };
 
@@ -162,25 +155,19 @@ function ServiceCard({ service }: { service: Service }) {
             <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(0,180,166,0.15)', color: '#00d4c8' }}>
               {service.category}
             </span>
-            <h3 className="text-base font-semibold text-white mt-2">{service.name}</h3>
+            <h3 className="text-base font-semibold text-white mt-2">{service.title}</h3>
             <p className="text-xs mt-1 line-clamp-2" style={{ color: 'rgba(232,245,244,0.5)' }}>{service.description}</p>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-1.5 mb-4 flex-1">
           {service.packages.map(pkg => (
-            <div key={pkg.tier} className="p-2 rounded-lg text-center" style={{ background: 'rgba(0,0,0,0.2)' }}>
-              <div className="text-xs" style={{ color: 'rgba(232,245,244,0.5)' }}>{pkg.tier}</div>
-              <div className="text-sm font-bold" style={{ color: '#00d4c8' }}>{formatINR(pkg.priceINR)}</div>
+            <div key={pkg.name} className="p-2 rounded-lg text-center" style={{ background: 'rgba(0,0,0,0.2)' }}>
+              <div className="text-xs" style={{ color: 'rgba(232,245,244,0.5)' }}>{pkg.name}</div>
+              <div className="text-sm font-bold" style={{ color: '#00d4c8' }}>{formatINR(pkg.price)}</div>
             </div>
           ))}
         </div>
-
-        {Number(service.maintenancePlan) > 0 && (
-          <div className="text-xs mb-3 text-center" style={{ color: 'rgba(232,245,244,0.4)' }}>
-            Maintenance: <span style={{ color: '#00b4a6' }}>{formatINR(service.maintenancePlan)}/mo</span>
-          </div>
-        )}
 
         <div className="flex gap-2 mt-auto">
           <Button size="sm" variant="ghost" onClick={() => setPreviewOpen(true)} className="flex-1 border border-teal/20 text-white/60 hover:text-teal hover:border-teal/40" style={{ borderColor: 'rgba(0,180,166,0.2)' }}>
@@ -239,27 +226,14 @@ function MasterPlanCard({ plan }: { plan: typeof masterPlans[0] }) {
 }
 
 export function ServicesCatalogPage() {
-  const { data: backendServices = [], isLoading } = useServices();
-  const createService = useCreateService();
+  const { data: services = [], isLoading } = useServices();
   const [category, setCategory] = useState('All');
-  const [seeded, setSeeded] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading && backendServices.length === 0 && !seeded) {
-      setSeeded(true);
-      const seed = async () => {
-        for (const s of seedServices) {
-          try {
-            await createService.mutateAsync(s);
-          } catch { /* ignore */ }
-        }
-      };
-      seed();
-    }
-  }, [isLoading, backendServices.length, seeded, createService]);
+  const visibleServices = services.filter(s => s.isVisible);
+  const filtered = category === 'All' ? visibleServices : visibleServices.filter(s => s.category === category);
 
-  const services = backendServices.filter(s => s.isVisible);
-  const filtered = category === 'All' ? services : services.filter(s => s.category === category);
+  // Derive unique categories from actual data
+  const availableCategories = ['All', ...Array.from(new Set(services.map(s => s.category))).sort()];
 
   return (
     <div className="space-y-8">
@@ -268,7 +242,7 @@ export function ServicesCatalogPage() {
           <img src="/assets/generated/icon-services.dim_128x128.png" alt="" className="w-10 h-10 rounded-xl" />
           <div>
             <h1 className="page-title">Services Catalog</h1>
-            <p className="page-subtitle">{services.length} services across 7 categories</p>
+            <p className="page-subtitle">{visibleServices.length} services across {availableCategories.length - 1} categories</p>
           </div>
         </div>
       </div>
@@ -288,7 +262,7 @@ export function ServicesCatalogPage() {
       {/* Category Tabs */}
       <div>
         <div className="flex gap-2 flex-wrap mb-6">
-          {CATEGORIES.map(cat => (
+          {availableCategories.map(cat => (
             <button
               key={cat}
               onClick={() => setCategory(cat)}

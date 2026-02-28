@@ -1,87 +1,59 @@
 {
   "kind": "build_request",
-  "title": "Smart Task Agent & Campaign Autopilot (Step 1 of 4)",
+  "title": "Activate all automations & add PDF-specified services to the catalog",
   "projectName": "Quick Bee AI Growth Engine",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a Smart Task Agent page at route '/smart-task-agent'. The page must include: (1) An auto-task generator form where the user enters a goal and the app breaks it down into actionable steps displayed as a checklist. (2) A priority queue panel that lists tasks ranked by deadline and dependency — tasks can be marked complete, reordered by priority (High/Medium/Low), and have a due date. (3) A task completion tracker that, when a task is marked done, auto-suggests the next logical step from the remaining queue. All task data must be persisted to localStorage.",
+      "text": "In AutomationDashboardPage.tsx, programmatically set all automation feature flags defined in automationConfig.ts to true (enabled) on page load if they are not already active, so that every automation toggle (WhatsApp auto-reply, proposal sending, lead follow-up, etc.) appears ON by default and persists to localStorage.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-4"
         ],
         "quotes": [
-          "Smart Task Agent",
-          "Auto-task generator that breaks down goals into actionable steps",
-          "Priority queue that re-ranks tasks based on deadlines and dependencies",
-          "Task completion tracker with auto-suggestions for next steps"
+          "activate all my automatios"
         ]
       },
       "acceptanceCriteria": [
-        "User can enter a goal and generate a list of actionable sub-tasks",
-        "Tasks display priority (High/Medium/Low) and due date",
-        "Completing a task triggers a 'Next Step' suggestion banner",
-        "Tasks persist across page refreshes via localStorage",
-        "Page is linked in the AppSidebar under a new 'AI Agent' section"
+        "All automation toggles on the Automation Dashboard are in the ON/active state when the page is first visited.",
+        "The active automation count displayed on the dashboard reflects all automations being enabled.",
+        "The enabled states persist across page refreshes via localStorage.",
+        "No automation toggle is left in an OFF state by default."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Create a Campaign Autopilot page at route '/campaign-autopilot'. The page must include: (1) A content auto-scheduler section where the user defines optimal posting windows (day of week + time of day) per platform, and scheduled posts from the backend are surfaced in that order. (2) A campaign health monitor panel that reads existing ad campaign data (spend, CTR, conversions) and flags campaigns as Healthy, At Risk, or Underperforming based on user-defined thresholds. (3) A performance summary generator that, on demand or on a set daily/weekly schedule stored in localStorage, produces a plain-text summary card of campaign activity. All configuration must be persisted to localStorage.",
+      "text": "Add the following new services to the seedServices.ts catalog based on the PDF document provided by the user. Until the exact PDF content is parsed, add the services as described: include service name, description, category, at least one package with a name and INR price, and set each service as active/visible. Services to add from the PDF should be appended to the existing seed services array without removing any existing entries.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-recent"
+          "msg-4"
         ],
         "quotes": [
-          "Campaign Autopilot",
-          "Auto-schedule content based on optimal posting windows you define",
-          "Campaign health monitor that flags underperforming campaigns",
-          "Auto-generate performance summaries on a set schedule"
+          "add service according to given Pdf"
         ]
       },
       "acceptanceCriteria": [
-        "User can configure posting windows per platform and see posts sorted accordingly",
-        "Campaign health monitor displays color-coded status badges (Healthy/At Risk/Underperforming) for each ad campaign",
-        "User can set thresholds for CTR and conversions to drive health classification",
-        "Performance summary card is generated on demand with a single button click",
-        "Summary schedule (daily/weekly) is configurable and persisted to localStorage",
-        "Page is linked in the AppSidebar under the 'AI Agent' section"
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add an 'AI Agent' navigation group to the AppSidebar containing links to '/smart-task-agent' (Smart Task Agent) and '/campaign-autopilot' (Campaign Autopilot). The group should appear after the existing Digital Marketing section and use a bot/robot icon consistent with the app's dark teal design system.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-recent"
-        ],
-        "quotes": [
-          "Smart Task Agent",
-          "Campaign Autopilot"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A new 'AI Agent' collapsible group appears in the sidebar below the Digital Marketing section",
-        "Links to Smart Task Agent and Campaign Autopilot are visible and navigate correctly",
-        "Icons and styling match the existing sidebar design"
+        "All new services from the PDF are present in the seedServices.ts array.",
+        "Each new service has a unique ID, name, description, category, at least one package with an INR price, and isActive/isVisible set to true.",
+        "New services appear in the ServicesCatalogPage under the appropriate category filter.",
+        "New services appear in the ServiceManagementPage admin list.",
+        "Existing 35 services remain intact and unmodified."
       ]
     }
   ],
   "constraints": [
-    "Do not modify any existing pages, backend logic, or sidebar groups already present",
-    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
-    "All new state must use localStorage — no new backend schema changes required for this step"
+    "Do not remove or deactivate any existing services or automations.",
+    "All new services must use INR pricing consistent with existing service data.",
+    "Do not modify immutable frontend files: useInternetIdentity.ts, useActor.ts, main.tsx, or any file under frontend/src/components/ui."
   ],
   "nonGoals": [
-    "Intelligent Webhook Agent (deferred to Step 2)",
-    "Decision Support Engine (deferred to Step 3)",
-    "Workflow Automation Builder (deferred to Step 4)",
-    "Sending emails or posting to social media directly",
-    "Connecting to live external AI models"
+    "Backend schema changes for services (services remain in seedServices.ts as static data).",
+    "Adding new automation types beyond those already defined in automationConfig.ts.",
+    "Modifying payment or checkout flows.",
+    "Changing the visual design or theme of any page."
   ],
   "imageRequirements": {
     "required": [],

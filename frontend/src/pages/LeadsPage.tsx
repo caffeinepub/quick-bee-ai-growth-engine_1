@@ -94,7 +94,7 @@ export function LeadsPage() {
   const [view, setView] = useState<'table' | 'kanban'>('table');
   const [addOpen, setAddOpen] = useState(false);
   const [editLead, setEditLead] = useState<Lead | null>(null);
-  const [deleteId, setDeleteId] = useState<bigint | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleCreate = async (data: LeadFormData) => {
     await createLead.mutateAsync(data);

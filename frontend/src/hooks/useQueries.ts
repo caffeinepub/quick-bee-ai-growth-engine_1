@@ -1,27 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type {
-  ExportPayload, SocialMediaPost, SocialMediaMetrics, WebhookLog,
-  SEOEntry, EmailCampaign, AdCampaign, LandingPage,
-} from '../backend';
-import {
-  SocialMediaPlatform, PostStatus, AdPlatform, LandingPageStatus, Variant_active_sent_draft,
-} from '../backend';
+import { SocialMediaPlatform, PostStatus, AdPlatform, LandingPageStatus, Variant_active_sent_draft } from '../backend';
+import type { SocialMediaPost, SocialMediaMetrics, WebhookLog, AdCampaign, EmailCampaign, LandingPage, SEOEntry } from '../backend';
+import { seedServices } from '../data/seedServices';
 
-// ---- Local types for legacy pages (Lead/Service no longer in backend) ----
-export interface Package {
-  tier: string;
-  priceINR: bigint;
-  features: string[];
-}
-
-export interface Addon {
-  name: string;
-  price: bigint;
-}
-
+// Local type definitions for Lead and Service (no longer in backend)
 export interface Lead {
-  id: bigint;
+  id: string;
   name: string;
   email: string;
   phone: string;
@@ -30,148 +15,195 @@ export interface Lead {
   notes: string;
 }
 
-export interface Service {
-  id: bigint;
+export interface Package {
   name: string;
-  category: string;
-  description: string;
-  packages: Package[];
-  addons: Addon[];
-  maintenancePlan: bigint;
-  isVisible: boolean;
-  sortOrder: bigint;
+  price: bigint;
+  features: string[];
 }
 
-// ---- Leads (stubbed - backend no longer has these methods) ----
-export function useLeads() {
+export interface Addon {
+  name: string;
+  price: bigint;
+}
+
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  packages: Package[];
+  addons: Addon[];
+  imageUrl?: string;
+  isVisible: boolean;
+}
+
+// ============================================================
+// LEADS HOOKS (stubbed - backend no longer has lead storage)
+// ============================================================
+
+export function useGetAllLeads() {
   return useQuery<Lead[]>({
     queryKey: ['leads'],
-    queryFn: async () => [],
-    enabled: false,
+    queryFn: async () => {
+      return [];
+    },
+    enabled: true,
   });
 }
 
+// Alias for backward compatibility
+export const useLeads = useGetAllLeads;
+
 export function useCreateLead() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_data: {
-      name: string; email: string; phone: string;
-      serviceInterest: string; status: string; notes: string;
-    }): Promise<Lead> => {
-      throw new Error('Lead management is not available in this version');
+    mutationFn: async (_lead: Omit<Lead, 'id'>) => {
+      throw new Error('Lead creation is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['leads'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    },
   });
 }
 
 export function useUpdateLead() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_data: {
-      id: bigint; name: string; email: string; phone: string;
-      serviceInterest: string; status: string; notes: string;
-    }): Promise<Lead> => {
-      throw new Error('Lead management is not available in this version');
+    mutationFn: async (_lead: Lead) => {
+      throw new Error('Lead update is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['leads'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    },
   });
 }
 
 export function useDeleteLead() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_id: bigint): Promise<void> => {
-      throw new Error('Lead management is not available in this version');
+    mutationFn: async (_id: string) => {
+      throw new Error('Lead deletion is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['leads'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] });
+    },
   });
 }
 
-// ---- Services (stubbed - backend no longer has these methods) ----
+// ============================================================
+// SERVICES HOOKS (seed data - backend no longer has service storage)
+// ============================================================
+
 export function useServices() {
   return useQuery<Service[]>({
     queryKey: ['services'],
-    queryFn: async () => [],
-    enabled: false,
+    queryFn: async (): Promise<Service[]> => {
+      return seedServices.map((s) => ({
+        id: s.id,
+        title: s.title,
+        description: s.description,
+        category: s.category,
+        packages: (s.packages ?? []).map((p) => ({
+          name: p.name,
+          price: BigInt(Math.round(p.price)),
+          features: p.features ?? [],
+        })),
+        addons: (s.addons ?? []).map((a) => ({
+          name: a.name,
+          price: BigInt(Math.round(a.price)),
+        })),
+        imageUrl: undefined,
+        isVisible: s.isVisible,
+      }));
+    },
+    enabled: true,
   });
 }
 
 export function useCreateService() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_data: {
-      name: string; category: string; description: string;
-      packages: Package[]; addons: Addon[];
-      maintenancePlan: bigint; isVisible: boolean; sortOrder: bigint;
-    }): Promise<Service> => {
-      throw new Error('Service management is not available in this version');
+    mutationFn: async (_service: Omit<Service, 'id'>) => {
+      throw new Error('Service creation is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
   });
 }
 
 export function useUpdateService() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_data: {
-      id: bigint; name: string; category: string; description: string;
-      packages: Package[]; addons: Addon[];
-      maintenancePlan: bigint; isVisible: boolean; sortOrder: bigint;
-    }): Promise<Service> => {
-      throw new Error('Service management is not available in this version');
+    mutationFn: async (_service: Service) => {
+      throw new Error('Service update is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
   });
 }
 
 export function useDeleteService() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_id: bigint): Promise<void> => {
-      throw new Error('Service management is not available in this version');
+    mutationFn: async (_id: string) => {
+      throw new Error('Service deletion is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
   });
 }
 
 export function useDuplicateService() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_id: bigint): Promise<Service> => {
-      throw new Error('Service management is not available in this version');
+    mutationFn: async (_id: string) => {
+      throw new Error('Service duplication is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
   });
 }
 
 export function useReorderServices() {
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (_serviceIds: bigint[]): Promise<void> => {
-      throw new Error('Service management is not available in this version');
+    mutationFn: async (_serviceIds: string[]) => {
+      throw new Error('Service reordering is not supported in the current backend version.');
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['services'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['services'] });
+    },
   });
 }
 
-// ---- Export ----
+// ============================================================
+// EXPORT DATA HOOKS
+// ============================================================
+
 export function useExportData() {
   const { actor, isFetching } = useActor();
-  return useQuery<ExportPayload>({
+  return useQuery({
     queryKey: ['exportData'],
     queryFn: async () => {
-      if (!actor) return { posts: [], metrics: [], webhookLogs: [] };
+      if (!actor) return null;
       return actor.exportData();
     },
     enabled: !!actor && !isFetching,
   });
 }
 
-// ---- Social Media Posts ----
+// ============================================================
+// SOCIAL MEDIA POSTS HOOKS
+// ============================================================
+
 export function useGetAllPosts() {
   const { actor, isFetching } = useActor();
   return useQuery<SocialMediaPost[]>({
-    queryKey: ['socialMediaPosts'],
+    queryKey: ['posts'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllPosts();
@@ -182,9 +214,9 @@ export function useGetAllPosts() {
 
 export function useCreatePost() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (post: {
       title: string;
       caption: string;
       platform: SocialMediaPlatform;
@@ -193,26 +225,20 @@ export function useCreatePost() {
       tags: string[];
       notes: string;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.createPost(
-        data.title,
-        data.caption,
-        data.platform,
-        data.status,
-        data.scheduledDate,
-        data.tags,
-        data.notes
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.createPost(post.title, post.caption, post.platform, post.status, post.scheduledDate, post.tags, post.notes);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['socialMediaPosts'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
   });
 }
 
 export function useUpdatePost() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (post: {
       id: bigint;
       title: string;
       caption: string;
@@ -222,39 +248,37 @@ export function useUpdatePost() {
       tags: string[];
       notes: string;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.updatePost(
-        data.id,
-        data.title,
-        data.caption,
-        data.platform,
-        data.status,
-        data.scheduledDate,
-        data.tags,
-        data.notes
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.updatePost(post.id, post.title, post.caption, post.platform, post.status, post.scheduledDate, post.tags, post.notes);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['socialMediaPosts'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
   });
 }
 
 export function useDeletePost() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not ready');
+      if (!actor) throw new Error('Actor not available');
       return actor.deletePost(id);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['socialMediaPosts'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+    },
   });
 }
 
-// ---- Social Media Metrics ----
+// ============================================================
+// SOCIAL MEDIA METRICS HOOKS
+// ============================================================
+
 export function useGetAllMetrics() {
   const { actor, isFetching } = useActor();
   return useQuery<SocialMediaMetrics[]>({
-    queryKey: ['socialMediaMetrics'],
+    queryKey: ['metrics'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getAllMetrics();
@@ -265,9 +289,9 @@ export function useGetAllMetrics() {
 
 export function useCreateMetrics() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (m: {
       platform: SocialMediaPlatform;
       date: bigint;
       followers: bigint;
@@ -278,28 +302,20 @@ export function useCreateMetrics() {
       postsPublished: bigint;
       notes: string;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.createMetrics(
-        data.platform,
-        data.date,
-        data.followers,
-        data.impressions,
-        data.reach,
-        data.engagements,
-        data.clicks,
-        data.postsPublished,
-        data.notes
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.createMetrics(m.platform, m.date, m.followers, m.impressions, m.reach, m.engagements, m.clicks, m.postsPublished, m.notes);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['socialMediaMetrics'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['metrics'] });
+    },
   });
 }
 
 export function useUpdateMetrics() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (m: {
       id: bigint;
       platform: SocialMediaPlatform;
       date: bigint;
@@ -311,41 +327,37 @@ export function useUpdateMetrics() {
       postsPublished: bigint;
       notes: string;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.updateMetrics(
-        data.id,
-        data.platform,
-        data.date,
-        data.followers,
-        data.impressions,
-        data.reach,
-        data.engagements,
-        data.clicks,
-        data.postsPublished,
-        data.notes
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateMetrics(m.id, m.platform, m.date, m.followers, m.impressions, m.reach, m.engagements, m.clicks, m.postsPublished, m.notes);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['socialMediaMetrics'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['metrics'] });
+    },
   });
 }
 
 export function useDeleteMetrics() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not ready');
+      if (!actor) throw new Error('Actor not available');
       return actor.deleteMetrics(id);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['socialMediaMetrics'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['metrics'] });
+    },
   });
 }
 
-// ---- External Webhooks ----
+// ============================================================
+// EXTERNAL WEBHOOKS HOOKS
+// ============================================================
+
 export function useGetExternalWebhookLogs() {
   const { actor, isFetching } = useActor();
   return useQuery<WebhookLog[]>({
-    queryKey: ['externalWebhookLogs'],
+    queryKey: ['webhookLogs'],
     queryFn: async () => {
       if (!actor) return [];
       return actor.getExternalWebhookLogs();
@@ -356,164 +368,23 @@ export function useGetExternalWebhookLogs() {
 
 export function useClearExternalWebhookLogs() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      if (!actor) throw new Error('Actor not ready');
+      if (!actor) throw new Error('Actor not available');
       return actor.clearExternalWebhookLogs();
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['externalWebhookLogs'] }),
-  });
-}
-
-// ---- Digital Marketing: SEO Entries ----
-export function useSEOEntries() {
-  const { actor, isFetching } = useActor();
-  return useQuery<SEOEntry[]>({
-    queryKey: ['seoEntries'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllSEOEntries();
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['webhookLogs'] });
     },
-    enabled: !!actor && !isFetching,
   });
 }
 
-export function useCreateSEOEntry() {
-  const { actor } = useActor();
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: {
-      pageUrl: string;
-      targetKeywords: string[];
-      metaTitle: string;
-      metaDescription: string;
-    }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.createSEOEntry(
-        data.pageUrl,
-        data.targetKeywords,
-        data.metaTitle,
-        data.metaDescription
-      );
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['seoEntries'] }),
-  });
-}
+// ============================================================
+// AD CAMPAIGNS HOOKS
+// ============================================================
 
-export function useUpdateSEOEntry() {
-  const { actor } = useActor();
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: {
-      id: bigint;
-      pageUrl: string;
-      targetKeywords: string[];
-      metaTitle: string;
-      metaDescription: string;
-    }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.updateSEOEntry(
-        data.id,
-        data.pageUrl,
-        data.targetKeywords,
-        data.metaTitle,
-        data.metaDescription
-      );
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['seoEntries'] }),
-  });
-}
-
-export function useDeleteSEOEntry() {
-  const { actor } = useActor();
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.deleteSEOEntry(id);
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['seoEntries'] }),
-  });
-}
-
-// ---- Digital Marketing: Email Campaigns ----
-export function useEmailCampaigns() {
-  const { actor, isFetching } = useActor();
-  return useQuery<EmailCampaign[]>({
-    queryKey: ['emailCampaigns'],
-    queryFn: async () => {
-      if (!actor) return [];
-      return actor.getAllEmailCampaigns();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useCreateEmailCampaign() {
-  const { actor } = useActor();
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: {
-      campaignName: string;
-      subjectLine: string;
-      bodyContent: string;
-      targetAudience: string;
-      status: Variant_active_sent_draft;
-    }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.createEmailCampaign(
-        data.campaignName,
-        data.subjectLine,
-        data.bodyContent,
-        data.targetAudience,
-        data.status
-      );
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['emailCampaigns'] }),
-  });
-}
-
-export function useUpdateEmailCampaign() {
-  const { actor } = useActor();
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: {
-      id: bigint;
-      campaignName: string;
-      subjectLine: string;
-      bodyContent: string;
-      targetAudience: string;
-      status: Variant_active_sent_draft;
-    }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.updateEmailCampaign(
-        data.id,
-        data.campaignName,
-        data.subjectLine,
-        data.bodyContent,
-        data.targetAudience,
-        data.status
-      );
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['emailCampaigns'] }),
-  });
-}
-
-export function useDeleteEmailCampaign() {
-  const { actor } = useActor();
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.deleteEmailCampaign(id);
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['emailCampaigns'] }),
-  });
-}
-
-// ---- Digital Marketing: Ad Campaigns ----
-export function useAdCampaigns() {
+export function useGetAllAdCampaigns() {
   const { actor, isFetching } = useActor();
   return useQuery<AdCampaign[]>({
     queryKey: ['adCampaigns'],
@@ -525,11 +396,14 @@ export function useAdCampaigns() {
   });
 }
 
+// Alias for backward compatibility
+export const useAdCampaigns = useGetAllAdCampaigns;
+
 export function useCreateAdCampaign() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (c: {
       campaignName: string;
       platform: AdPlatform;
       budget: number;
@@ -538,26 +412,20 @@ export function useCreateAdCampaign() {
       clicks: bigint;
       conversions: bigint;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.createAdCampaign(
-        data.campaignName,
-        data.platform,
-        data.budget,
-        data.spend,
-        data.impressions,
-        data.clicks,
-        data.conversions
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.createAdCampaign(c.campaignName, c.platform, c.budget, c.spend, c.impressions, c.clicks, c.conversions);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['adCampaigns'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adCampaigns'] });
+    },
   });
 }
 
 export function useUpdateAdCampaign() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (c: {
       id: bigint;
       campaignName: string;
       platform: AdPlatform;
@@ -567,36 +435,108 @@ export function useUpdateAdCampaign() {
       clicks: bigint;
       conversions: bigint;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.updateAdCampaign(
-        data.id,
-        data.campaignName,
-        data.platform,
-        data.budget,
-        data.spend,
-        data.impressions,
-        data.clicks,
-        data.conversions
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateAdCampaign(c.id, c.campaignName, c.platform, c.budget, c.spend, c.impressions, c.clicks, c.conversions);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['adCampaigns'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adCampaigns'] });
+    },
   });
 }
 
 export function useDeleteAdCampaign() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not ready');
+      if (!actor) throw new Error('Actor not available');
       return actor.deleteAdCampaign(id);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['adCampaigns'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adCampaigns'] });
+    },
   });
 }
 
-// ---- Digital Marketing: Landing Pages ----
-export function useLandingPages() {
+// ============================================================
+// EMAIL CAMPAIGNS HOOKS
+// ============================================================
+
+export function useGetAllEmailCampaigns() {
+  const { actor, isFetching } = useActor();
+  return useQuery<EmailCampaign[]>({
+    queryKey: ['emailCampaigns'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllEmailCampaigns();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// Alias for backward compatibility
+export const useEmailCampaigns = useGetAllEmailCampaigns;
+
+export function useCreateEmailCampaign() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (c: {
+      campaignName: string;
+      subjectLine: string;
+      bodyContent: string;
+      targetAudience: string;
+      status: Variant_active_sent_draft;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createEmailCampaign(c.campaignName, c.subjectLine, c.bodyContent, c.targetAudience, c.status);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emailCampaigns'] });
+    },
+  });
+}
+
+export function useUpdateEmailCampaign() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (c: {
+      id: bigint;
+      campaignName: string;
+      subjectLine: string;
+      bodyContent: string;
+      targetAudience: string;
+      status: Variant_active_sent_draft;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateEmailCampaign(c.id, c.campaignName, c.subjectLine, c.bodyContent, c.targetAudience, c.status);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emailCampaigns'] });
+    },
+  });
+}
+
+export function useDeleteEmailCampaign() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteEmailCampaign(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['emailCampaigns'] });
+    },
+  });
+}
+
+// ============================================================
+// LANDING PAGES HOOKS
+// ============================================================
+
+export function useGetAllLandingPages() {
   const { actor, isFetching } = useActor();
   return useQuery<LandingPage[]>({
     queryKey: ['landingPages'],
@@ -608,35 +548,34 @@ export function useLandingPages() {
   });
 }
 
+// Alias for backward compatibility
+export const useLandingPages = useGetAllLandingPages;
+
 export function useCreateLandingPage() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (p: {
       name: string;
       url: string;
       associatedCampaign: string;
       conversionGoal: string;
       status: LandingPageStatus;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.createLandingPage(
-        data.name,
-        data.url,
-        data.associatedCampaign,
-        data.conversionGoal,
-        data.status
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.createLandingPage(p.name, p.url, p.associatedCampaign, p.conversionGoal, p.status);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['landingPages'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['landingPages'] });
+    },
   });
 }
 
 export function useUpdateLandingPage() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: {
+    mutationFn: async (p: {
       id: bigint;
       name: string;
       url: string;
@@ -644,28 +583,97 @@ export function useUpdateLandingPage() {
       conversionGoal: string;
       status: LandingPageStatus;
     }) => {
-      if (!actor) throw new Error('Actor not ready');
-      return actor.updateLandingPage(
-        data.id,
-        data.name,
-        data.url,
-        data.associatedCampaign,
-        data.conversionGoal,
-        data.status
-      );
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateLandingPage(p.id, p.name, p.url, p.associatedCampaign, p.conversionGoal, p.status);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['landingPages'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['landingPages'] });
+    },
   });
 }
 
 export function useDeleteLandingPage() {
   const { actor } = useActor();
-  const qc = useQueryClient();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: bigint) => {
-      if (!actor) throw new Error('Actor not ready');
+      if (!actor) throw new Error('Actor not available');
       return actor.deleteLandingPage(id);
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['landingPages'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['landingPages'] });
+    },
+  });
+}
+
+// ============================================================
+// SEO ENTRIES HOOKS
+// ============================================================
+
+export function useGetAllSEOEntries() {
+  const { actor, isFetching } = useActor();
+  return useQuery<SEOEntry[]>({
+    queryKey: ['seoEntries'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllSEOEntries();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// Alias for backward compatibility
+export const useSEOEntries = useGetAllSEOEntries;
+
+export function useCreateSEOEntry() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (entry: {
+      pageUrl: string;
+      targetKeywords: string[];
+      metaTitle: string;
+      metaDescription: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.createSEOEntry(entry.pageUrl, entry.targetKeywords, entry.metaTitle, entry.metaDescription);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seoEntries'] });
+    },
+  });
+}
+
+export function useUpdateSEOEntry() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (entry: {
+      id: bigint;
+      pageUrl: string;
+      targetKeywords: string[];
+      metaTitle: string;
+      metaDescription: string;
+    }) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateSEOEntry(entry.id, entry.pageUrl, entry.targetKeywords, entry.metaTitle, entry.metaDescription);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seoEntries'] });
+    },
+  });
+}
+
+export function useDeleteSEOEntry() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.deleteSEOEntry(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['seoEntries'] });
+    },
   });
 }

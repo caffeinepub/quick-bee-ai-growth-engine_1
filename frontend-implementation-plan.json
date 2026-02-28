@@ -1,78 +1,40 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Smart Task Agent & Campaign Autopilot (Step 1 of 4)",
+  "title": "Activate all automations & add PDF-specified services to the catalog",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Create Smart Task Agent page with auto-task generator, priority queue, and task completion tracker using localStorage persistence",
+      "summary": "Programmatically enable all automation toggles on AutomationDashboardPage load to ensure all automations are active by default",
       "acceptanceCriteria": [
-        "User can enter a goal and generate a list of actionable sub-tasks",
-        "Tasks display priority (High/Medium/Low) and due date",
-        "Completing a task triggers a 'Next Step' suggestion banner",
-        "Tasks persist across page refreshes via localStorage",
-        "Page is linked in the AppSidebar under a new 'AI Agent' section"
+        "All automation toggles on the Automation Dashboard are in the ON/active state when the page is first visited.",
+        "The active automation count displayed on the dashboard reflects all automations being enabled.",
+        "The enabled states persist across page refreshes via localStorage.",
+        "No automation toggle is left in an OFF state by default."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SmartTaskAgentPage.tsx",
-          "operation": "create",
-          "description": "Create the Smart Task Agent page component at route '/smart-task-agent'. Include three main sections: (1) Auto-task generator form with goal input field and 'Generate Tasks' button that breaks down the goal into actionable sub-tasks displayed as a checklist. (2) Priority queue panel displaying tasks with priority badges (High/Medium/Low), due date pickers, drag-to-reorder functionality, and checkboxes to mark tasks complete. (3) Task completion tracker that displays a 'Next Step' suggestion banner when a task is marked done, auto-suggesting the next logical step from the remaining queue. All task data (goals, sub-tasks, priorities, due dates, completion status) must be persisted to localStorage using a custom storage utility. Use shadcn/ui components (Card, Button, Input, Select, Checkbox, Badge) and follow the existing page layout patterns from other pages. Apply the dark teal design system colors and glass card styling consistent with the app."
-        },
-        {
-          "path": "frontend/src/utils/taskStorage.ts",
-          "operation": "create",
-          "description": "Create a localStorage utility module for Smart Task Agent data persistence. Define TypeScript interfaces for Task (id, text, priority: 'High'|'Medium'|'Low', dueDate, completed, order), Goal (id, text, createdAt), and TaskAgentState (goals, tasks). Export functions: getTaskAgentState(), saveTaskAgentState(state), addGoal(goal), addTasks(goalId, tasks), updateTask(taskId, updates), deleteTask(taskId), reorderTasks(taskIds), markTaskComplete(taskId). Implement logic to calculate the 'next step' suggestion by finding the highest-priority incomplete task after a task is marked complete. Store data under localStorage key 'quick-bee-task-agent'."
-        },
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/AutomationDashboardPage.tsx",
           "operation": "modify",
-          "description": "Add a new route definition for '/smart-task-agent' that renders the SmartTaskAgentPage component. Import the SmartTaskAgentPage component at the top of the file and add the route entry in the router configuration alongside existing routes like '/social-scheduler' and '/content-calendar'. Ensure the route is properly registered with TanStack Router."
+          "description": "Add a useEffect hook that runs on component mount to check all automation feature flags from automationConfig. For each flag that is not already set to true, programmatically call saveAutomationConfig to enable it. This ensures all automations (whatsappAutoReply, proposalSending, leadFollowUp, meetingScheduling, paymentReminder, dataSync, analyticsReporting, contentGeneration) are active on page load. Update the active count calculation to reflect the newly enabled automations. Preserve existing toggle functionality and localStorage persistence behavior."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Create Campaign Autopilot page with content auto-scheduler, campaign health monitor, and performance summary generator using localStorage persistence",
+      "summary": "Add new services from the user-provided PDF document to the seedServices catalog while preserving all existing services",
       "acceptanceCriteria": [
-        "User can configure posting windows per platform and see posts sorted accordingly",
-        "Campaign health monitor displays color-coded status badges (Healthy/At Risk/Underperforming) for each ad campaign",
-        "User can set thresholds for CTR and conversions to drive health classification",
-        "Performance summary card is generated on demand with a single button click",
-        "Summary schedule (daily/weekly) is configurable and persisted to localStorage",
-        "Page is linked in the AppSidebar under the 'AI Agent' section"
+        "All new services from the PDF are present in the seedServices.ts array.",
+        "Each new service has a unique ID, name, description, category, at least one package with an INR price, and isActive/isVisible set to true.",
+        "New services appear in the ServicesCatalogPage under the appropriate category filter.",
+        "New services appear in the ServiceManagementPage admin list.",
+        "Existing 35 services remain intact and unmodified."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/CampaignAutopilotPage.tsx",
-          "operation": "create",
-          "description": "Create the Campaign Autopilot page component at route '/campaign-autopilot'. Include three main sections: (1) Content auto-scheduler section where users define optimal posting windows per platform (day of week + time of day input fields) and view scheduled posts from the backend sorted by those windows. Fetch scheduled posts using the existing useGetAllPosts hook filtering by status='scheduled'. Display posts in a list sorted by their scheduled time matching the configured windows. (2) Campaign health monitor panel that fetches ad campaigns using the existing useGetAllAdCampaigns hook and calculates health status (Healthy/At Risk/Underperforming) based on user-defined CTR and conversion thresholds stored in localStorage. Display campaigns in cards with color-coded status badges (green for Healthy, yellow for At Risk, red for Underperforming). Include threshold configuration form fields for CTR percentage and conversion count. (3) Performance summary generator with a 'Generate Summary' button that creates a plain-text summary card showing total campaigns, total spend, average CTR, total conversions, and top-performing platform. Include schedule configuration (None/Daily/Weekly) stored in localStorage. Use shadcn/ui components (Card, Button, Input, Select, Badge, Textarea) and follow the existing page patterns. Apply the dark teal design system."
-        },
-        {
-          "path": "frontend/src/utils/campaignAutopilotStorage.ts",
-          "operation": "create",
-          "description": "Create a localStorage utility module for Campaign Autopilot configuration persistence. Define TypeScript interfaces for PostingWindow (platform: SocialMediaPlatform, dayOfWeek: string, timeOfDay: string), HealthThresholds (minCTR: number, minConversions: number), SummarySchedule ('none'|'daily'|'weekly'), and CampaignAutopilotConfig (postingWindows, healthThresholds, summarySchedule, lastSummaryGenerated). Export functions: getCampaignAutopilotConfig(), saveCampaignAutopilotConfig(config), addPostingWindow(window), removePostingWindow(index), updateHealthThresholds(thresholds), updateSummarySchedule(schedule), recordSummaryGeneration(). Store data under localStorage key 'quick-bee-campaign-autopilot'. Include helper function to sort posts by matching posting windows."
-        },
-        {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/data/seedServices.ts",
           "operation": "modify",
-          "description": "Add a new route definition for '/campaign-autopilot' that renders the CampaignAutopilotPage component. Import the CampaignAutopilotPage component at the top of the file and add the route entry in the router configuration alongside the '/smart-task-agent' route added in REQ-1. Ensure the route is properly registered with TanStack Router."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Add 'AI Agent' navigation group to AppSidebar with links to Smart Task Agent and Campaign Autopilot pages",
-      "acceptanceCriteria": [
-        "A new 'AI Agent' collapsible group appears in the sidebar below the Digital Marketing section",
-        "Links to Smart Task Agent and Campaign Autopilot are visible and navigate correctly",
-        "Icons and styling match the existing sidebar design"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/AppSidebar.tsx",
-          "operation": "modify",
-          "description": "Add a new collapsible navigation group titled 'AI Agent' to the sidebar below the existing 'Digital Marketing' section. Include two navigation links: (1) 'Smart Task Agent' linking to '/smart-task-agent' and (2) 'Campaign Autopilot' linking to '/campaign-autopilot'. Use a bot or robot icon (e.g., Bot from lucide-react) for both links, consistent with the dark teal design system. Follow the existing sidebar structure pattern used for 'Social Media' and 'Digital Marketing' groups with SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, and SidebarMenuButton components. Ensure the collapsible behavior matches existing groups and icons are properly imported from lucide-react."
+          "description": "Parse the user-provided PDF document (WhatsApp Image 2026-02-19 at 4.14.09 PM.JPG) to extract service information including service names, descriptions, categories, and package pricing. Add new service objects to the seedServices array following the existing Service interface structure. Each new service must include: a unique id (continue numbering from the highest existing ID), name, description, category (matching existing categories or introducing new ones as needed), at least one package object with name and priceINR, isActive set to true, isVisible set to true, and optional addons array if applicable. Append all new services to the end of the existing seedServices array without removing or modifying any of the current 35 services. Ensure all pricing is in INR and follows the existing format. If the PDF contains pricing in other currencies, convert to INR using appropriate exchange rates."
         }
       ]
     }

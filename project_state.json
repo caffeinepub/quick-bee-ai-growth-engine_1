@@ -1,37 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Digital marketing automation platform with AI agent capabilities. Building incrementally in smaller steps to avoid build errors. Features include: campaign management, content scheduling, analytics, lead management, webhook automation, smart task agent, campaign autopilot, intelligent webhook agent, decision support engine, and workflow automation builder.",
-  "architectural_notes": [
-    "Build is being done incrementally in smaller steps to avoid AI build errors",
-    "No direct social media posting, email sending, or live external AI model connections (platform limits)"
-  ],
-  "known_issues": [
-    "Full digital marketing automation build failed twice — now breaking into smaller incremental steps"
-  ],
+  "summary": "Project involves activating automations and adding services based on a provided PDF document.",
+  "architectural_notes": [],
+  "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-create-a-smart-task-agent-page-at-route-smart-task-agent-the-page-must-include-1-an-auto-task-generator-form-where-the-user-enters-a-goal-and-the-app-breaks-it-down-into-actionable-steps-displayed-as-a-checklist-2-a-priority-queue-panel-that-lists-tasks-ranked-by-deadline-and-dependency-tasks-can-be-marked-complete-reordered-by-priority-high-medium-low-and-have-a-due-date-3-a-task-completion-tracker-that-when-a-task-is-marked-done-auto-suggests-the-next-logical-step-from-the-remaining-queue-all-task-data-must-be-persisted-to-localstorage",
-      "title": "Create a Smart Task Agent page at route '/smart-task-agent'. The page must include: (1) An auto-task generator form where the user enters a goal and the app breaks it down into actionable steps displayed as a checklist. (2) A priority queue panel that lists tasks ranked by deadline and dependency — tasks can be marked complete, reordered by priority (High/Medium/Low), and have a due date. (3) A task completion tracker that, when a task is marked done, auto-suggests the next logical step from the remaining queue. All task data must be persisted to localStorage.",
+      "id": "feature-in-automationdashboardpage-tsx-programmatically-set-all-automation-feature-flags-defined-in-automationconfig-ts-to-true-enabled-on-page-load-if-they-are-not-already-active-so-that-every-automation-toggle-whatsapp-auto-reply-proposal-sending-lead-follow-up-etc-appears-on-by-default-and-persists-to-localstorage",
+      "title": "In AutomationDashboardPage.tsx, programmatically set all automation feature flags defined in automationConfig.ts to true (enabled) on page load if they are not already active, so that every automation toggle (WhatsApp auto-reply, proposal sending, lead follow-up, etc.) appears ON by default and persists to localStorage.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-campaign-autopilot-page-at-route-campaign-autopilot-the-page-must-include-1-a-content-auto-scheduler-section-where-the-user-defines-optimal-posting-windows-day-of-week-time-of-day-per-platform-and-scheduled-posts-from-the-backend-are-surfaced-in-that-order-2-a-campaign-health-monitor-panel-that-reads-existing-ad-campaign-data-spend-ctr-conversions-and-flags-campaigns-as-healthy-at-risk-or-underperforming-based-on-user-defined-thresholds-3-a-performance-summary-generator-that-on-demand-or-on-a-set-daily-weekly-schedule-stored-in-localstorage-produces-a-plain-text-summary-card-of-campaign-activity-all-configuration-must-be-persisted-to-localstorage",
-      "title": "Create a Campaign Autopilot page at route '/campaign-autopilot'. The page must include: (1) A content auto-scheduler section where the user defines optimal posting windows (day of week + time of day) per platform, and scheduled posts from the backend are surfaced in that order. (2) A campaign health monitor panel that reads existing ad campaign data (spend, CTR, conversions) and flags campaigns as Healthy, At Risk, or Underperforming based on user-defined thresholds. (3) A performance summary generator that, on demand or on a set daily/weekly schedule stored in localStorage, produces a plain-text summary card of campaign activity. All configuration must be persisted to localStorage.",
+      "id": "feature-add-the-following-new-services-to-the-seedservices-ts-catalog-based-on-the-pdf-document-provided-by-the-user-until-the-exact-pdf-content-is-parsed-add-the-services-as-described-include-service-name-description-category-at-least-one-package-with-a-name-and-inr-price-and-set-each-service-as-active-visible-services-to-add-from-the-pdf-should-be-appended-to-the-existing-seed-services-array-without-removing-any-existing-entries",
+      "title": "Add the following new services to the seedServices.ts catalog based on the PDF document provided by the user. Until the exact PDF content is parsed, add the services as described: include service name, description, category, at least one package with a name and INR price, and set each service as active/visible. Services to add from the PDF should be appended to the existing seed services array without removing any existing entries.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-an-ai-agent-navigation-group-to-the-appsidebar-containing-links-to-smart-task-agent-smart-task-agent-and-campaign-autopilot-campaign-autopilot-the-group-should-appear-after-the-existing-digital-marketing-section-and-use-a-bot-robot-icon-consistent-with-the-app-s-dark-teal-design-system",
-      "title": "Add an 'AI Agent' navigation group to the AppSidebar containing links to '/smart-task-agent' (Smart Task Agent) and '/campaign-autopilot' (Campaign Autopilot). The group should appear after the existing Digital Marketing section and use a bot/robot icon consistent with the app's dark teal design system.",
-      "reqIds": [
-        "REQ-3"
       ],
       "version": 1
     }
@@ -39,55 +26,13 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Campaign planner with goal tracking, content library, post scheduler, and content calendar",
+      "summary": "Activate all user automations",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Analytics dashboard with performance charts, CSV export, and campaign ROI tracker",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Lead capture forms, contact list, audience segmentation, and follow-up task reminders",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-4",
-      "summary": "Webhook receiver, integration hub with documented endpoints, import/export flows",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Smart task agent: auto-task generator, priority queue, task completion tracker with next-step suggestions",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-6",
-      "summary": "Campaign autopilot: auto-schedule content, campaign health monitor, auto-generate performance summaries",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-7",
-      "summary": "Intelligent webhook agent: auto-classify/route data, trigger-based actions, threshold alert system",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-8",
-      "summary": "Decision support engine: recommendation panel, weekly briefing, pattern/trend detection",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Workflow automation builder: visual rule creator, multi-step workflow chains, recurring templates",
+      "summary": "Add services according to provided PDF",
       "reqIds": [],
       "status": "pending"
     }

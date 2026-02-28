@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-smart-task-agent-page-at-route-smart-task-agent-the-page-must-include-1-an-auto-task-generator-form-where-the-user-enters-a-goal-and-the-app-breaks-it-down-into-actionable-steps-displayed-as-a-checklist-2-a-priority-queue-panel-that-lists-tasks-ranked-by-deadline-and-dependency-tasks-can-be-marked-complete-reordered-by-priority-high-medium-low-and-have-a-due-date-3-a-task-completion-tracker-that-when-a-task-is-marked-done-auto-suggests-the-next-logical-step-from-the-remaining-queue-all-task-data-must-be-persisted-to-localstorage",
-      "featureTitle": "Create a Smart Task Agent page at route '/smart-task-agent'. The page must include: (1) An auto-task generator form where the user enters a goal and the app breaks it down into actionable steps displayed as a checklist. (2) A priority queue panel that lists tasks ranked by deadline and dependency — tasks can be marked complete, reordered by priority (High/Medium/Low), and have a due date. (3) A task completion tracker that, when a task is marked done, auto-suggests the next logical step from the remaining queue. All task data must be persisted to localStorage.",
+      "featureId": "feature-in-automationdashboardpage-tsx-programmatically-set-all-automation-feature-flags-defined-in-automationconfig-ts-to-true-enabled-on-page-load-if-they-are-not-already-active-so-that-every-automation-toggle-whatsapp-auto-reply-proposal-sending-lead-follow-up-etc-appears-on-by-default-and-persists-to-localstorage",
+      "featureTitle": "In AutomationDashboardPage.tsx, programmatically set all automation feature flags defined in automationConfig.ts to true (enabled) on page load if they are not already active, so that every automation toggle (WhatsApp auto-reply, proposal sending, lead follow-up, etc.) appears ON by default and persists to localStorage.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/SmartTaskAgentPage.tsx",
-        "frontend/src/utils/taskStorage.ts"
+        "frontend/src/pages/AutomationDashboardPage.tsx"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -24,12 +22,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-create-a-campaign-autopilot-page-at-route-campaign-autopilot-the-page-must-include-1-a-content-auto-scheduler-section-where-the-user-defines-optimal-posting-windows-day-of-week-time-of-day-per-platform-and-scheduled-posts-from-the-backend-are-surfaced-in-that-order-2-a-campaign-health-monitor-panel-that-reads-existing-ad-campaign-data-spend-ctr-conversions-and-flags-campaigns-as-healthy-at-risk-or-underperforming-based-on-user-defined-thresholds-3-a-performance-summary-generator-that-on-demand-or-on-a-set-daily-weekly-schedule-stored-in-localstorage-produces-a-plain-text-summary-card-of-campaign-activity-all-configuration-must-be-persisted-to-localstorage",
-      "featureTitle": "Create a Campaign Autopilot page at route '/campaign-autopilot'. The page must include: (1) A content auto-scheduler section where the user defines optimal posting windows (day of week + time of day) per platform, and scheduled posts from the backend are surfaced in that order. (2) A campaign health monitor panel that reads existing ad campaign data (spend, CTR, conversions) and flags campaigns as Healthy, At Risk, or Underperforming based on user-defined thresholds. (3) A performance summary generator that, on demand or on a set daily/weekly schedule stored in localStorage, produces a plain-text summary card of campaign activity. All configuration must be persisted to localStorage.",
+      "featureId": "feature-add-the-following-new-services-to-the-seedservices-ts-catalog-based-on-the-pdf-document-provided-by-the-user-until-the-exact-pdf-content-is-parsed-add-the-services-as-described-include-service-name-description-category-at-least-one-package-with-a-name-and-inr-price-and-set-each-service-as-active-visible-services-to-add-from-the-pdf-should-be-appended-to-the-existing-seed-services-array-without-removing-any-existing-entries",
+      "featureTitle": "Add the following new services to the seedServices.ts catalog based on the PDF document provided by the user. Until the exact PDF content is parsed, add the services as described: include service name, description, category, at least one package with a name and INR price, and set each service as active/visible. Services to add from the PDF should be appended to the existing seed services array without removing any existing entries.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/CampaignAutopilotPage.tsx",
-        "frontend/src/utils/campaignAutopilotStorage.ts"
+        "frontend/src/data/seedServices.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -42,26 +38,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-an-ai-agent-navigation-group-to-the-appsidebar-containing-links-to-smart-task-agent-smart-task-agent-and-campaign-autopilot-campaign-autopilot-the-group-should-appear-after-the-existing-digital-marketing-section-and-use-a-bot-robot-icon-consistent-with-the-app-s-dark-teal-design-system",
-      "featureTitle": "Add an 'AI Agent' navigation group to the AppSidebar containing links to '/smart-task-agent' (Smart Task Agent) and '/campaign-autopilot' (Campaign Autopilot). The group should appear after the existing Digital Marketing section and use a bot/robot icon consistent with the app's dark teal design system.",
-      "files": [
-        "frontend/src/components/AppSidebar.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
       ],
       "confidence": "high"
     }

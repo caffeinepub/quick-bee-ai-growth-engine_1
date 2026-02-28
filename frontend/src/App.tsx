@@ -4,7 +4,6 @@ import {
   createRoute,
   createRouter,
   RouterProvider,
-  Outlet,
 } from '@tanstack/react-router';
 import { CartProvider } from './contexts/CartContext';
 import { Layout } from './components/Layout';
@@ -14,7 +13,7 @@ import { ServicesCatalogPage } from './pages/ServicesCatalogPage';
 import { ServiceManagementPage } from './pages/ServiceManagementPage';
 import { AISmartSystemsPage } from './pages/AISmartSystemsPage';
 import { SalesConfigPage } from './pages/SalesConfigPage';
-import { AutomationDashboardPage } from './pages/AutomationDashboardPage';
+import AutomationDashboardPage from './pages/AutomationDashboardPage';
 import { AutomationWorkflowsPage } from './pages/AutomationWorkflowsPage';
 import { AnalyticsEnginePage } from './pages/AnalyticsEnginePage';
 import { AIContentCreatorPage } from './pages/AIContentCreatorPage';

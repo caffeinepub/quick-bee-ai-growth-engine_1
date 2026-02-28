@@ -1,54 +1,35 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-28T09:43:35.817Z",
+  "generatedAt": "2026-02-28T11:03:21.814Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 3,
+    "total": 2,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Create a Smart Task Agent page at route '/smart-task-agent'. The page must include: (1) An auto-task generator form where the user enters a goal and the app breaks it down into actionable steps displayed as a checklist. (2) A priority queue panel that lists tasks ranked by deadline and dependency — tasks can be marked complete, reordered by priority (High/Medium/Low), and have a due date. (3) A task completion tracker that, when a task is marked done, auto-suggests the next logical step from the remaining queue. All task data must be persisted to localStorage.",
+        "summary": "In AutomationDashboardPage.tsx, programmatically set all automation feature flags defined in automationConfig.ts to true (enabled) on page load if they are not already active, so that every automation toggle (WhatsApp auto-reply, proposal sending, lead follow-up, etc.) appears ON by default and persists to localStorage.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/SmartTaskAgentPage.tsx",
-          "frontend/src/utils/taskStorage.ts",
-          "frontend/src/App.tsx"
+          "frontend/src/pages/AutomationDashboardPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/SmartTaskAgentPage.tsx",
-          "frontend/src/utils/taskStorage.ts",
-          "frontend/src/App.tsx"
+          "frontend/src/pages/AutomationDashboardPage.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Create a Campaign Autopilot page at route '/campaign-autopilot'. The page must include: (1) A content auto-scheduler section where the user defines optimal posting windows (day of week + time of day) per platform, and scheduled posts from the backend are surfaced in that order. (2) A campaign health monitor panel that reads existing ad campaign data (spend, CTR, conversions) and flags campaigns as Healthy, At Risk, or Underperforming based on user-defined thresholds. (3) A performance summary generator that, on demand or on a set daily/weekly schedule stored in localStorage, produces a plain-text summary card of campaign activity. All configuration must be persisted to localStorage.",
+        "summary": "Add the following new services to the seedServices.ts catalog based on the PDF document provided by the user. Until the exact PDF content is parsed, add the services as described: include service name, description, category, at least one package with a name and INR price, and set each service as active/visible. Services to add from the PDF should be appended to the existing seed services array without removing any existing entries.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/CampaignAutopilotPage.tsx",
-          "frontend/src/utils/campaignAutopilotStorage.ts",
-          "frontend/src/App.tsx"
+          "frontend/src/data/seedServices.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/CampaignAutopilotPage.tsx",
-          "frontend/src/utils/campaignAutopilotStorage.ts",
-          "frontend/src/App.tsx"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Add an 'AI Agent' navigation group to the AppSidebar containing links to '/smart-task-agent' (Smart Task Agent) and '/campaign-autopilot' (Campaign Autopilot). The group should appear after the existing Digital Marketing section and use a bot/robot icon consistent with the app's dark teal design system.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/components/AppSidebar.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/components/AppSidebar.tsx"
+          "frontend/src/data/seedServices.ts"
         ]
       }
     ]
@@ -59,11 +40,10 @@
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
     "frontend/src/App.tsx",
-    "frontend/src/components/AppSidebar.tsx",
-    "frontend/src/pages/CampaignAutopilotPage.tsx",
-    "frontend/src/pages/SmartTaskAgentPage.tsx",
-    "frontend/src/utils/campaignAutopilotStorage.ts",
-    "frontend/src/utils/taskStorage.ts",
+    "frontend/src/data/seedServices.ts",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AutomationDashboardPage.tsx",
+    "frontend/src/pages/ServiceManagementPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
