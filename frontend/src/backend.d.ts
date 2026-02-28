@@ -7,44 +7,87 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface Lead {
+export interface SocialMediaMetrics {
     id: bigint;
-    status: string;
-    name: string;
-    email: string;
-    serviceInterest: string;
+    clicks: bigint;
+    engagements: bigint;
+    date: bigint;
+    createdAt: bigint;
+    impressions: bigint;
+    platform: SocialMediaPlatform;
     notes: string;
-    phone: string;
+    postsPublished: bigint;
+    followers: bigint;
+    reach: bigint;
 }
-export interface Service {
+export interface SocialMediaPost {
     id: bigint;
-    packages: Array<Package>;
-    sortOrder: bigint;
-    name: string;
-    description: string;
-    maintenancePlan: bigint;
-    addons: Array<Addon>;
-    isVisible: boolean;
-    category: string;
+    status: PostStatus;
+    title: string;
+    scheduledDate?: bigint;
+    createdAt: bigint;
+    tags: Array<string>;
+    platform: SocialMediaPlatform;
+    updatedAt: bigint;
+    notes: string;
+    caption: string;
 }
-export interface Package {
-    features: Array<string>;
-    tier: string;
-    priceINR: bigint;
+export interface ExportPayload {
+    metrics: Array<SocialMediaMetrics>;
+    posts: Array<SocialMediaPost>;
+    webhookLogs: Array<WebhookLog>;
 }
-export interface Addon {
+export interface UserProfile {
+    bio: string;
     name: string;
-    price: bigint;
+}
+export interface WebhookLog {
+    id: bigint;
+    source: string;
+    timestamp: bigint;
+    toolName: string;
+    payload: string;
+}
+export enum PostStatus {
+    scheduled = "scheduled",
+    cancelled = "cancelled",
+    idea = "idea",
+    published = "published",
+    draft = "draft"
+}
+export enum SocialMediaPlatform {
+    linkedin = "linkedin",
+    tiktok = "tiktok",
+    twitter = "twitter",
+    other = "other",
+    instagram = "instagram",
+    facebook = "facebook",
+    youtube = "youtube"
+}
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
 }
 export interface backendInterface {
-    createLead(name: string, email: string, phone: string, serviceInterest: string, status: string, notes: string): Promise<Lead>;
-    createService(name: string, category: string, description: string, packages: Array<Package>, addons: Array<Addon>, maintenancePlan: bigint, isVisible: boolean, sortOrder: bigint): Promise<Service>;
-    deleteLead(id: bigint): Promise<void>;
-    deleteService(id: bigint): Promise<void>;
-    duplicateService(id: bigint): Promise<Service>;
-    getLeads(): Promise<Array<Lead>>;
-    getServices(): Promise<Array<Service>>;
-    reorderServices(serviceIds: Array<bigint>): Promise<void>;
-    updateLead(id: bigint, name: string, email: string, phone: string, serviceInterest: string, status: string, notes: string): Promise<Lead>;
-    updateService(id: bigint, name: string, category: string, description: string, packages: Array<Package>, addons: Array<Addon>, maintenancePlan: bigint, isVisible: boolean, sortOrder: bigint): Promise<Service>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    clearExternalWebhookLogs(): Promise<void>;
+    createMetrics(platform: SocialMediaPlatform, date: bigint, followers: bigint, impressions: bigint, reach: bigint, engagements: bigint, clicks: bigint, postsPublished: bigint, notes: string): Promise<SocialMediaMetrics>;
+    createPost(title: string, caption: string, platform: SocialMediaPlatform, status: PostStatus, scheduledDate: bigint | null, tags: Array<string>, notes: string): Promise<SocialMediaPost>;
+    deleteMetrics(id: bigint): Promise<void>;
+    deletePost(id: bigint): Promise<void>;
+    exportData(): Promise<ExportPayload>;
+    getAllMetrics(): Promise<Array<SocialMediaMetrics>>;
+    getAllPosts(): Promise<Array<SocialMediaPost>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
+    getExternalWebhookLogs(): Promise<Array<WebhookLog>>;
+    getMetrics(id: bigint): Promise<SocialMediaMetrics | null>;
+    getPost(id: bigint): Promise<SocialMediaPost | null>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
+    receiveExternalWebhook(toolName: string, payload: string, source: string): Promise<bigint>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateMetrics(id: bigint, platform: SocialMediaPlatform, date: bigint, followers: bigint, impressions: bigint, reach: bigint, engagements: bigint, clicks: bigint, postsPublished: bigint, notes: string): Promise<SocialMediaMetrics>;
+    updatePost(id: bigint, title: string, caption: string, platform: SocialMediaPlatform, status: PostStatus, scheduledDate: bigint | null, tags: Array<string>, notes: string): Promise<SocialMediaPost>;
 }

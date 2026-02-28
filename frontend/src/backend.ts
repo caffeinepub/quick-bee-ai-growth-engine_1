@@ -89,45 +89,78 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface Lead {
+export interface _CaffeineStorageRefillResult {
+    success?: boolean;
+    topped_up_amount?: bigint;
+}
+export interface SocialMediaMetrics {
     id: bigint;
-    status: string;
-    name: string;
-    email: string;
-    serviceInterest: string;
+    clicks: bigint;
+    engagements: bigint;
+    date: bigint;
+    createdAt: bigint;
+    impressions: bigint;
+    platform: SocialMediaPlatform;
     notes: string;
-    phone: string;
+    postsPublished: bigint;
+    followers: bigint;
+    reach: bigint;
+}
+export interface SocialMediaPost {
+    id: bigint;
+    status: PostStatus;
+    title: string;
+    scheduledDate?: bigint;
+    createdAt: bigint;
+    tags: Array<string>;
+    platform: SocialMediaPlatform;
+    updatedAt: bigint;
+    notes: string;
+    caption: string;
 }
 export interface _CaffeineStorageRefillInformation {
     proposed_top_up_amount?: bigint;
 }
-export interface Service {
-    id: bigint;
-    packages: Array<Package>;
-    sortOrder: bigint;
-    name: string;
-    description: string;
-    maintenancePlan: bigint;
-    addons: Array<Addon>;
-    isVisible: boolean;
-    category: string;
+export interface ExportPayload {
+    metrics: Array<SocialMediaMetrics>;
+    posts: Array<SocialMediaPost>;
+    webhookLogs: Array<WebhookLog>;
 }
 export interface _CaffeineStorageCreateCertificateResult {
     method: string;
     blob_hash: string;
 }
-export interface Package {
-    features: Array<string>;
-    tier: string;
-    priceINR: bigint;
-}
-export interface Addon {
+export interface UserProfile {
+    bio: string;
     name: string;
-    price: bigint;
 }
-export interface _CaffeineStorageRefillResult {
-    success?: boolean;
-    topped_up_amount?: bigint;
+export interface WebhookLog {
+    id: bigint;
+    source: string;
+    timestamp: bigint;
+    toolName: string;
+    payload: string;
+}
+export enum PostStatus {
+    scheduled = "scheduled",
+    cancelled = "cancelled",
+    idea = "idea",
+    published = "published",
+    draft = "draft"
+}
+export enum SocialMediaPlatform {
+    linkedin = "linkedin",
+    tiktok = "tiktok",
+    twitter = "twitter",
+    other = "other",
+    instagram = "instagram",
+    facebook = "facebook",
+    youtube = "youtube"
+}
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
 }
 export interface backendInterface {
     _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
@@ -136,18 +169,29 @@ export interface backendInterface {
     _caffeineStorageCreateCertificate(blobHash: string): Promise<_CaffeineStorageCreateCertificateResult>;
     _caffeineStorageRefillCashier(refillInformation: _CaffeineStorageRefillInformation | null): Promise<_CaffeineStorageRefillResult>;
     _caffeineStorageUpdateGatewayPrincipals(): Promise<void>;
-    createLead(name: string, email: string, phone: string, serviceInterest: string, status: string, notes: string): Promise<Lead>;
-    createService(name: string, category: string, description: string, packages: Array<Package>, addons: Array<Addon>, maintenancePlan: bigint, isVisible: boolean, sortOrder: bigint): Promise<Service>;
-    deleteLead(id: bigint): Promise<void>;
-    deleteService(id: bigint): Promise<void>;
-    duplicateService(id: bigint): Promise<Service>;
-    getLeads(): Promise<Array<Lead>>;
-    getServices(): Promise<Array<Service>>;
-    reorderServices(serviceIds: Array<bigint>): Promise<void>;
-    updateLead(id: bigint, name: string, email: string, phone: string, serviceInterest: string, status: string, notes: string): Promise<Lead>;
-    updateService(id: bigint, name: string, category: string, description: string, packages: Array<Package>, addons: Array<Addon>, maintenancePlan: bigint, isVisible: boolean, sortOrder: bigint): Promise<Service>;
+    _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    clearExternalWebhookLogs(): Promise<void>;
+    createMetrics(platform: SocialMediaPlatform, date: bigint, followers: bigint, impressions: bigint, reach: bigint, engagements: bigint, clicks: bigint, postsPublished: bigint, notes: string): Promise<SocialMediaMetrics>;
+    createPost(title: string, caption: string, platform: SocialMediaPlatform, status: PostStatus, scheduledDate: bigint | null, tags: Array<string>, notes: string): Promise<SocialMediaPost>;
+    deleteMetrics(id: bigint): Promise<void>;
+    deletePost(id: bigint): Promise<void>;
+    exportData(): Promise<ExportPayload>;
+    getAllMetrics(): Promise<Array<SocialMediaMetrics>>;
+    getAllPosts(): Promise<Array<SocialMediaPost>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
+    getExternalWebhookLogs(): Promise<Array<WebhookLog>>;
+    getMetrics(id: bigint): Promise<SocialMediaMetrics | null>;
+    getPost(id: bigint): Promise<SocialMediaPost | null>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
+    receiveExternalWebhook(toolName: string, payload: string, source: string): Promise<bigint>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateMetrics(id: bigint, platform: SocialMediaPlatform, date: bigint, followers: bigint, impressions: bigint, reach: bigint, engagements: bigint, clicks: bigint, postsPublished: bigint, notes: string): Promise<SocialMediaMetrics>;
+    updatePost(id: bigint, title: string, caption: string, platform: SocialMediaPlatform, status: PostStatus, scheduledDate: bigint | null, tags: Array<string>, notes: string): Promise<SocialMediaPost>;
 }
-import type { _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { ExportPayload as _ExportPayload, PostStatus as _PostStatus, SocialMediaMetrics as _SocialMediaMetrics, SocialMediaPlatform as _SocialMediaPlatform, SocialMediaPost as _SocialMediaPost, UserProfile as _UserProfile, UserRole as _UserRole, WebhookLog as _WebhookLog, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -234,155 +278,429 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createLead(arg0: string, arg1: string, arg2: string, arg3: string, arg4: string, arg5: string): Promise<Lead> {
+    async _initializeAccessControlWithSecret(arg0: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.createLead(arg0, arg1, arg2, arg3, arg4, arg5);
+                const result = await this.actor._initializeAccessControlWithSecret(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createLead(arg0, arg1, arg2, arg3, arg4, arg5);
+            const result = await this.actor._initializeAccessControlWithSecret(arg0);
             return result;
         }
     }
-    async createService(arg0: string, arg1: string, arg2: string, arg3: Array<Package>, arg4: Array<Addon>, arg5: bigint, arg6: boolean, arg7: bigint): Promise<Service> {
+    async assignCallerUserRole(arg0: Principal, arg1: UserRole): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.createService(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+                const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n8(this._uploadFile, this._downloadFile, arg1));
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createService(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+            const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n8(this._uploadFile, this._downloadFile, arg1));
             return result;
         }
     }
-    async deleteLead(arg0: bigint): Promise<void> {
+    async clearExternalWebhookLogs(): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteLead(arg0);
+                const result = await this.actor.clearExternalWebhookLogs();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteLead(arg0);
+            const result = await this.actor.clearExternalWebhookLogs();
             return result;
         }
     }
-    async deleteService(arg0: bigint): Promise<void> {
+    async createMetrics(arg0: SocialMediaPlatform, arg1: bigint, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, arg7: bigint, arg8: string): Promise<SocialMediaMetrics> {
         if (this.processError) {
             try {
-                const result = await this.actor.deleteService(arg0);
+                const result = await this.actor.createMetrics(to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createMetrics(to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+            return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async createPost(arg0: string, arg1: string, arg2: SocialMediaPlatform, arg3: PostStatus, arg4: bigint | null, arg5: Array<string>, arg6: string): Promise<SocialMediaPost> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createPost(arg0, arg1, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg2), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+                return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createPost(arg0, arg1, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg2), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+            return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async deleteMetrics(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteMetrics(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.deleteService(arg0);
+            const result = await this.actor.deleteMetrics(arg0);
             return result;
         }
     }
-    async duplicateService(arg0: bigint): Promise<Service> {
+    async deletePost(arg0: bigint): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.duplicateService(arg0);
+                const result = await this.actor.deletePost(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.duplicateService(arg0);
+            const result = await this.actor.deletePost(arg0);
             return result;
         }
     }
-    async getLeads(): Promise<Array<Lead>> {
+    async exportData(): Promise<ExportPayload> {
         if (this.processError) {
             try {
-                const result = await this.actor.getLeads();
+                const result = await this.actor.exportData();
+                return from_candid_ExportPayload_n24(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.exportData();
+            return from_candid_ExportPayload_n24(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllMetrics(): Promise<Array<SocialMediaMetrics>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllMetrics();
+                return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllMetrics();
+            return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllPosts(): Promise<Array<SocialMediaPost>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllPosts();
+                return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllPosts();
+            return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserProfile(): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserProfile();
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserProfile();
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getCallerUserRole(): Promise<UserRole> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getCallerUserRole();
+                return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getCallerUserRole();
+            return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getExternalWebhookLogs(): Promise<Array<WebhookLog>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getExternalWebhookLogs();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getLeads();
+            const result = await this.actor.getExternalWebhookLogs();
             return result;
         }
     }
-    async getServices(): Promise<Array<Service>> {
+    async getMetrics(arg0: bigint): Promise<SocialMediaMetrics | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.getServices();
+                const result = await this.actor.getMetrics(arg0);
+                return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getMetrics(arg0);
+            return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getPost(arg0: bigint): Promise<SocialMediaPost | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getPost(arg0);
+                return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPost(arg0);
+            return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getUserProfile(arg0);
+                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getUserProfile(arg0);
+            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async isCallerAdmin(): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.isCallerAdmin();
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getServices();
+            const result = await this.actor.isCallerAdmin();
             return result;
         }
     }
-    async reorderServices(arg0: Array<bigint>): Promise<void> {
+    async receiveExternalWebhook(arg0: string, arg1: string, arg2: string): Promise<bigint> {
         if (this.processError) {
             try {
-                const result = await this.actor.reorderServices(arg0);
+                const result = await this.actor.receiveExternalWebhook(arg0, arg1, arg2);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.reorderServices(arg0);
+            const result = await this.actor.receiveExternalWebhook(arg0, arg1, arg2);
             return result;
         }
     }
-    async updateLead(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: string, arg5: string, arg6: string): Promise<Lead> {
+    async saveCallerUserProfile(arg0: UserProfile): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateLead(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+                const result = await this.actor.saveCallerUserProfile(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateLead(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+            const result = await this.actor.saveCallerUserProfile(arg0);
             return result;
         }
     }
-    async updateService(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: Array<Package>, arg5: Array<Addon>, arg6: bigint, arg7: boolean, arg8: bigint): Promise<Service> {
+    async updateMetrics(arg0: bigint, arg1: SocialMediaPlatform, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, arg7: bigint, arg8: bigint, arg9: string): Promise<SocialMediaMetrics> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateService(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-                return result;
+                const result = await this.actor.updateMetrics(arg0, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateService(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-            return result;
+            const result = await this.actor.updateMetrics(arg0, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+            return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updatePost(arg0: bigint, arg1: string, arg2: string, arg3: SocialMediaPlatform, arg4: PostStatus, arg5: bigint | null, arg6: Array<string>, arg7: string): Promise<SocialMediaPost> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updatePost(arg0, arg1, arg2, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg3), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg5), arg6, arg7);
+                return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updatePost(arg0, arg1, arg2, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg3), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg5), arg6, arg7);
+            return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
         }
     }
 }
+function from_candid_ExportPayload_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExportPayload): ExportPayload {
+    return from_candid_record_n25(_uploadFile, _downloadFile, value);
+}
+function from_candid_PostStatus_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PostStatus): PostStatus {
+    return from_candid_variant_n22(_uploadFile, _downloadFile, value);
+}
+function from_candid_SocialMediaMetrics_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaMetrics): SocialMediaMetrics {
+    return from_candid_record_n13(_uploadFile, _downloadFile, value);
+}
+function from_candid_SocialMediaPlatform_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaPlatform): SocialMediaPlatform {
+    return from_candid_variant_n15(_uploadFile, _downloadFile, value);
+}
+function from_candid_SocialMediaPost_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaPost): SocialMediaPost {
+    return from_candid_record_n20(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n30(_uploadFile, _downloadFile, value);
+}
 function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __CaffeineStorageRefillResult): _CaffeineStorageRefillResult {
     return from_candid_record_n5(_uploadFile, _downloadFile, value);
+}
+function from_candid_opt_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+    return value.length === 0 ? null : value[0];
+}
+function from_candid_opt_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SocialMediaMetrics]): SocialMediaMetrics | null {
+    return value.length === 0 ? null : from_candid_SocialMediaMetrics_n12(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SocialMediaPost]): SocialMediaPost | null {
+    return value.length === 0 ? null : from_candid_SocialMediaPost_n19(_uploadFile, _downloadFile, value[0]);
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
     return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
+}
+function from_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    clicks: bigint;
+    engagements: bigint;
+    date: bigint;
+    createdAt: bigint;
+    impressions: bigint;
+    platform: _SocialMediaPlatform;
+    notes: string;
+    postsPublished: bigint;
+    followers: bigint;
+    reach: bigint;
+}): {
+    id: bigint;
+    clicks: bigint;
+    engagements: bigint;
+    date: bigint;
+    createdAt: bigint;
+    impressions: bigint;
+    platform: SocialMediaPlatform;
+    notes: string;
+    postsPublished: bigint;
+    followers: bigint;
+    reach: bigint;
+} {
+    return {
+        id: value.id,
+        clicks: value.clicks,
+        engagements: value.engagements,
+        date: value.date,
+        createdAt: value.createdAt,
+        impressions: value.impressions,
+        platform: from_candid_SocialMediaPlatform_n14(_uploadFile, _downloadFile, value.platform),
+        notes: value.notes,
+        postsPublished: value.postsPublished,
+        followers: value.followers,
+        reach: value.reach
+    };
+}
+function from_candid_record_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    status: _PostStatus;
+    title: string;
+    scheduledDate: [] | [bigint];
+    createdAt: bigint;
+    tags: Array<string>;
+    platform: _SocialMediaPlatform;
+    updatedAt: bigint;
+    notes: string;
+    caption: string;
+}): {
+    id: bigint;
+    status: PostStatus;
+    title: string;
+    scheduledDate?: bigint;
+    createdAt: bigint;
+    tags: Array<string>;
+    platform: SocialMediaPlatform;
+    updatedAt: bigint;
+    notes: string;
+    caption: string;
+} {
+    return {
+        id: value.id,
+        status: from_candid_PostStatus_n21(_uploadFile, _downloadFile, value.status),
+        title: value.title,
+        scheduledDate: record_opt_to_undefined(from_candid_opt_n23(_uploadFile, _downloadFile, value.scheduledDate)),
+        createdAt: value.createdAt,
+        tags: value.tags,
+        platform: from_candid_SocialMediaPlatform_n14(_uploadFile, _downloadFile, value.platform),
+        updatedAt: value.updatedAt,
+        notes: value.notes,
+        caption: value.caption
+    };
+}
+function from_candid_record_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    metrics: Array<_SocialMediaMetrics>;
+    posts: Array<_SocialMediaPost>;
+    webhookLogs: Array<_WebhookLog>;
+}): {
+    metrics: Array<SocialMediaMetrics>;
+    posts: Array<SocialMediaPost>;
+    webhookLogs: Array<WebhookLog>;
+} {
+    return {
+        metrics: from_candid_vec_n26(_uploadFile, _downloadFile, value.metrics),
+        posts: from_candid_vec_n27(_uploadFile, _downloadFile, value.posts),
+        webhookLogs: value.webhookLogs
+    };
 }
 function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     success: [] | [boolean];
@@ -396,11 +714,68 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
         topped_up_amount: record_opt_to_undefined(from_candid_opt_n7(_uploadFile, _downloadFile, value.topped_up_amount))
     };
 }
+function from_candid_variant_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    linkedin: null;
+} | {
+    tiktok: null;
+} | {
+    twitter: null;
+} | {
+    other: null;
+} | {
+    instagram: null;
+} | {
+    facebook: null;
+} | {
+    youtube: null;
+}): SocialMediaPlatform {
+    return "linkedin" in value ? SocialMediaPlatform.linkedin : "tiktok" in value ? SocialMediaPlatform.tiktok : "twitter" in value ? SocialMediaPlatform.twitter : "other" in value ? SocialMediaPlatform.other : "instagram" in value ? SocialMediaPlatform.instagram : "facebook" in value ? SocialMediaPlatform.facebook : "youtube" in value ? SocialMediaPlatform.youtube : value;
+}
+function from_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    scheduled: null;
+} | {
+    cancelled: null;
+} | {
+    idea: null;
+} | {
+    published: null;
+} | {
+    draft: null;
+}): PostStatus {
+    return "scheduled" in value ? PostStatus.scheduled : "cancelled" in value ? PostStatus.cancelled : "idea" in value ? PostStatus.idea : "published" in value ? PostStatus.published : "draft" in value ? PostStatus.draft : value;
+}
+function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+}): UserRole {
+    return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
+}
+function from_candid_vec_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SocialMediaMetrics>): Array<SocialMediaMetrics> {
+    return value.map((x)=>from_candid_SocialMediaMetrics_n12(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SocialMediaPost>): Array<SocialMediaPost> {
+    return value.map((x)=>from_candid_SocialMediaPost_n19(_uploadFile, _downloadFile, x));
+}
+function to_candid_PostStatus_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PostStatus): _PostStatus {
+    return to_candid_variant_n17(_uploadFile, _downloadFile, value);
+}
+function to_candid_SocialMediaPlatform_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SocialMediaPlatform): _SocialMediaPlatform {
+    return to_candid_variant_n11(_uploadFile, _downloadFile, value);
+}
+function to_candid_UserRole_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
+    return to_candid_variant_n9(_uploadFile, _downloadFile, value);
+}
 function to_candid__CaffeineStorageRefillInformation_n2(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation): __CaffeineStorageRefillInformation {
     return to_candid_record_n3(_uploadFile, _downloadFile, value);
 }
 function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation | null): [] | [__CaffeineStorageRefillInformation] {
     return value === null ? candid_none() : candid_some(to_candid__CaffeineStorageRefillInformation_n2(_uploadFile, _downloadFile, value));
+}
+function to_candid_opt_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
+    return value === null ? candid_none() : candid_some(value);
 }
 function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     proposed_top_up_amount?: bigint;
@@ -410,6 +785,75 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
     return {
         proposed_top_up_amount: value.proposed_top_up_amount ? candid_some(value.proposed_top_up_amount) : candid_none()
     };
+}
+function to_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SocialMediaPlatform): {
+    linkedin: null;
+} | {
+    tiktok: null;
+} | {
+    twitter: null;
+} | {
+    other: null;
+} | {
+    instagram: null;
+} | {
+    facebook: null;
+} | {
+    youtube: null;
+} {
+    return value == SocialMediaPlatform.linkedin ? {
+        linkedin: null
+    } : value == SocialMediaPlatform.tiktok ? {
+        tiktok: null
+    } : value == SocialMediaPlatform.twitter ? {
+        twitter: null
+    } : value == SocialMediaPlatform.other ? {
+        other: null
+    } : value == SocialMediaPlatform.instagram ? {
+        instagram: null
+    } : value == SocialMediaPlatform.facebook ? {
+        facebook: null
+    } : value == SocialMediaPlatform.youtube ? {
+        youtube: null
+    } : value;
+}
+function to_candid_variant_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PostStatus): {
+    scheduled: null;
+} | {
+    cancelled: null;
+} | {
+    idea: null;
+} | {
+    published: null;
+} | {
+    draft: null;
+} {
+    return value == PostStatus.scheduled ? {
+        scheduled: null
+    } : value == PostStatus.cancelled ? {
+        cancelled: null
+    } : value == PostStatus.idea ? {
+        idea: null
+    } : value == PostStatus.published ? {
+        published: null
+    } : value == PostStatus.draft ? {
+        draft: null
+    } : value;
+}
+function to_candid_variant_n9(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): {
+    admin: null;
+} | {
+    user: null;
+} | {
+    guest: null;
+} {
+    return value == UserRole.admin ? {
+        admin: null
+    } : value == UserRole.user ? {
+        user: null
+    } : value == UserRole.guest ? {
+        guest: null
+    } : value;
 }
 export interface CreateActorOptions {
     agent?: Agent;

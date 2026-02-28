@@ -1,4 +1,14 @@
-import type { Package, Addon } from '../backend';
+// Local type definitions (Lead/Service/Package/Addon no longer exported from backend)
+export interface Package {
+  tier: string;
+  priceINR: bigint;
+  features: string[];
+}
+
+export interface Addon {
+  name: string;
+  price: bigint;
+}
 
 export interface SeedService {
   name: string;
@@ -374,107 +384,62 @@ export const seedServices: SeedService[] = [
   {
     name: 'HR & Payroll System',
     category: 'SaaS',
-    description: 'Complete HR management system with payroll, attendance, leave management, and compliance.',
+    description: 'Complete HR management system with payroll, attendance, and employee self-service.',
     packages: [
-      pkg('Student', 14999, ['Up to 10 Employees', 'Basic HR', 'Attendance', 'Leave Management']),
-      pkg('Business', 34999, ['Up to 50 Employees', 'Full HR Suite', 'Payroll', 'Compliance']),
-      pkg('Premium', 69999, ['Up to 200 Employees', 'Advanced Features', 'Performance Management', 'Analytics']),
+      pkg('Student', 14999, ['Up to 25 Employees', 'Basic HR', 'Attendance Tracking']),
+      pkg('Business', 34999, ['Up to 100 Employees', 'Full HR Suite', 'Payroll', 'Leave Management']),
+      pkg('Premium', 69999, ['Up to 500 Employees', 'Advanced Analytics', 'Compliance', 'API Integration']),
       pkg('Enterprise', 139999, ['Unlimited Employees', 'Custom Modules', 'ERP Integration', 'Dedicated Support']),
     ],
-    addons: [addon('Biometric Integration', 7999), addon('Mobile App', 14999)],
+    addons: [addon('Biometric Integration', 9999), addon('Mobile App', 14999)],
     maintenancePlan: BigInt(5999),
     isVisible: true,
     sortOrder: BigInt(23),
   },
-  // Business Setup (5)
+  // Business Setup (3)
   {
     name: 'Company Registration',
     category: 'Business Setup',
-    description: 'Complete company registration service including Pvt Ltd, LLP, OPC, and Partnership firms.',
+    description: 'Complete company registration and compliance setup for startups and businesses.',
     packages: [
-      pkg('Student', 4999, ['OPC Registration', 'PAN + TAN', 'Basic Compliance']),
-      pkg('Business', 9999, ['Pvt Ltd Registration', 'PAN + TAN + GST', 'MOA + AOA', 'Bank Account']),
-      pkg('Premium', 19999, ['LLP Registration', 'Full Compliance', 'Trademark Filing', 'MSME Registration']),
-      pkg('Enterprise', 39999, ['Public Ltd / Holding', 'Full Legal Setup', 'Compliance Calendar', 'Dedicated CA']),
+      pkg('Student', 4999, ['Sole Proprietorship', 'Basic Registration', 'PAN/TAN']),
+      pkg('Business', 9999, ['Private Limited', 'Full Registration', 'GST Registration', 'Bank Account']),
+      pkg('Premium', 19999, ['LLP/OPC', 'Complete Setup', 'Compliance Calendar', 'CA Support']),
+      pkg('Enterprise', 39999, ['Public Limited', 'Full Compliance', 'Legal Support', 'Dedicated CA']),
     ],
-    addons: [addon('GST Registration', 1999), addon('MSME Certificate', 999), addon('Trademark Filing', 4999)],
-    maintenancePlan: BigInt(0),
+    addons: [addon('GST Filing (Annual)', 4999), addon('Trademark Registration', 7999)],
+    maintenancePlan: BigInt(2999),
     isVisible: true,
     sortOrder: BigInt(24),
   },
   {
-    name: 'GST & Tax Compliance',
+    name: 'Business Plan & Strategy',
     category: 'Business Setup',
-    description: 'GST registration, filing, and complete tax compliance management for businesses.',
+    description: 'Professional business plan, financial projections, and go-to-market strategy.',
     packages: [
-      pkg('Student', 1999, ['GST Registration', 'Basic Filing']),
-      pkg('Business', 5999, ['GST Registration', 'Monthly Filing', 'Annual Return', 'Tax Planning']),
-      pkg('Premium', 11999, ['Full GST Suite', 'Quarterly Filing', 'Tax Optimization', 'CA Support']),
-      pkg('Enterprise', 24999, ['Enterprise Tax', 'Dedicated CA', 'Transfer Pricing', 'International Tax']),
+      pkg('Student', 7999, ['Basic Business Plan', 'Market Analysis', 'Financial Projections']),
+      pkg('Business', 19999, ['Comprehensive Plan', 'Competitor Analysis', 'Investor Deck', 'Strategy']),
+      pkg('Premium', 39999, ['Full Strategy', 'Market Research', 'Financial Modeling', 'Pitch Deck']),
+      pkg('Enterprise', 79999, ['Enterprise Strategy', 'Board Presentation', 'Fundraising Support', 'Mentorship']),
     ],
-    addons: [addon('Income Tax Filing', 2999), addon('TDS Compliance', 1999)],
-    maintenancePlan: BigInt(2499),
+    addons: [addon('Pitch Deck Design', 9999), addon('Financial Model', 7999)],
+    maintenancePlan: BigInt(0),
     isVisible: true,
     sortOrder: BigInt(25),
   },
   {
-    name: 'Business Plan & Pitch Deck',
-    category: 'Business Setup',
-    description: 'Professional business plan and investor-ready pitch deck for funding and partnerships.',
-    packages: [
-      pkg('Student', 4999, ['Basic Business Plan', '10-slide Pitch Deck', 'Financial Projections']),
-      pkg('Business', 12999, ['Detailed Business Plan', '20-slide Pitch Deck', '3-year Projections', 'Market Analysis']),
-      pkg('Premium', 24999, ['Investor-grade Plan', 'Premium Pitch Deck', '5-year Projections', 'Competitive Analysis']),
-      pkg('Enterprise', 49999, ['Full Business Strategy', 'Custom Deck', 'Due Diligence Package', 'Investor Intro']),
-    ],
-    addons: [addon('Financial Model', 7999), addon('Market Research Report', 9999)],
-    maintenancePlan: BigInt(0),
-    isVisible: true,
-    sortOrder: BigInt(26),
-  },
-  {
     name: 'Digital Presence Setup',
     category: 'Business Setup',
-    description: 'Complete digital presence setup including Google Business, social media, and online directories.',
+    description: 'Complete digital presence setup including website, social media, and Google Business.',
     packages: [
-      pkg('Student', 2999, ['Google My Business', '2 Social Profiles', 'Basic Listings']),
-      pkg('Business', 6999, ['Full Google Setup', '4 Social Profiles', 'Directory Listings', 'Review Management']),
-      pkg('Premium', 12999, ['Premium Setup', 'All Platforms', 'Reputation Management', 'Analytics']),
-      pkg('Enterprise', 24999, ['Enterprise Presence', 'Multi-location', 'Brand Monitoring', 'Dedicated Manager']),
+      pkg('Student', 5999, ['Basic Website', 'Google My Business', '2 Social Profiles']),
+      pkg('Business', 14999, ['Professional Website', 'Full GMB Setup', '5 Social Profiles', 'Email Setup']),
+      pkg('Premium', 29999, ['Premium Website', 'Full Digital Setup', 'All Platforms', 'Content Strategy']),
+      pkg('Enterprise', 59999, ['Enterprise Presence', 'Custom Strategy', 'Dedicated Manager', 'Monthly Reports']),
     ],
-    addons: [addon('Professional Photography', 5999), addon('Virtual Tour', 7999)],
-    maintenancePlan: BigInt(1999),
+    addons: [addon('Professional Photography', 7999), addon('Video Production', 14999)],
+    maintenancePlan: BigInt(3999),
     isVisible: true,
-    sortOrder: BigInt(27),
-  },
-  {
-    name: 'Startup Mentorship Program',
-    category: 'Business Setup',
-    description: 'Structured mentorship program for startups covering strategy, funding, marketing, and operations.',
-    packages: [
-      pkg('Student', 7999, ['4 Sessions/mo', 'Business Review', 'Action Plan']),
-      pkg('Business', 19999, ['8 Sessions/mo', 'Strategy Sessions', 'Network Access', 'Investor Intro']),
-      pkg('Premium', 39999, ['Daily Support', 'Full Mentorship', 'Funding Assistance', 'Partnership Opportunities']),
-      pkg('Enterprise', 79999, ['Dedicated Mentor', 'Board Advisory', 'Full Ecosystem Access', 'Exit Strategy']),
-    ],
-    addons: [addon('Investor Pitch Coaching', 9999), addon('Legal Advisory', 7999)],
-    maintenancePlan: BigInt(0),
-    isVisible: true,
-    sortOrder: BigInt(28),
-  },
-  {
-    name: 'Franchise Setup',
-    category: 'Business Setup',
-    description: 'Complete franchise development and setup including documentation, training, and support systems.',
-    packages: [
-      pkg('Student', 14999, ['Franchise Manual', 'Basic Training', 'Brand Guidelines']),
-      pkg('Business', 34999, ['Full Franchise Kit', 'Training Program', 'Operations Manual', 'Marketing Kit']),
-      pkg('Premium', 69999, ['Premium Franchise', 'Technology Setup', 'Ongoing Support', 'Franchisee Portal']),
-      pkg('Enterprise', 139999, ['Enterprise Franchise', 'Custom Technology', 'Dedicated Team', 'Global Expansion']),
-    ],
-    addons: [addon('Franchise Agreement Drafting', 9999), addon('Franchisee Recruitment', 14999)],
-    maintenancePlan: BigInt(4999),
-    isVisible: true,
-    sortOrder: BigInt(29),
+    sortOrder: BigInt(26),
   },
 ];

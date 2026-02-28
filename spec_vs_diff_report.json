@@ -1,155 +1,79 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T11:49:41.043Z",
-  "summary": "The diff implements a comprehensive full-stack AI agency platform dashboard with most requirements covered. The backend (main.mo) implements Lead and Service CRUD functions. The frontend includes routing, sidebar, all major pages, cart context, and utility functions. However, several specific acceptance criteria have gaps or missing implementations based on the truncated diff evidence.",
+  "generatedAt": "2026-02-28T08:42:12.503Z",
+  "summary": "The diff implements nearly all required features across backend and frontend. All 9 requirements are substantially addressed. Minor gaps exist around the 'getPost' function visibility in the backend summary, the constraint against altering existing data models (Lead/Service CRUD are now stubbed/broken in useQueries.ts), and a few AC details.",
   "missing_requirements": [
     {
-      "requirement": "REQ-2: No login screen, auth guard, or identity prompt is shown — all routes publicly accessible without any Internet Identity prompt",
-      "reason": "main.tsx wraps the entire app with InternetIdentityProvider, and useActor.ts uses useInternetIdentity() hook which initializes an AuthClient. The Internet Identity infrastructure is initialized and present despite the requirement to bypass all authentication.",
-      "evidence": [
-        "frontend/src/main.tsx",
-        "frontend/src/hooks/useActor.ts",
-        "frontend/src/hooks/useInternetIdentity.ts"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "Lead status is constrained to the 6 defined values in the backend",
-      "reason": "The Motoko backend accepts status as plain Text without any validation or constraint check against the 6 allowed values. No variant type or guard is used to enforce status constraints.",
+      "requirement": "Backend actor must expose 'getPost' function as part of REQ-1 CRUD operations",
+      "reason": "The diff shows createPost, getAllPosts, updatePost, deletePost in the backend but getPost is not confirmed visible in the truncated backend/main.mo diff. The file summary does not explicitly mention getPost being exposed as a public query function.",
       "evidence": [
         "backend/main.mo"
       ]
     },
     {
-      "id": "REQ-5",
-      "requirement": "PDF export button that uses browser print or a PDF library to export the lead table",
-      "reason": "The LeadsPage.tsx diff is truncated; a Download icon is visible suggesting CSV export, but no explicit PDF export button or jsPDF/print logic is visible in the truncated content.",
+      "requirement": "Do not alter existing data models (Lead, Service) or their CRUD functions — constraint violation",
+      "reason": "The useQueries.ts file stubs out all Lead and Service CRUD hooks to throw errors, and LeadsPage/ServiceManagementPage/ServicesCatalogPage import Lead/Service types from useQueries rather than backend. The existing CRUD functions appear to be broken/removed from the backend rather than preserved. The constraint explicitly states 'Do not alter existing data models (Lead, Service) or their CRUD functions'.",
       "evidence": [
-        "frontend/src/pages/LeadsPage.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/LeadsPage.tsx",
+        "frontend/src/pages/ServiceManagementPage.tsx",
+        "backend/main.mo"
       ]
     },
     {
-      "id": "REQ-5",
-      "requirement": "Kanban view shows leads grouped by status in draggable columns",
-      "reason": "The LeadsPage.tsx shows a LayoutGrid icon suggesting Kanban view toggle exists, but drag-and-drop functionality for Kanban columns is not confirmed — no DnD library import is visible in the truncated content.",
+      "requirement": "REQ-3 AC: Empty days show a clickable '+' to create a new post for that date",
+      "reason": "The ContentCalendarPage.tsx is truncated so we can only see openCreate function defined but cannot confirm that every empty day cell renders a clickable '+' button. The truncation prevents full verification.",
       "evidence": [
-        "frontend/src/pages/LeadsPage.tsx"
+        "frontend/src/pages/ContentCalendarPage.tsx"
       ]
-    },
-    {
-      "id": "REQ-7",
-      "requirement": "At least 30 service cards are pre-seeded across categories",
-      "reason": "seedServices.ts is truncated after approximately 5 Web Dev services. Cannot confirm 30+ services are seeded across all 7 categories.",
-      "evidence": [
-        "frontend/src/data/seedServices.ts"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "requirement": "Preview modal shows packages, add-ons, and dynamic price calculator",
-      "reason": "ServicesCatalogPage.tsx is listed as omitted from the diff due to limits. Cannot confirm preview modal implementation.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-8",
-      "requirement": "Services list is drag-and-drop reorderable and order persists to backend; Edit modal has fields for all service attributes including packages, add-ons, and maintenance",
-      "reason": "ServiceManagementPage.tsx is not included in the diff summary — listed as omitted due to limits. Cannot confirm drag-and-drop or edit modal implementation.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-10",
-      "requirement": "All 9 credential fields are present with input and toggle (API Endpoint, API Key, WhatsApp Token, Razorpay Key ID, Razorpay Secret, Email API Key, CRM Webhook URL, Automation Webhook URL, Calendly URL)",
-      "reason": "SalesConfigPage.tsx is in the omitted files list and not present in the diff. Cannot confirm implementation.",
-      "evidence": []
-    },
-    {
-      "id": "REQ-11",
-      "requirement": "Each fired automation request is logged to the Webhook Logs store",
-      "reason": "AutomationDashboardPage.tsx is truncated and the toggle handler only calls saveAutomationConfig. No logWebhookCall invocation is visible in the visible portion for when automations fire.",
-      "evidence": [
-        "frontend/src/pages/AutomationDashboardPage.tsx"
-      ]
-    },
-    {
-      "id": "REQ-16",
-      "requirement": "PaymentSuccessPage displays invoice reference in format QBA-{timestamp} and fires the Payment Processing workflow POST",
-      "reason": "PaymentSuccessPage.tsx is in the omitted files list. Cannot confirm QBA-{timestamp} format or Payment Processing workflow POST.",
-      "evidence": []
     }
   ],
   "hallucinated_features": [
     {
-      "description": "InternetIdentityProvider wrapping the entire application despite requirement to bypass all authentication",
-      "reason": "The build request explicitly states 'Do not use any external authentication — route directly to dashboard' and REQ-2 requires no Internet Identity prompt. Yet main.tsx wraps the app with InternetIdentityProvider and useActor.ts integrates with the useInternetIdentity hook.",
+      "description": "ExternalToolsPage includes 8 tool cards (Zapier, Make, n8n, Buffer, Hootsuite, Later, Pabbly Connect, Sprout Social) instead of the required 6",
+      "reason": "REQ-8 specifies exactly 6 tools. The implementation adds 2 extra unrequested tools: Pabbly Connect and Sprout Social.",
       "evidence": [
-        "frontend/src/main.tsx",
-        "frontend/src/hooks/useActor.ts",
-        "frontend/src/hooks/useInternetIdentity.ts"
+        "frontend/src/pages/ExternalToolsPage.tsx"
       ]
     },
     {
-      "description": "MixinStorage blob-storage mixin imported and used in the Motoko backend",
-      "reason": "The backend imports 'blob-storage/Mixin' and uses include MixinStorage(), which was not specified in the build request. The requirement only specifies stable storage for lead and service records using standard Motoko patterns.",
+      "description": "A migration.mo module was added with a full state migration function",
+      "reason": "No migration module was requested in any requirement. The build request only asked for new stable maps isolated from existing ones, not a formal migration system.",
       "evidence": [
-        "backend/main.mo"
+        "backend/migration.mo"
       ]
     },
     {
-      "description": "Cart item count badge displayed in the sidebar next to the Checkout link",
-      "reason": "The sidebar shows a live cart item count badge on the Checkout nav item. While a reasonable UX enhancement, this was not explicitly requested in any requirement.",
+      "description": "frontend/src/utils/urlParams.ts was added as a new file with URL parameter utility functions",
+      "reason": "No requirement asked for URL parameter parsing utilities. This appears to be a utility file added beyond the scope of the requirements.",
       "evidence": [
-        "frontend/src/components/AppSidebar.tsx"
-      ]
-    },
-    {
-      "description": "caffeine.ai branding link in the footer of every page",
-      "reason": "The Layout component includes a persistent footer with a caffeine.ai referral link. This was not part of any requirement in the build request.",
-      "evidence": [
-        "frontend/src/components/Layout.tsx"
+        "frontend/src/utils/urlParams.ts"
       ]
     }
   ],
-  "confidence": 0.62,
+  "confidence": 0.72,
   "changed_files": [
-    "all_files_summary.json",
     "backend/main.mo",
+    "backend/migration.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.css",
-    "frontend/index.html",
     "frontend/src/App.tsx",
     "frontend/src/components/AppSidebar.tsx",
-    "frontend/src/components/Layout.tsx",
-    "frontend/src/contexts/CartContext.tsx",
-    "frontend/src/data/masterPlans.ts",
+    "frontend/src/components/MetricsFormModal.tsx",
+    "frontend/src/components/PostFormModal.tsx",
     "frontend/src/data/seedServices.ts",
     "frontend/src/hooks/useActor.ts",
-    "frontend/src/hooks/useInternetIdentity.ts",
     "frontend/src/hooks/useQueries.ts",
-    "frontend/src/index.css",
-    "frontend/src/main.tsx",
-    "frontend/src/pages/AIContentCreatorPage.tsx",
-    "frontend/src/pages/AISmartSystemsPage.tsx",
-    "frontend/src/pages/AnalyticsEnginePage.tsx",
-    "frontend/src/pages/AutomationDashboardPage.tsx",
-    "frontend/src/pages/AutomationWorkflowsPage.tsx",
-    "frontend/src/pages/CheckoutPage.tsx",
-    "frontend/src/pages/DashboardPage.tsx",
+    "frontend/src/pages/ContentCalendarPage.tsx",
+    "frontend/src/pages/DataExportPage.tsx",
+    "frontend/src/pages/ExternalToolsPage.tsx",
+    "frontend/src/pages/ExternalWebhooksPage.tsx",
     "frontend/src/pages/LeadsPage.tsx",
-    "frontend/src/pages/PaymentFailurePage.tsx",
-    "frontend/src/pages/PaymentSuccessPage.tsx",
-    "frontend/src/pages/SalesConfigPage.tsx",
     "frontend/src/pages/ServiceManagementPage.tsx",
     "frontend/src/pages/ServicesCatalogPage.tsx",
-    "frontend/src/pages/WebhookLogsPage.tsx",
-    "frontend/src/utils/aiClient.ts",
-    "frontend/src/utils/automationConfig.ts",
-    "frontend/src/utils/automationTrigger.ts",
-    "frontend/src/utils/mockAnalyticsData.ts",
-    "frontend/src/utils/razorpayCheckout.ts",
-    "frontend/src/utils/salesConfig.ts",
-    "frontend/src/utils/webhookLogger.ts",
-    "frontend/tailwind.config.js",
+    "frontend/src/pages/SocialMetricsPage.tsx",
+    "frontend/src/pages/SocialSchedulerPage.tsx",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]
 }

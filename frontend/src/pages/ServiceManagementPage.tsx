@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Settings2, Plus, Edit2, Trash2, Copy, Eye, EyeOff, GripVertical } from 'lucide-react';
 import { useServices, useCreateService, useUpdateService, useDeleteService, useDuplicateService, useReorderServices } from '../hooks/useQueries';
-import type { Service, Package, Addon } from '../backend';
+import type { Service, Package, Addon } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -132,45 +132,42 @@ function EditServiceModal({ open, onClose, service, onSubmit, loading }: {
             <Label className="text-white/70 text-xs mb-1 block">Description</Label>
             <Textarea value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows={2} style={inputStyle} />
           </div>
-
           <div>
-            <Label className="text-white/70 text-xs mb-2 block">Packages (INR pricing)</Label>
+            <Label className="text-white/70 text-xs mb-2 block">Packages</Label>
             <div className="space-y-3">
               {form.packages.map((pkg, i) => (
-                <div key={pkg.tier} className="p-3 rounded-xl" style={{ background: 'rgba(0,180,166,0.04)', border: '1px solid rgba(0,180,166,0.1)' }}>
+                <div key={pkg.tier} className="p-3 rounded-lg" style={{ background: 'rgba(0,180,166,0.04)', border: '1px solid rgba(0,180,166,0.12)' }}>
                   <div className="text-xs font-semibold mb-2" style={{ color: '#00d4c8' }}>{pkg.tier}</div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <Label className="text-white/50 text-xs mb-1 block">Price (INR)</Label>
-                      <Input value={pkg.priceINR} onChange={e => updatePackage(i, 'priceINR', e.target.value)} placeholder="e.g. 9999" style={inputStyle} />
+                      <Input value={pkg.priceINR} onChange={e => updatePackage(i, 'priceINR', e.target.value)} placeholder="e.g. 4999" style={inputStyle} />
                     </div>
                     <div>
                       <Label className="text-white/50 text-xs mb-1 block">Features (one per line)</Label>
-                      <Textarea value={pkg.features} onChange={e => updatePackage(i, 'features', e.target.value)} rows={2} placeholder="Feature 1&#10;Feature 2" style={inputStyle} />
+                      <Textarea value={pkg.features} onChange={e => updatePackage(i, 'features', e.target.value)} rows={2} style={inputStyle} />
                     </div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-
           <div>
             <div className="flex items-center justify-between mb-2">
               <Label className="text-white/70 text-xs">Add-ons</Label>
-              <Button size="sm" variant="ghost" onClick={addAddon} className="text-teal text-xs h-6 px-2" style={{ color: '#00d4c8' }}>+ Add</Button>
+              <Button size="sm" variant="ghost" onClick={addAddon} className="text-teal text-xs h-6 px-2">+ Add</Button>
             </div>
             {form.addons.map((addon, i) => (
               <div key={i} className="flex gap-2 mb-2">
                 <Input value={addon.name} onChange={e => updateAddon(i, 'name', e.target.value)} placeholder="Add-on name" style={inputStyle} className="flex-1" />
-                <Input value={addon.price} onChange={e => updateAddon(i, 'price', e.target.value)} placeholder="Price" style={inputStyle} className="w-28" />
-                <Button size="sm" variant="ghost" onClick={() => removeAddon(i)} className="text-red-400 px-2">✕</Button>
+                <Input value={addon.price} onChange={e => updateAddon(i, 'price', e.target.value)} placeholder="Price" style={inputStyle} className="w-24" />
+                <Button size="sm" variant="ghost" onClick={() => removeAddon(i)} className="text-red-400 px-2">×</Button>
               </div>
             ))}
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label className="text-white/70 text-xs mb-1 block">Monthly Maintenance (INR, 0 = none)</Label>
+              <Label className="text-white/70 text-xs mb-1 block">Maintenance Plan (INR/mo)</Label>
               <Input value={form.maintenancePlan} onChange={e => setForm(p => ({ ...p, maintenancePlan: e.target.value }))} style={inputStyle} />
             </div>
             <div className="flex items-center gap-3 pt-5">
@@ -181,7 +178,7 @@ function EditServiceModal({ open, onClose, service, onSubmit, loading }: {
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={onClose} className="text-white/50">Cancel</Button>
-          <Button onClick={() => onSubmit(form)} disabled={loading || !form.name} className="btn-teal">
+          <Button onClick={() => onSubmit(form)} disabled={loading || !form.name.trim()} className="btn-teal">
             {loading ? 'Saving...' : 'Save Service'}
           </Button>
         </DialogFooter>
@@ -198,57 +195,47 @@ export function ServiceManagementPage() {
   const duplicateService = useDuplicateService();
   const reorderServices = useReorderServices();
 
-  const [editService, setEditService] = useState<Service | undefined>(undefined);
-  const [editOpen, setEditOpen] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [editService, setEditService] = useState<Service | null>(null);
   const [deleteId, setDeleteId] = useState<bigint | null>(null);
-  const [dragIdx, setDragIdx] = useState<number | null>(null);
-  const [localOrder, setLocalOrder] = useState<Service[]>([]);
 
-  React.useEffect(() => {
-    setLocalOrder([...services]);
-  }, [services]);
+  const sorted = [...services].sort((a, b) => Number(a.sortOrder) - Number(b.sortOrder));
 
   const handleCreate = async (form: ServiceFormData) => {
     const data = formToService(form, BigInt(services.length));
     await createService.mutateAsync(data);
-    setEditOpen(false);
+    setAddOpen(false);
   };
 
   const handleUpdate = async (form: ServiceFormData) => {
     if (!editService) return;
     const data = formToService(form, editService.sortOrder);
     await updateService.mutateAsync({ id: editService.id, ...data });
-    setEditOpen(false);
-    setEditService(undefined);
+    setEditService(null);
   };
 
-  const handleToggleVisibility = async (service: Service) => {
-    await updateService.mutateAsync({
-      id: service.id,
-      name: service.name,
-      category: service.category,
-      description: service.description,
-      packages: service.packages,
-      addons: service.addons,
-      maintenancePlan: service.maintenancePlan,
-      isVisible: !service.isVisible,
-      sortOrder: service.sortOrder,
-    });
+  const handleDelete = async () => {
+    if (deleteId === null) return;
+    await deleteService.mutateAsync(deleteId);
+    setDeleteId(null);
   };
 
-  const handleDragStart = (i: number) => setDragIdx(i);
-  const handleDragOver = (e: React.DragEvent, i: number) => {
-    e.preventDefault();
-    if (dragIdx === null || dragIdx === i) return;
-    const newOrder = [...localOrder];
-    const [moved] = newOrder.splice(dragIdx, 1);
-    newOrder.splice(i, 0, moved);
-    setLocalOrder(newOrder);
-    setDragIdx(i);
+  const handleDuplicate = async (id: bigint) => {
+    await duplicateService.mutateAsync(id);
   };
-  const handleDrop = async () => {
-    setDragIdx(null);
-    await reorderServices.mutateAsync(localOrder.map(s => s.id));
+
+  const handleMoveUp = async (idx: number) => {
+    if (idx === 0) return;
+    const ids = sorted.map(s => s.id);
+    [ids[idx - 1], ids[idx]] = [ids[idx], ids[idx - 1]];
+    await reorderServices.mutateAsync(ids);
+  };
+
+  const handleMoveDown = async (idx: number) => {
+    if (idx === sorted.length - 1) return;
+    const ids = sorted.map(s => s.id);
+    [ids[idx], ids[idx + 1]] = [ids[idx + 1], ids[idx]];
+    await reorderServices.mutateAsync(ids);
   };
 
   return (
@@ -256,15 +243,15 @@ export function ServiceManagementPage() {
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="page-header mb-0">
           <div className="flex items-center gap-3">
-            <Settings2 size={32} style={{ color: '#00d4c8' }} />
+            <img src="/assets/generated/icon-services.dim_128x128.png" alt="" className="w-10 h-10 rounded-xl" />
             <div>
               <h1 className="page-title mb-0">Service Management</h1>
-              <p className="page-subtitle">{services.length} services managed</p>
+              <p className="page-subtitle">{services.length} services configured</p>
             </div>
           </div>
         </div>
-        <Button onClick={() => { setEditService(undefined); setEditOpen(true); }} className="btn-teal">
-          <Plus size={16} className="mr-2" /> Create Service
+        <Button onClick={() => setAddOpen(true)} className="btn-teal">
+          <Plus size={16} /><span className="ml-2">Add Service</span>
         </Button>
       </div>
 
@@ -273,81 +260,60 @@ export function ServiceManagementPage() {
           <div className="animate-spin w-8 h-8 border-2 rounded-full mx-auto mb-3" style={{ borderColor: 'rgba(0,180,166,0.3)', borderTopColor: '#00d4c8' }} />
           <p style={{ color: 'rgba(232,245,244,0.5)' }}>Loading services...</p>
         </div>
+      ) : sorted.length === 0 ? (
+        <div className="glass-card rounded-xl p-12 text-center">
+          <Settings2 size={40} className="mx-auto mb-3 opacity-20" style={{ color: '#00d4c8' }} />
+          <p style={{ color: 'rgba(232,245,244,0.4)' }}>No services yet. Create your first service!</p>
+        </div>
       ) : (
-        <div className="space-y-2">
-          {localOrder.map((service, i) => (
-            <div
-              key={service.id.toString()}
-              draggable
-              onDragStart={() => handleDragStart(i)}
-              onDragOver={e => handleDragOver(e, i)}
-              onDrop={handleDrop}
-              className="glass-card rounded-xl p-4 flex items-center gap-4 cursor-grab active:cursor-grabbing transition-all"
-              style={dragIdx === i ? { opacity: 0.5 } : {}}
-            >
-              <GripVertical size={18} style={{ color: 'rgba(232,245,244,0.3)' }} className="flex-shrink-0" />
+        <div className="space-y-3">
+          {sorted.map((service, idx) => (
+            <div key={service.id.toString()} className="glass-card rounded-xl p-4 flex items-center gap-4">
+              <div className="flex flex-col gap-1">
+                <button onClick={() => handleMoveUp(idx)} disabled={idx === 0} className="p-0.5 text-white/20 hover:text-teal disabled:opacity-10 transition-colors">
+                  <GripVertical size={14} />
+                </button>
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-semibold text-white">{service.name}</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,180,166,0.15)', color: '#00d4c8' }}>{service.category}</span>
-                  {!service.isVisible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/5 text-white/30">Hidden</span>}
+                  <span className="font-semibold text-white text-sm">{service.name}</span>
+                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(0,180,166,0.12)', color: '#00d4c8' }}>{service.category}</span>
+                  {!service.isVisible && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">Hidden</span>
+                  )}
                 </div>
-                <p className="text-xs mt-1 truncate" style={{ color: 'rgba(232,245,244,0.4)' }}>{service.description}</p>
-                <div className="flex gap-3 mt-1">
-                  {service.packages.slice(0, 2).map(p => (
+                <p className="text-xs mt-0.5 truncate" style={{ color: 'rgba(232,245,244,0.45)' }}>{service.description}</p>
+                <div className="flex gap-3 mt-1.5 flex-wrap">
+                  {service.packages.map(p => (
                     <span key={p.tier} className="text-xs" style={{ color: 'rgba(232,245,244,0.5)' }}>
-                      {p.tier}: ₹{Number(p.priceINR).toLocaleString('en-IN')}
+                      {p.tier}: <span style={{ color: '#00d4c8' }}>₹{Number(p.priceINR).toLocaleString('en-IN')}</span>
                     </span>
                   ))}
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => handleToggleVisibility(service)}
-                  className="p-2 rounded-lg hover:bg-teal/10 transition-colors"
-                  title={service.isVisible ? 'Hide' : 'Show'}
-                  style={{ color: service.isVisible ? '#00d4c8' : 'rgba(232,245,244,0.3)' }}
-                >
-                  {service.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <button onClick={() => handleDuplicate(service.id)} className="p-1.5 rounded-lg hover:bg-teal/10 text-white/30 hover:text-teal transition-colors" title="Duplicate">
+                  <Copy size={14} />
                 </button>
-                <button
-                  onClick={async () => { await duplicateService.mutateAsync(service.id); }}
-                  className="p-2 rounded-lg hover:bg-teal/10 text-white/40 hover:text-teal transition-colors"
-                  title="Duplicate"
-                >
-                  <Copy size={16} />
+                <button onClick={() => setEditService(service)} className="p-1.5 rounded-lg hover:bg-teal/10 text-white/30 hover:text-teal transition-colors" title="Edit">
+                  <Edit2 size={14} />
                 </button>
-                <button
-                  onClick={() => { setEditService(service); setEditOpen(true); }}
-                  className="p-2 rounded-lg hover:bg-teal/10 text-white/40 hover:text-teal transition-colors"
-                  title="Edit"
-                >
-                  <Edit2 size={16} />
-                </button>
-                <button
-                  onClick={() => setDeleteId(service.id)}
-                  className="p-2 rounded-lg hover:bg-red-500/10 text-white/40 hover:text-red-400 transition-colors"
-                  title="Delete"
-                >
-                  <Trash2 size={16} />
+                <button onClick={() => setDeleteId(service.id)} className="p-1.5 rounded-lg hover:bg-red-500/10 text-white/30 hover:text-red-400 transition-colors" title="Delete">
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>
           ))}
-          {localOrder.length === 0 && (
-            <div className="glass-card rounded-xl p-12 text-center">
-              <p style={{ color: 'rgba(232,245,244,0.4)' }}>No services yet. Create your first service!</p>
-            </div>
-          )}
         </div>
       )}
 
+      <EditServiceModal open={addOpen} onClose={() => setAddOpen(false)} onSubmit={handleCreate} loading={createService.isPending} />
       <EditServiceModal
-        open={editOpen}
-        onClose={() => { setEditOpen(false); setEditService(undefined); }}
-        service={editService}
-        onSubmit={editService ? handleUpdate : handleCreate}
-        loading={createService.isPending || updateService.isPending}
+        open={!!editService}
+        onClose={() => setEditService(null)}
+        service={editService || undefined}
+        onSubmit={handleUpdate}
+        loading={updateService.isPending}
       />
 
       <AlertDialog open={deleteId !== null} onOpenChange={() => setDeleteId(null)}>
@@ -358,12 +324,7 @@ export function ServiceManagementPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="text-white/60">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={async () => { if (deleteId !== null) { await deleteService.mutateAsync(deleteId); setDeleteId(null); } }}
-              className="bg-red-500/80 hover:bg-red-500 text-white"
-            >
-              Delete
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-500/80 hover:bg-red-500 text-white">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -19,32 +19,65 @@ export const _CaffeineStorageRefillResult = IDL.Record({
   'success' : IDL.Opt(IDL.Bool),
   'topped_up_amount' : IDL.Opt(IDL.Nat),
 });
-export const Lead = IDL.Record({
+export const UserRole = IDL.Variant({
+  'admin' : IDL.Null,
+  'user' : IDL.Null,
+  'guest' : IDL.Null,
+});
+export const SocialMediaPlatform = IDL.Variant({
+  'linkedin' : IDL.Null,
+  'tiktok' : IDL.Null,
+  'twitter' : IDL.Null,
+  'other' : IDL.Null,
+  'instagram' : IDL.Null,
+  'facebook' : IDL.Null,
+  'youtube' : IDL.Null,
+});
+export const SocialMediaMetrics = IDL.Record({
   'id' : IDL.Nat,
-  'status' : IDL.Text,
-  'name' : IDL.Text,
-  'email' : IDL.Text,
-  'serviceInterest' : IDL.Text,
+  'clicks' : IDL.Nat,
+  'engagements' : IDL.Nat,
+  'date' : IDL.Int,
+  'createdAt' : IDL.Int,
+  'impressions' : IDL.Nat,
+  'platform' : SocialMediaPlatform,
   'notes' : IDL.Text,
-  'phone' : IDL.Text,
+  'postsPublished' : IDL.Nat,
+  'followers' : IDL.Nat,
+  'reach' : IDL.Nat,
 });
-export const Package = IDL.Record({
-  'features' : IDL.Vec(IDL.Text),
-  'tier' : IDL.Text,
-  'priceINR' : IDL.Nat,
+export const PostStatus = IDL.Variant({
+  'scheduled' : IDL.Null,
+  'cancelled' : IDL.Null,
+  'idea' : IDL.Null,
+  'published' : IDL.Null,
+  'draft' : IDL.Null,
 });
-export const Addon = IDL.Record({ 'name' : IDL.Text, 'price' : IDL.Nat });
-export const Service = IDL.Record({
+export const SocialMediaPost = IDL.Record({
   'id' : IDL.Nat,
-  'packages' : IDL.Vec(Package),
-  'sortOrder' : IDL.Int,
-  'name' : IDL.Text,
-  'description' : IDL.Text,
-  'maintenancePlan' : IDL.Nat,
-  'addons' : IDL.Vec(Addon),
-  'isVisible' : IDL.Bool,
-  'category' : IDL.Text,
+  'status' : PostStatus,
+  'title' : IDL.Text,
+  'scheduledDate' : IDL.Opt(IDL.Int),
+  'createdAt' : IDL.Int,
+  'tags' : IDL.Vec(IDL.Text),
+  'platform' : SocialMediaPlatform,
+  'updatedAt' : IDL.Int,
+  'notes' : IDL.Text,
+  'caption' : IDL.Text,
 });
+export const WebhookLog = IDL.Record({
+  'id' : IDL.Nat,
+  'source' : IDL.Text,
+  'timestamp' : IDL.Int,
+  'toolName' : IDL.Text,
+  'payload' : IDL.Text,
+});
+export const ExportPayload = IDL.Record({
+  'metrics' : IDL.Vec(SocialMediaMetrics),
+  'posts' : IDL.Vec(SocialMediaPost),
+  'webhookLogs' : IDL.Vec(WebhookLog),
+});
+export const UserProfile = IDL.Record({ 'bio' : IDL.Text, 'name' : IDL.Text });
 
 export const idlService = IDL.Service({
   '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -73,49 +106,87 @@ export const idlService = IDL.Service({
       [],
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
-  'createLead' : IDL.Func(
-      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-      [Lead],
+  '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+  'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'clearExternalWebhookLogs' : IDL.Func([], [], []),
+  'createMetrics' : IDL.Func(
+      [
+        SocialMediaPlatform,
+        IDL.Int,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Text,
+      ],
+      [SocialMediaMetrics],
       [],
     ),
-  'createService' : IDL.Func(
+  'createPost' : IDL.Func(
       [
         IDL.Text,
         IDL.Text,
+        SocialMediaPlatform,
+        PostStatus,
+        IDL.Opt(IDL.Int),
+        IDL.Vec(IDL.Text),
         IDL.Text,
-        IDL.Vec(Package),
-        IDL.Vec(Addon),
-        IDL.Nat,
-        IDL.Bool,
-        IDL.Int,
       ],
-      [Service],
+      [SocialMediaPost],
       [],
     ),
-  'deleteLead' : IDL.Func([IDL.Nat], [], []),
-  'deleteService' : IDL.Func([IDL.Nat], [], []),
-  'duplicateService' : IDL.Func([IDL.Nat], [Service], []),
-  'getLeads' : IDL.Func([], [IDL.Vec(Lead)], ['query']),
-  'getServices' : IDL.Func([], [IDL.Vec(Service)], ['query']),
-  'reorderServices' : IDL.Func([IDL.Vec(IDL.Nat)], [], []),
-  'updateLead' : IDL.Func(
-      [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-      [Lead],
+  'deleteMetrics' : IDL.Func([IDL.Nat], [], []),
+  'deletePost' : IDL.Func([IDL.Nat], [], []),
+  'exportData' : IDL.Func([], [ExportPayload], ['query']),
+  'getAllMetrics' : IDL.Func([], [IDL.Vec(SocialMediaMetrics)], ['query']),
+  'getAllPosts' : IDL.Func([], [IDL.Vec(SocialMediaPost)], ['query']),
+  'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+  'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getExternalWebhookLogs' : IDL.Func([], [IDL.Vec(WebhookLog)], ['query']),
+  'getMetrics' : IDL.Func([IDL.Nat], [IDL.Opt(SocialMediaMetrics)], ['query']),
+  'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(SocialMediaPost)], ['query']),
+  'getUserProfile' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Opt(UserProfile)],
+      ['query'],
+    ),
+  'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'receiveExternalWebhook' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text],
+      [IDL.Nat],
       [],
     ),
-  'updateService' : IDL.Func(
+  'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateMetrics' : IDL.Func(
+      [
+        IDL.Nat,
+        SocialMediaPlatform,
+        IDL.Int,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Text,
+      ],
+      [SocialMediaMetrics],
+      [],
+    ),
+  'updatePost' : IDL.Func(
       [
         IDL.Nat,
         IDL.Text,
         IDL.Text,
+        SocialMediaPlatform,
+        PostStatus,
+        IDL.Opt(IDL.Int),
+        IDL.Vec(IDL.Text),
         IDL.Text,
-        IDL.Vec(Package),
-        IDL.Vec(Addon),
-        IDL.Nat,
-        IDL.Bool,
-        IDL.Int,
       ],
-      [Service],
+      [SocialMediaPost],
       [],
     ),
 });
@@ -134,32 +205,65 @@ export const idlFactory = ({ IDL }) => {
     'success' : IDL.Opt(IDL.Bool),
     'topped_up_amount' : IDL.Opt(IDL.Nat),
   });
-  const Lead = IDL.Record({
+  const UserRole = IDL.Variant({
+    'admin' : IDL.Null,
+    'user' : IDL.Null,
+    'guest' : IDL.Null,
+  });
+  const SocialMediaPlatform = IDL.Variant({
+    'linkedin' : IDL.Null,
+    'tiktok' : IDL.Null,
+    'twitter' : IDL.Null,
+    'other' : IDL.Null,
+    'instagram' : IDL.Null,
+    'facebook' : IDL.Null,
+    'youtube' : IDL.Null,
+  });
+  const SocialMediaMetrics = IDL.Record({
     'id' : IDL.Nat,
-    'status' : IDL.Text,
-    'name' : IDL.Text,
-    'email' : IDL.Text,
-    'serviceInterest' : IDL.Text,
+    'clicks' : IDL.Nat,
+    'engagements' : IDL.Nat,
+    'date' : IDL.Int,
+    'createdAt' : IDL.Int,
+    'impressions' : IDL.Nat,
+    'platform' : SocialMediaPlatform,
     'notes' : IDL.Text,
-    'phone' : IDL.Text,
+    'postsPublished' : IDL.Nat,
+    'followers' : IDL.Nat,
+    'reach' : IDL.Nat,
   });
-  const Package = IDL.Record({
-    'features' : IDL.Vec(IDL.Text),
-    'tier' : IDL.Text,
-    'priceINR' : IDL.Nat,
+  const PostStatus = IDL.Variant({
+    'scheduled' : IDL.Null,
+    'cancelled' : IDL.Null,
+    'idea' : IDL.Null,
+    'published' : IDL.Null,
+    'draft' : IDL.Null,
   });
-  const Addon = IDL.Record({ 'name' : IDL.Text, 'price' : IDL.Nat });
-  const Service = IDL.Record({
+  const SocialMediaPost = IDL.Record({
     'id' : IDL.Nat,
-    'packages' : IDL.Vec(Package),
-    'sortOrder' : IDL.Int,
-    'name' : IDL.Text,
-    'description' : IDL.Text,
-    'maintenancePlan' : IDL.Nat,
-    'addons' : IDL.Vec(Addon),
-    'isVisible' : IDL.Bool,
-    'category' : IDL.Text,
+    'status' : PostStatus,
+    'title' : IDL.Text,
+    'scheduledDate' : IDL.Opt(IDL.Int),
+    'createdAt' : IDL.Int,
+    'tags' : IDL.Vec(IDL.Text),
+    'platform' : SocialMediaPlatform,
+    'updatedAt' : IDL.Int,
+    'notes' : IDL.Text,
+    'caption' : IDL.Text,
   });
+  const WebhookLog = IDL.Record({
+    'id' : IDL.Nat,
+    'source' : IDL.Text,
+    'timestamp' : IDL.Int,
+    'toolName' : IDL.Text,
+    'payload' : IDL.Text,
+  });
+  const ExportPayload = IDL.Record({
+    'metrics' : IDL.Vec(SocialMediaMetrics),
+    'posts' : IDL.Vec(SocialMediaPost),
+    'webhookLogs' : IDL.Vec(WebhookLog),
+  });
+  const UserProfile = IDL.Record({ 'bio' : IDL.Text, 'name' : IDL.Text });
   
   return IDL.Service({
     '_caffeineStorageBlobIsLive' : IDL.Func(
@@ -188,49 +292,91 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
-    'createLead' : IDL.Func(
-        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-        [Lead],
+    '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
+    'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'clearExternalWebhookLogs' : IDL.Func([], [], []),
+    'createMetrics' : IDL.Func(
+        [
+          SocialMediaPlatform,
+          IDL.Int,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Text,
+        ],
+        [SocialMediaMetrics],
         [],
       ),
-    'createService' : IDL.Func(
+    'createPost' : IDL.Func(
         [
           IDL.Text,
           IDL.Text,
+          SocialMediaPlatform,
+          PostStatus,
+          IDL.Opt(IDL.Int),
+          IDL.Vec(IDL.Text),
           IDL.Text,
-          IDL.Vec(Package),
-          IDL.Vec(Addon),
-          IDL.Nat,
-          IDL.Bool,
-          IDL.Int,
         ],
-        [Service],
+        [SocialMediaPost],
         [],
       ),
-    'deleteLead' : IDL.Func([IDL.Nat], [], []),
-    'deleteService' : IDL.Func([IDL.Nat], [], []),
-    'duplicateService' : IDL.Func([IDL.Nat], [Service], []),
-    'getLeads' : IDL.Func([], [IDL.Vec(Lead)], ['query']),
-    'getServices' : IDL.Func([], [IDL.Vec(Service)], ['query']),
-    'reorderServices' : IDL.Func([IDL.Vec(IDL.Nat)], [], []),
-    'updateLead' : IDL.Func(
-        [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text, IDL.Text],
-        [Lead],
+    'deleteMetrics' : IDL.Func([IDL.Nat], [], []),
+    'deletePost' : IDL.Func([IDL.Nat], [], []),
+    'exportData' : IDL.Func([], [ExportPayload], ['query']),
+    'getAllMetrics' : IDL.Func([], [IDL.Vec(SocialMediaMetrics)], ['query']),
+    'getAllPosts' : IDL.Func([], [IDL.Vec(SocialMediaPost)], ['query']),
+    'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
+    'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getExternalWebhookLogs' : IDL.Func([], [IDL.Vec(WebhookLog)], ['query']),
+    'getMetrics' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(SocialMediaMetrics)],
+        ['query'],
+      ),
+    'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(SocialMediaPost)], ['query']),
+    'getUserProfile' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Opt(UserProfile)],
+        ['query'],
+      ),
+    'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'receiveExternalWebhook' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text],
+        [IDL.Nat],
         [],
       ),
-    'updateService' : IDL.Func(
+    'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateMetrics' : IDL.Func(
+        [
+          IDL.Nat,
+          SocialMediaPlatform,
+          IDL.Int,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Text,
+        ],
+        [SocialMediaMetrics],
+        [],
+      ),
+    'updatePost' : IDL.Func(
         [
           IDL.Nat,
           IDL.Text,
           IDL.Text,
+          SocialMediaPlatform,
+          PostStatus,
+          IDL.Opt(IDL.Int),
+          IDL.Vec(IDL.Text),
           IDL.Text,
-          IDL.Vec(Package),
-          IDL.Vec(Addon),
-          IDL.Nat,
-          IDL.Bool,
-          IDL.Int,
         ],
-        [Service],
+        [SocialMediaPost],
         [],
       ),
   });

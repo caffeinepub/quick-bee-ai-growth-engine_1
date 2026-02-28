@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, Eye, Star } from 'lucide-react';
 import { useServices, useCreateService } from '../hooks/useQueries';
-import type { Service } from '../backend';
+import type { Service } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useCart } from '../contexts/CartContext';

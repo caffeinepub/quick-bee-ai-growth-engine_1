@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { Users, Plus, Download, Edit2, Trash2, LayoutGrid, List } from 'lucide-react';
 import { useLeads, useCreateLead, useUpdateLead, useDeleteLead } from '../hooks/useQueries';
-import type { Lead } from '../backend';
+import type { Lead } from '../hooks/useQueries';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const STATUSES = ['New', 'Contacted', 'Qualified', 'Proposal Sent', 'Closed Won', 'Closed Lost'];

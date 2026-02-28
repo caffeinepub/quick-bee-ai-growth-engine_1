@@ -3,7 +3,8 @@ import { Link, useRouterState } from '@tanstack/react-router';
 import {
   LayoutDashboard, Users, Briefcase, Settings2, Bot, Settings,
   Zap, GitBranch, BarChart3, PenTool, Webhook, ShoppingCart,
-  ChevronLeft, ChevronRight, Menu, X
+  ChevronLeft, ChevronRight, Menu, X, Download,
+  CalendarDays, CalendarRange, TrendingUp, Radio, Plug,
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
@@ -20,6 +21,15 @@ const navItems = [
   { path: '/content-creator', label: 'AI Content', icon: PenTool },
   { path: '/webhook-logs', label: 'Webhook Logs', icon: Webhook },
   { path: '/checkout', label: 'Checkout', icon: ShoppingCart },
+  { path: '/data-export', label: 'Data Export', icon: Download },
+];
+
+const socialMediaItems = [
+  { path: '/social-scheduler', label: 'Social Scheduler', icon: CalendarDays },
+  { path: '/content-calendar', label: 'Content Calendar', icon: CalendarRange },
+  { path: '/social-metrics', label: 'Metrics Dashboard', icon: TrendingUp },
+  { path: '/external-webhooks', label: 'External Webhooks', icon: Radio },
+  { path: '/external-tools', label: 'External Tools', icon: Plug },
 ];
 
 export function AppSidebar() {
@@ -32,6 +42,38 @@ export function AppSidebar() {
   const isActive = (path: string) => {
     if (path === '/') return currentPath === '/';
     return currentPath.startsWith(path);
+  };
+
+  const NavLink = ({ path, label, icon: Icon }: { path: string; label: string; icon: React.ElementType }) => {
+    const active = isActive(path);
+    return (
+      <Link
+        key={path}
+        to={path}
+        onClick={() => setMobileOpen(false)}
+        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative ${
+          active
+            ? 'text-teal bg-teal/10 border-l-2 border-teal'
+            : 'text-white/50 hover:text-teal hover:bg-teal/8'
+        }`}
+        style={active ? { color: '#00d4c8', borderLeftColor: '#00d4c8' } : {}}
+      >
+        <Icon size={18} className="flex-shrink-0" />
+        {!collapsed && (
+          <span className="truncate">{label}</span>
+        )}
+        {path === '/checkout' && totalItems > 0 && !collapsed && (
+          <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full teal-gradient text-black">
+            {totalItems}
+          </span>
+        )}
+        {path === '/checkout' && totalItems > 0 && collapsed && (
+          <span className="absolute -top-1 -right-1 w-4 h-4 text-xs font-bold rounded-full teal-gradient text-black flex items-center justify-center">
+            {totalItems}
+          </span>
+        )}
+      </Link>
+    );
   };
 
   const SidebarContent = () => (
@@ -53,37 +95,24 @@ export function AppSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-4 space-y-0.5 overflow-y-auto scrollbar-thin">
-        {navItems.map(({ path, label, icon: Icon }) => {
-          const active = isActive(path);
-          return (
-            <Link
-              key={path}
-              to={path}
-              onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative ${
-                active
-                  ? 'text-teal bg-teal/10 border-l-2 border-teal'
-                  : 'text-white/50 hover:text-teal hover:bg-teal/8'
-              }`}
-              style={active ? { color: '#00d4c8', borderLeftColor: '#00d4c8' } : {}}
-            >
-              <Icon size={18} className="flex-shrink-0" />
-              {!collapsed && (
-                <span className="truncate">{label}</span>
-              )}
-              {path === '/checkout' && totalItems > 0 && !collapsed && (
-                <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full teal-gradient text-black">
-                  {totalItems}
-                </span>
-              )}
-              {path === '/checkout' && totalItems > 0 && collapsed && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 text-xs font-bold rounded-full teal-gradient text-black flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+        {navItems.map(item => (
+          <NavLink key={item.path} {...item} />
+        ))}
+
+        {/* Social Media Group */}
+        {!collapsed && (
+          <div className="pt-3 pb-1 px-3">
+            <span className="text-xs font-semibold text-white/25 uppercase tracking-wider">Social Media</span>
+          </div>
+        )}
+        {collapsed && (
+          <div className="pt-2 pb-1">
+            <div className="border-t border-teal/10 mx-2" />
+          </div>
+        )}
+        {socialMediaItems.map(item => (
+          <NavLink key={item.path} {...item} />
+        ))}
       </nav>
 
       {/* Collapse toggle */}

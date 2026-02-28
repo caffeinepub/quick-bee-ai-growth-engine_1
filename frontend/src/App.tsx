@@ -22,6 +22,12 @@ import { WebhookLogsPage } from './pages/WebhookLogsPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { PaymentSuccessPage } from './pages/PaymentSuccessPage';
 import { PaymentFailurePage } from './pages/PaymentFailurePage';
+import { DataExportPage } from './pages/DataExportPage';
+import { SocialSchedulerPage } from './pages/SocialSchedulerPage';
+import { ContentCalendarPage } from './pages/ContentCalendarPage';
+import { SocialMetricsPage } from './pages/SocialMetricsPage';
+import { ExternalWebhooksPage } from './pages/ExternalWebhooksPage';
+import { ExternalToolsPage } from './pages/ExternalToolsPage';
 
 // Root route with Layout (sidebar + outlet)
 const rootRoute = createRootRoute({
@@ -117,6 +123,43 @@ const paymentFailureRoute = createRoute({
   component: PaymentFailurePage,
 });
 
+const dataExportRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/data-export',
+  component: DataExportPage,
+});
+
+// Social Media routes
+const socialSchedulerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/social-scheduler',
+  component: SocialSchedulerPage,
+});
+
+const contentCalendarRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/content-calendar',
+  component: ContentCalendarPage,
+});
+
+const socialMetricsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/social-metrics',
+  component: SocialMetricsPage,
+});
+
+const externalWebhooksRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/external-webhooks',
+  component: ExternalWebhooksPage,
+});
+
+const externalToolsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/external-tools',
+  component: ExternalToolsPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   leadsRoute,
@@ -132,6 +175,12 @@ const routeTree = rootRoute.addChildren([
   checkoutRoute,
   paymentSuccessRoute,
   paymentFailureRoute,
+  dataExportRoute,
+  socialSchedulerRoute,
+  contentCalendarRoute,
+  socialMetricsRoute,
+  externalWebhooksRoute,
+  externalToolsRoute,
 ]);
 
 const router = createRouter({ routeTree });

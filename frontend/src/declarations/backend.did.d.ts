@@ -10,31 +10,58 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface Addon { 'name' : string, 'price' : bigint }
-export interface Lead {
+export interface ExportPayload {
+  'metrics' : Array<SocialMediaMetrics>,
+  'posts' : Array<SocialMediaPost>,
+  'webhookLogs' : Array<WebhookLog>,
+}
+export type PostStatus = { 'scheduled' : null } |
+  { 'cancelled' : null } |
+  { 'idea' : null } |
+  { 'published' : null } |
+  { 'draft' : null };
+export interface SocialMediaMetrics {
   'id' : bigint,
-  'status' : string,
-  'name' : string,
-  'email' : string,
-  'serviceInterest' : string,
+  'clicks' : bigint,
+  'engagements' : bigint,
+  'date' : bigint,
+  'createdAt' : bigint,
+  'impressions' : bigint,
+  'platform' : SocialMediaPlatform,
   'notes' : string,
-  'phone' : string,
+  'postsPublished' : bigint,
+  'followers' : bigint,
+  'reach' : bigint,
 }
-export interface Package {
-  'features' : Array<string>,
-  'tier' : string,
-  'priceINR' : bigint,
-}
-export interface Service {
+export type SocialMediaPlatform = { 'linkedin' : null } |
+  { 'tiktok' : null } |
+  { 'twitter' : null } |
+  { 'other' : null } |
+  { 'instagram' : null } |
+  { 'facebook' : null } |
+  { 'youtube' : null };
+export interface SocialMediaPost {
   'id' : bigint,
-  'packages' : Array<Package>,
-  'sortOrder' : bigint,
-  'name' : string,
-  'description' : string,
-  'maintenancePlan' : bigint,
-  'addons' : Array<Addon>,
-  'isVisible' : boolean,
-  'category' : string,
+  'status' : PostStatus,
+  'title' : string,
+  'scheduledDate' : [] | [bigint],
+  'createdAt' : bigint,
+  'tags' : Array<string>,
+  'platform' : SocialMediaPlatform,
+  'updatedAt' : bigint,
+  'notes' : string,
+  'caption' : string,
+}
+export interface UserProfile { 'bio' : string, 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
+export interface WebhookLog {
+  'id' : bigint,
+  'source' : string,
+  'timestamp' : bigint,
+  'toolName' : string,
+  'payload' : string,
 }
 export interface _CaffeineStorageCreateCertificateResult {
   'method' : string,
@@ -63,46 +90,76 @@ export interface _SERVICE {
     _CaffeineStorageRefillResult
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
-  'createLead' : ActorMethod<
-    [string, string, string, string, string, string],
-    Lead
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'clearExternalWebhookLogs' : ActorMethod<[], undefined>,
+  'createMetrics' : ActorMethod<
+    [
+      SocialMediaPlatform,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      string,
+    ],
+    SocialMediaMetrics
   >,
-  'createService' : ActorMethod<
+  'createPost' : ActorMethod<
     [
       string,
       string,
+      SocialMediaPlatform,
+      PostStatus,
+      [] | [bigint],
+      Array<string>,
       string,
-      Array<Package>,
-      Array<Addon>,
-      bigint,
-      boolean,
-      bigint,
     ],
-    Service
+    SocialMediaPost
   >,
-  'deleteLead' : ActorMethod<[bigint], undefined>,
-  'deleteService' : ActorMethod<[bigint], undefined>,
-  'duplicateService' : ActorMethod<[bigint], Service>,
-  'getLeads' : ActorMethod<[], Array<Lead>>,
-  'getServices' : ActorMethod<[], Array<Service>>,
-  'reorderServices' : ActorMethod<[Array<bigint>], undefined>,
-  'updateLead' : ActorMethod<
-    [bigint, string, string, string, string, string, string],
-    Lead
+  'deleteMetrics' : ActorMethod<[bigint], undefined>,
+  'deletePost' : ActorMethod<[bigint], undefined>,
+  'exportData' : ActorMethod<[], ExportPayload>,
+  'getAllMetrics' : ActorMethod<[], Array<SocialMediaMetrics>>,
+  'getAllPosts' : ActorMethod<[], Array<SocialMediaPost>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getExternalWebhookLogs' : ActorMethod<[], Array<WebhookLog>>,
+  'getMetrics' : ActorMethod<[bigint], [] | [SocialMediaMetrics]>,
+  'getPost' : ActorMethod<[bigint], [] | [SocialMediaPost]>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'receiveExternalWebhook' : ActorMethod<[string, string, string], bigint>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateMetrics' : ActorMethod<
+    [
+      bigint,
+      SocialMediaPlatform,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      bigint,
+      string,
+    ],
+    SocialMediaMetrics
   >,
-  'updateService' : ActorMethod<
+  'updatePost' : ActorMethod<
     [
       bigint,
       string,
       string,
+      SocialMediaPlatform,
+      PostStatus,
+      [] | [bigint],
+      Array<string>,
       string,
-      Array<Package>,
-      Array<Addon>,
-      bigint,
-      boolean,
-      bigint,
     ],
-    Service
+    SocialMediaPost
   >,
 }
 export declare const idlService: IDL.ServiceClass;
