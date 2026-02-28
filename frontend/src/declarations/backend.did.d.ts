@@ -10,16 +10,66 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AdCampaign {
+  'id' : bigint,
+  'clicks' : bigint,
+  'createdAt' : bigint,
+  'impressions' : bigint,
+  'platform' : AdPlatform,
+  'spend' : number,
+  'updatedAt' : bigint,
+  'conversions' : bigint,
+  'budget' : number,
+  'campaignName' : string,
+}
+export type AdPlatform = { 'linkedin' : null } |
+  { 'meta' : null } |
+  { 'googleAds' : null } |
+  { 'youtube' : null };
+export interface EmailCampaign {
+  'id' : bigint,
+  'status' : { 'active' : null } |
+    { 'sent' : null } |
+    { 'draft' : null },
+  'bodyContent' : string,
+  'subjectLine' : string,
+  'createdAt' : bigint,
+  'targetAudience' : string,
+  'updatedAt' : bigint,
+  'campaignName' : string,
+}
 export interface ExportPayload {
   'metrics' : Array<SocialMediaMetrics>,
   'posts' : Array<SocialMediaPost>,
   'webhookLogs' : Array<WebhookLog>,
 }
+export interface LandingPage {
+  'id' : bigint,
+  'url' : string,
+  'status' : LandingPageStatus,
+  'name' : string,
+  'createdAt' : bigint,
+  'associatedCampaign' : string,
+  'updatedAt' : bigint,
+  'conversionGoal' : string,
+}
+export type LandingPageStatus = { 'active' : null } |
+  { 'draft' : null } |
+  { 'paused' : null };
 export type PostStatus = { 'scheduled' : null } |
   { 'cancelled' : null } |
   { 'idea' : null } |
   { 'published' : null } |
   { 'draft' : null };
+export interface SEOEntry {
+  'id' : bigint,
+  'metaDescription' : string,
+  'createdAt' : bigint,
+  'updatedAt' : bigint,
+  'pageUrl' : string,
+  'targetKeywords' : Array<string>,
+  'metaTitle' : string,
+}
 export interface SocialMediaMetrics {
   'id' : bigint,
   'clicks' : bigint,
@@ -93,6 +143,26 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'clearExternalWebhookLogs' : ActorMethod<[], undefined>,
+  'createAdCampaign' : ActorMethod<
+    [string, AdPlatform, number, number, bigint, bigint, bigint],
+    AdCampaign
+  >,
+  'createEmailCampaign' : ActorMethod<
+    [
+      string,
+      string,
+      string,
+      string,
+      { 'active' : null } |
+        { 'sent' : null } |
+        { 'draft' : null },
+    ],
+    EmailCampaign
+  >,
+  'createLandingPage' : ActorMethod<
+    [string, string, string, string, LandingPageStatus],
+    LandingPage
+  >,
   'createMetrics' : ActorMethod<
     [
       SocialMediaPlatform,
@@ -119,20 +189,57 @@ export interface _SERVICE {
     ],
     SocialMediaPost
   >,
+  'createSEOEntry' : ActorMethod<
+    [string, Array<string>, string, string],
+    SEOEntry
+  >,
+  'deleteAdCampaign' : ActorMethod<[bigint], undefined>,
+  'deleteEmailCampaign' : ActorMethod<[bigint], undefined>,
+  'deleteLandingPage' : ActorMethod<[bigint], undefined>,
   'deleteMetrics' : ActorMethod<[bigint], undefined>,
   'deletePost' : ActorMethod<[bigint], undefined>,
+  'deleteSEOEntry' : ActorMethod<[bigint], undefined>,
   'exportData' : ActorMethod<[], ExportPayload>,
+  'getAdCampaign' : ActorMethod<[bigint], [] | [AdCampaign]>,
+  'getAllAdCampaigns' : ActorMethod<[], Array<AdCampaign>>,
+  'getAllEmailCampaigns' : ActorMethod<[], Array<EmailCampaign>>,
+  'getAllLandingPages' : ActorMethod<[], Array<LandingPage>>,
   'getAllMetrics' : ActorMethod<[], Array<SocialMediaMetrics>>,
   'getAllPosts' : ActorMethod<[], Array<SocialMediaPost>>,
+  'getAllSEOEntries' : ActorMethod<[], Array<SEOEntry>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getEmailCampaign' : ActorMethod<[bigint], [] | [EmailCampaign]>,
   'getExternalWebhookLogs' : ActorMethod<[], Array<WebhookLog>>,
+  'getLandingPage' : ActorMethod<[bigint], [] | [LandingPage]>,
   'getMetrics' : ActorMethod<[bigint], [] | [SocialMediaMetrics]>,
   'getPost' : ActorMethod<[bigint], [] | [SocialMediaPost]>,
+  'getSEOEntry' : ActorMethod<[bigint], [] | [SEOEntry]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
   'receiveExternalWebhook' : ActorMethod<[string, string, string], bigint>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'updateAdCampaign' : ActorMethod<
+    [bigint, string, AdPlatform, number, number, bigint, bigint, bigint],
+    AdCampaign
+  >,
+  'updateEmailCampaign' : ActorMethod<
+    [
+      bigint,
+      string,
+      string,
+      string,
+      string,
+      { 'active' : null } |
+        { 'sent' : null } |
+        { 'draft' : null },
+    ],
+    EmailCampaign
+  >,
+  'updateLandingPage' : ActorMethod<
+    [bigint, string, string, string, string, LandingPageStatus],
+    LandingPage
+  >,
   'updateMetrics' : ActorMethod<
     [
       bigint,
@@ -160,6 +267,10 @@ export interface _SERVICE {
       string,
     ],
     SocialMediaPost
+  >,
+  'updateSEOEntry' : ActorMethod<
+    [bigint, string, Array<string>, string, string],
+    SEOEntry
   >,
 }
 export declare const idlService: IDL.ServiceClass;

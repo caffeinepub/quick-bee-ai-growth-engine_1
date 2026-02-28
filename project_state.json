@@ -1,58 +1,37 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Existing app (Version 9 in production) with PDF/CSV/Excel export. Adding social media management features as new modules without changing existing functionality.",
+  "summary": "Digital marketing automation platform with AI agent capabilities. Building incrementally in smaller steps to avoid build errors. Features include: campaign management, content scheduling, analytics, lead management, webhook automation, smart task agent, campaign autopilot, intelligent webhook agent, decision support engine, and workflow automation builder.",
   "architectural_notes": [
-    "Do not modify existing app functionality — all new social media features must be additive modules only."
+    "Build is being done incrementally in smaller steps to avoid AI build errors",
+    "No direct social media posting, email sending, or live external AI model connections (platform limits)"
   ],
-  "known_issues": [],
+  "known_issues": [
+    "Full digital marketing automation build failed twice — now breaking into smaller incremental steps"
+  ],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-create-a-social-media-scheduler-page-route-social-scheduler-that-allows-users-to-create-view-edit-and-delete-social-media-post-ideas-include-a-list-grid-toggle-filter-by-platform-and-status-and-a-modal-form-for-adding-editing-posts-with-all-fields-defined-in-req-1",
-      "title": "Create a Social Media Scheduler page (route: /social-scheduler) that allows users to create, view, edit, and delete social media post ideas. Include a list/grid toggle, filter by platform and status, and a modal form for adding/editing posts with all fields defined in REQ-1.",
+      "id": "feature-create-a-smart-task-agent-page-at-route-smart-task-agent-the-page-must-include-1-an-auto-task-generator-form-where-the-user-enters-a-goal-and-the-app-breaks-it-down-into-actionable-steps-displayed-as-a-checklist-2-a-priority-queue-panel-that-lists-tasks-ranked-by-deadline-and-dependency-tasks-can-be-marked-complete-reordered-by-priority-high-medium-low-and-have-a-due-date-3-a-task-completion-tracker-that-when-a-task-is-marked-done-auto-suggests-the-next-logical-step-from-the-remaining-queue-all-task-data-must-be-persisted-to-localstorage",
+      "title": "Create a Smart Task Agent page at route '/smart-task-agent'. The page must include: (1) An auto-task generator form where the user enters a goal and the app breaks it down into actionable steps displayed as a checklist. (2) A priority queue panel that lists tasks ranked by deadline and dependency — tasks can be marked complete, reordered by priority (High/Medium/Low), and have a due date. (3) A task completion tracker that, when a task is marked done, auto-suggests the next logical step from the remaining queue. All task data must be persisted to localStorage.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-a-campaign-autopilot-page-at-route-campaign-autopilot-the-page-must-include-1-a-content-auto-scheduler-section-where-the-user-defines-optimal-posting-windows-day-of-week-time-of-day-per-platform-and-scheduled-posts-from-the-backend-are-surfaced-in-that-order-2-a-campaign-health-monitor-panel-that-reads-existing-ad-campaign-data-spend-ctr-conversions-and-flags-campaigns-as-healthy-at-risk-or-underperforming-based-on-user-defined-thresholds-3-a-performance-summary-generator-that-on-demand-or-on-a-set-daily-weekly-schedule-stored-in-localstorage-produces-a-plain-text-summary-card-of-campaign-activity-all-configuration-must-be-persisted-to-localstorage",
+      "title": "Create a Campaign Autopilot page at route '/campaign-autopilot'. The page must include: (1) A content auto-scheduler section where the user defines optimal posting windows (day of week + time of day) per platform, and scheduled posts from the backend are surfaced in that order. (2) A campaign health monitor panel that reads existing ad campaign data (spend, CTR, conversions) and flags campaigns as Healthy, At Risk, or Underperforming based on user-defined thresholds. (3) A performance summary generator that, on demand or on a set daily/weekly schedule stored in localStorage, produces a plain-text summary card of campaign activity. All configuration must be persisted to localStorage.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-content-calendar-page-route-content-calendar-that-displays-scheduled-and-planned-posts-in-a-monthly-calendar-grid-view-each-calendar-day-cell-shows-post-entries-with-colored-badges-per-platform-clicking-a-post-opens-its-detail-edit-modal-include-a-month-navigation-control-and-a-legend-for-platform-colors",
-      "title": "Create a Content Calendar page (route: /content-calendar) that displays scheduled and planned posts in a monthly calendar grid view. Each calendar day cell shows post entries with colored badges per platform. Clicking a post opens its detail/edit modal. Include a month navigation control and a legend for platform colors.",
+      "id": "feature-add-an-ai-agent-navigation-group-to-the-appsidebar-containing-links-to-smart-task-agent-smart-task-agent-and-campaign-autopilot-campaign-autopilot-the-group-should-appear-after-the-existing-digital-marketing-section-and-use-a-bot-robot-icon-consistent-with-the-app-s-dark-teal-design-system",
+      "title": "Add an 'AI Agent' navigation group to the AppSidebar containing links to '/smart-task-agent' (Smart Task Agent) and '/campaign-autopilot' (Campaign Autopilot). The group should appear after the existing Digital Marketing section and use a bot/robot icon consistent with the app's dark teal design system.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-a-social-media-metrics-dashboard-page-route-social-metrics-where-users-can-manually-log-platform-metrics-per-day-display-aggregated-totals-and-per-platform-comparison-charts-bar-line-using-recharts-include-a-log-entry-form-modal-and-a-table-of-all-logged-entries-with-edit-delete-actions-add-platform-filter-and-date-range-filter",
-      "title": "Create a Social Media Metrics Dashboard page (route: /social-metrics) where users can manually log platform metrics per day. Display aggregated totals and per-platform comparison charts (bar/line using Recharts). Include a log entry form modal and a table of all logged entries with edit/delete actions. Add platform filter and date range filter.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-an-external-webhook-receiver-page-route-external-webhooks-that-displays-all-incoming-external-webhook-payloads-logged-in-the-backend-show-a-table-with-columns-id-tool-source-name-timestamp-payload-preview-truncated-and-full-payload-expand-toggle-include-refresh-and-clear-buttons-display-the-app-s-canister-endpoint-url-as-the-webhook-receiver-address-users-should-configure-in-external-tools",
-      "title": "Create an External Webhook Receiver page (route: /external-webhooks) that displays all incoming external webhook payloads logged in the backend. Show a table with columns: ID, Tool/Source name, timestamp, payload preview (truncated), and full payload expand toggle. Include refresh and clear buttons. Display the app's canister endpoint URL as the webhook receiver address users should configure in external tools.",
-      "reqIds": [
-        "REQ-7"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-an-external-tools-integrations-reference-page-route-external-tools-that-lists-recommended-external-automation-and-social-media-management-tools-include-cards-for-zapier-make-integromat-n8n-buffer-hootsuite-and-later-each-card-should-show-the-tool-name-a-short-description-key-use-case-and-a-link-to-the-tool-s-website-add-a-section-explaining-how-to-connect-these-tools-to-the-app-s-webhook-receiver",
-      "title": "Create an External Tools & Integrations reference page (route: /external-tools) that lists recommended external automation and social media management tools. Include cards for: Zapier, Make (Integromat), n8n, Buffer, Hootsuite, and Later. Each card should show the tool name, a short description, key use case, and a link to the tool's website. Add a section explaining how to connect these tools to the app's webhook receiver.",
-      "reqIds": [
-        "REQ-8"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-the-four-new-pages-social-scheduler-content-calendar-social-metrics-dashboard-external-webhooks-external-tools-to-the-appsidebar-navigation-under-a-new-social-media-group-and-register-all-new-routes-in-app-tsx-do-not-remove-or-reorder-any-existing-sidebar-items-or-routes",
-      "title": "Add the four new pages (Social Scheduler, Content Calendar, Social Metrics Dashboard, External Webhooks, External Tools) to the AppSidebar navigation under a new 'Social Media' group, and register all new routes in App.tsx. Do not remove or reorder any existing sidebar items or routes.",
-      "reqIds": [
-        "REQ-9"
       ],
       "version": 1
     }
@@ -60,50 +39,56 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Scheduler/task manager that tracks social media post ideas and schedules",
+      "summary": "Campaign planner with goal tracking, content library, post scheduler, and content calendar",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Content calendar to plan and organize posts across platforms",
+      "summary": "Analytics dashboard with performance charts, CSV export, and campaign ROI tracker",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Data aggregation dashboard where users manually log metrics from each social media platform",
+      "summary": "Lead capture forms, contact list, audience segmentation, and follow-up task reminders",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Webhook receiver that accepts data pushed from external tools, plus links/references to external automation tools (Zapier, Make, Buffer, etc.)",
+      "summary": "Webhook receiver, integration hub with documented endpoints, import/export flows",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-5",
-      "summary": "Create a backend data model and CRUD operations for social media post ideas, including fields: id, title, caption, platform (Instagram, Facebook, Twitter/X, LinkedIn, TikTok, YouTube, Other), status (Idea, Draft, Scheduled, Published, Cancelled), scheduledDate (optional), tags (array of strings), notes, createdAt, and updatedAt timestamps.",
-      "reqIds": [
-        "REQ-1"
-      ],
+      "summary": "Smart task agent: auto-task generator, priority queue, task completion tracker with next-step suggestions",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Campaign autopilot: auto-schedule content, campaign health monitor, auto-generate performance summaries",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Intelligent webhook agent: auto-classify/route data, trigger-based actions, threshold alert system",
+      "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-8",
-      "summary": "Create a backend data model and CRUD operations for manually logged social media metrics. Each metric entry should include: id, platform, date, followers, impressions, reach, engagements, clicks, postsPublished, notes, and createdAt timestamp.",
-      "reqIds": [
-        "REQ-4"
-      ],
+      "summary": "Decision support engine: recommendation panel, weekly briefing, pattern/trend detection",
+      "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-10",
-      "summary": "Extend the backend to accept and store incoming webhook payloads from external tools. Add a receiveExternalWebhook(toolName: Text, payload: Text, source: Text) function that stores the entry with a timestamp and auto-incremented ID. Also add a getExternalWebhookLogs and clearExternalWebhookLogs function. These are separate from the existing internal webhook logs.",
-      "reqIds": [
-        "REQ-6"
-      ],
+      "id": "AR-9",
+      "summary": "Workflow automation builder: visual rule creator, multi-step workflow chains, recurring templates",
+      "reqIds": [],
       "status": "pending"
     }
   ],

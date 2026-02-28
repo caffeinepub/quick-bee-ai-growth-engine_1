@@ -1,148 +1,78 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Add Social Media Management Suite (Scheduler, Content Calendar, Metrics Dashboard, Webhook Receiver)",
+  "title": "Smart Task Agent & Campaign Autopilot (Step 1 of 4)",
   "requirements": [
     {
-      "id": "REQ-2",
-      "summary": "Create a Social Media Scheduler page with CRUD operations for post ideas, list/grid toggle, and platform/status filters",
+      "id": "REQ-1",
+      "summary": "Create Smart Task Agent page with auto-task generator, priority queue, and task completion tracker using localStorage persistence",
       "acceptanceCriteria": [
-        "Page is accessible via /social-scheduler route",
-        "Users can create new post ideas via a modal form",
-        "Users can edit and delete existing posts",
-        "Posts can be filtered by platform and status",
-        "List and grid view modes are available",
-        "Scheduled date/time picker is available in the form"
+        "User can enter a goal and generate a list of actionable sub-tasks",
+        "Tasks display priority (High/Medium/Low) and due date",
+        "Completing a task triggers a 'Next Step' suggestion banner",
+        "Tasks persist across page refreshes via localStorage",
+        "Page is linked in the AppSidebar under a new 'AI Agent' section"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/SocialSchedulerPage.tsx",
+          "path": "frontend/src/pages/SmartTaskAgentPage.tsx",
           "operation": "create",
-          "description": "Create the Social Media Scheduler page component with state management for posts, view toggle (list/grid), platform and status filters, and modal dialogs for add/edit/delete operations. Display posts using the SocialMediaPost type from backend.d.ts. Include form fields for title, caption, platform (dropdown with all 7 platforms), status (dropdown with 5 statuses), scheduledDate (date-time picker allowing null), tags (multi-input), and notes. Wire delete confirmation dialog and handle backend CRUD via React Query hooks."
+          "description": "Create the Smart Task Agent page component at route '/smart-task-agent'. Include three main sections: (1) Auto-task generator form with goal input field and 'Generate Tasks' button that breaks down the goal into actionable sub-tasks displayed as a checklist. (2) Priority queue panel displaying tasks with priority badges (High/Medium/Low), due date pickers, drag-to-reorder functionality, and checkboxes to mark tasks complete. (3) Task completion tracker that displays a 'Next Step' suggestion banner when a task is marked done, auto-suggesting the next logical step from the remaining queue. All task data (goals, sub-tasks, priorities, due dates, completion status) must be persisted to localStorage using a custom storage utility. Use shadcn/ui components (Card, Button, Input, Select, Checkbox, Badge) and follow the existing page layout patterns from other pages. Apply the dark teal design system colors and glass card styling consistent with the app."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/utils/taskStorage.ts",
+          "operation": "create",
+          "description": "Create a localStorage utility module for Smart Task Agent data persistence. Define TypeScript interfaces for Task (id, text, priority: 'High'|'Medium'|'Low', dueDate, completed, order), Goal (id, text, createdAt), and TaskAgentState (goals, tasks). Export functions: getTaskAgentState(), saveTaskAgentState(state), addGoal(goal), addTasks(goalId, tasks), updateTask(taskId, updates), deleteTask(taskId), reorderTasks(taskIds), markTaskComplete(taskId). Implement logic to calculate the 'next step' suggestion by finding the highest-priority incomplete task after a task is marked complete. Store data under localStorage key 'quick-bee-task-agent'."
+        },
+        {
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add React Query hooks for social media posts: useGetAllPosts (query), useCreatePost (mutation), useUpdatePost (mutation), useDeletePost (mutation). Each hook calls the corresponding backend actor method (getAllPosts, createPost, updatePost, deletePost) and handles invalidation of the 'socialMediaPosts' query key on mutations. Use the SocialMediaPost type and PostStatus/SocialMediaPlatform enums from backend.d.ts."
+          "description": "Add a new route definition for '/smart-task-agent' that renders the SmartTaskAgentPage component. Import the SmartTaskAgentPage component at the top of the file and add the route entry in the router configuration alongside existing routes like '/social-scheduler' and '/content-calendar'. Ensure the route is properly registered with TanStack Router."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Create Campaign Autopilot page with content auto-scheduler, campaign health monitor, and performance summary generator using localStorage persistence",
+      "acceptanceCriteria": [
+        "User can configure posting windows per platform and see posts sorted accordingly",
+        "Campaign health monitor displays color-coded status badges (Healthy/At Risk/Underperforming) for each ad campaign",
+        "User can set thresholds for CTR and conversions to drive health classification",
+        "Performance summary card is generated on demand with a single button click",
+        "Summary schedule (daily/weekly) is configurable and persisted to localStorage",
+        "Page is linked in the AppSidebar under the 'AI Agent' section"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/CampaignAutopilotPage.tsx",
+          "operation": "create",
+          "description": "Create the Campaign Autopilot page component at route '/campaign-autopilot'. Include three main sections: (1) Content auto-scheduler section where users define optimal posting windows per platform (day of week + time of day input fields) and view scheduled posts from the backend sorted by those windows. Fetch scheduled posts using the existing useGetAllPosts hook filtering by status='scheduled'. Display posts in a list sorted by their scheduled time matching the configured windows. (2) Campaign health monitor panel that fetches ad campaigns using the existing useGetAllAdCampaigns hook and calculates health status (Healthy/At Risk/Underperforming) based on user-defined CTR and conversion thresholds stored in localStorage. Display campaigns in cards with color-coded status badges (green for Healthy, yellow for At Risk, red for Underperforming). Include threshold configuration form fields for CTR percentage and conversion count. (3) Performance summary generator with a 'Generate Summary' button that creates a plain-text summary card showing total campaigns, total spend, average CTR, total conversions, and top-performing platform. Include schedule configuration (None/Daily/Weekly) stored in localStorage. Use shadcn/ui components (Card, Button, Input, Select, Badge, Textarea) and follow the existing page patterns. Apply the dark teal design system."
+        },
+        {
+          "path": "frontend/src/utils/campaignAutopilotStorage.ts",
+          "operation": "create",
+          "description": "Create a localStorage utility module for Campaign Autopilot configuration persistence. Define TypeScript interfaces for PostingWindow (platform: SocialMediaPlatform, dayOfWeek: string, timeOfDay: string), HealthThresholds (minCTR: number, minConversions: number), SummarySchedule ('none'|'daily'|'weekly'), and CampaignAutopilotConfig (postingWindows, healthThresholds, summarySchedule, lastSummaryGenerated). Export functions: getCampaignAutopilotConfig(), saveCampaignAutopilotConfig(config), addPostingWindow(window), removePostingWindow(index), updateHealthThresholds(thresholds), updateSummarySchedule(schedule), recordSummaryGeneration(). Store data under localStorage key 'quick-bee-campaign-autopilot'. Include helper function to sort posts by matching posting windows."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a new route definition for '/campaign-autopilot' that renders the CampaignAutopilotPage component. Import the CampaignAutopilotPage component at the top of the file and add the route entry in the router configuration alongside the '/smart-task-agent' route added in REQ-1. Ensure the route is properly registered with TanStack Router."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Create a Content Calendar page displaying posts in a monthly calendar grid with platform-colored badges and day-cell interactions",
+      "summary": "Add 'AI Agent' navigation group to AppSidebar with links to Smart Task Agent and Campaign Autopilot pages",
       "acceptanceCriteria": [
-        "Page is accessible via /content-calendar route",
-        "Monthly calendar grid renders correctly with day cells",
-        "Posts with a scheduledDate appear on their corresponding calendar day",
-        "Each platform has a distinct color badge",
-        "Previous/next month navigation works",
-        "Clicking a post entry opens the edit modal",
-        "Empty days show a clickable '+' to create a new post for that date"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ContentCalendarPage.tsx",
-          "operation": "create",
-          "description": "Create the Content Calendar page with a monthly calendar grid view. Use state for current month/year and navigation controls (prev/next month). Fetch all posts via useGetAllPosts, filter those with scheduledDate, and group by day. Render a 7-column calendar grid with day cells. Each day cell displays post entries as colored badges (assign distinct Tailwind colors per platform: Instagram pink, Facebook blue, Twitter/X black, LinkedIn blue, TikTok purple, YouTube red, Other gray). Each post badge is clickable and opens the edit modal (reuse the same modal component from SocialSchedulerPage or create a shared PostFormModal component). Empty day cells show a '+' button that opens the create modal with scheduledDate pre-filled to that day. Include a legend mapping platform names to badge colors."
-        },
-        {
-          "path": "frontend/src/components/PostFormModal.tsx",
-          "operation": "create",
-          "description": "Create a reusable modal component for creating/editing social media posts. Accept props: open (boolean), onClose (function), post (SocialMediaPost | null for edit vs create), onSave (function receiving form data). Render a dialog with form fields: title, caption, platform (select dropdown), status (select dropdown), scheduledDate (date-time input allowing null/clear), tags (multi-value input or comma-separated text), notes (textarea). On save, invoke onSave callback with form data. Used by both SocialSchedulerPage and ContentCalendarPage."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Create a Social Media Metrics Dashboard page for logging platform metrics with aggregated KPI cards, comparison charts, and data table",
-      "acceptanceCriteria": [
-        "Page is accessible via /social-metrics route",
-        "Users can log new metric entries via a modal form",
-        "Users can edit and delete existing entries",
-        "Summary KPI cards show totals across all platforms",
-        "Bar or line charts compare metrics across platforms",
-        "Table lists all logged entries with platform, date, and key stats",
-        "Date range and platform filters are functional"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/SocialMetricsPage.tsx",
-          "operation": "create",
-          "description": "Create the Social Media Metrics Dashboard page. Fetch all metrics via useGetAllMetrics. Display KPI summary cards at the top showing aggregated totals (total followers, impressions, reach, engagements, clicks, postsPublished) across all platforms. Include date range and platform filter controls. Render comparison charts using Recharts (BarChart or LineChart) comparing key metrics (followers, engagements, impressions) per platform. Below charts, display a sortable table listing all metric entries with columns: platform, date, followers, impressions, reach, engagements, clicks, postsPublished, notes, and action buttons (edit/delete). Include a 'Log Metrics' button that opens a modal form for creating new entries. Use the SocialMediaMetrics type from backend.d.ts."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add React Query hooks for social media metrics: useGetAllMetrics (query), useCreateMetrics (mutation), useUpdateMetrics (mutation), useDeleteMetrics (mutation). Each hook calls the corresponding backend actor method (getAllMetrics, createMetrics, updateMetrics, deleteMetrics) and handles invalidation of the 'socialMediaMetrics' query key on mutations. Use the SocialMediaMetrics type and SocialMediaPlatform enum from backend.d.ts. Note: createMetrics and updateMetrics accept individual parameters (platform, date, followers, impressions, reach, engagements, clicks, postsPublished, notes) as per the backend interface."
-        },
-        {
-          "path": "frontend/src/components/MetricsFormModal.tsx",
-          "operation": "create",
-          "description": "Create a reusable modal component for creating/editing social media metrics. Accept props: open, onClose, metric (SocialMediaMetrics | null), onSave. Render form fields: platform (select dropdown), date (date picker), followers (number input), impressions (number input), reach (number input), engagements (number input), clicks (number input), postsPublished (number input), notes (textarea). On save, invoke onSave callback with form data. Used by SocialMetricsPage."
-        }
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "summary": "Create an External Webhook Receiver page displaying incoming webhook payloads with expand toggles, refresh, clear, and receiver URL display",
-      "acceptanceCriteria": [
-        "Page is accessible via /external-webhooks route",
-        "Table lists all received external webhook entries",
-        "Each row shows tool name, timestamp, truncated payload with an expand toggle",
-        "Refresh button reloads the log from the backend",
-        "Clear button removes all external webhook log entries",
-        "The canister/app endpoint URL is displayed prominently as the receiver address"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ExternalWebhooksPage.tsx",
-          "operation": "create",
-          "description": "Create the External Webhook Receiver page. Fetch webhook logs via useGetExternalWebhookLogs. Display a prominent info banner at the top showing the canister endpoint URL (construct from window.location.origin or environment variables) with a copy button. Below, render a table listing all webhook entries with columns: ID, Tool/Source name, timestamp (formatted), payload preview (truncated to ~100 chars), and an expand/collapse toggle per row to show the full payload. Include Refresh and Clear All buttons in the header. Refresh re-fetches logs; Clear calls useClearExternalWebhookLogs mutation. Use the WebhookLog type from backend.d.ts."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add React Query hooks for external webhooks: useGetExternalWebhookLogs (query calling getExternalWebhookLogs), useClearExternalWebhookLogs (mutation calling clearExternalWebhookLogs and invalidating 'externalWebhookLogs' query key). Use the WebhookLog type from backend.d.ts."
-        }
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "summary": "Create an External Tools & Integrations reference page listing recommended tools and connection instructions",
-      "acceptanceCriteria": [
-        "Page is accessible via /external-tools route",
-        "At least 6 tool cards are displayed (Zapier, Make, n8n, Buffer, Hootsuite, Later)",
-        "Each card includes tool name, description, use case, and external link",
-        "A how-to-connect section explains configuring tools to POST to the webhook receiver",
-        "External links open in a new tab"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/ExternalToolsPage.tsx",
-          "operation": "create",
-          "description": "Create the External Tools & Integrations page. Define a static array of tool objects with fields: name, description, useCase, websiteUrl. Include at least: Zapier, Make (Integromat), n8n, Buffer, Hootsuite, Later. Render each tool as a card displaying name, description, use case, and a link to websiteUrl (target='_blank' rel='noopener noreferrer'). Above or below the tool cards, include a 'How to Connect' section with step-by-step instructions: 1) Copy the webhook receiver URL from the External Webhooks page, 2) Configure the external tool to POST data to that URL, 3) Test the connection. Use existing card and link styling from the project theme."
-        }
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "summary": "Add the five new pages to AppSidebar navigation under a 'Social Media' group and register routes in App.tsx",
-      "acceptanceCriteria": [
-        "A 'Social Media' group appears in the sidebar with links to all five new pages",
-        "All five new routes are registered and render the correct page components",
-        "Existing sidebar groups and routes remain unchanged",
-        "Active route highlighting works on all new links"
+        "A new 'AI Agent' collapsible group appears in the sidebar below the Digital Marketing section",
+        "Links to Smart Task Agent and Campaign Autopilot are visible and navigate correctly",
+        "Icons and styling match the existing sidebar design"
       ],
       "file_operations": [
         {
           "path": "frontend/src/components/AppSidebar.tsx",
           "operation": "modify",
-          "description": "Add a new 'Social Media' group to the sidebar navigation items array. Include five links under this group: 'Social Scheduler' (/social-scheduler, icon: Calendar or CalendarDays), 'Content Calendar' (/content-calendar, icon: CalendarRange or CalendarClock), 'Metrics Dashboard' (/social-metrics, icon: BarChart or TrendingUp), 'External Webhooks' (/external-webhooks, icon: Webhook or Radio), 'External Tools' (/external-tools, icon: Plug or Network). Do not remove or reorder any existing sidebar groups or links. Ensure active route highlighting applies to the new links."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Register five new routes in the TanStack Router configuration: /social-scheduler (component: SocialSchedulerPage), /content-calendar (component: ContentCalendarPage), /social-metrics (component: SocialMetricsPage), /external-webhooks (component: ExternalWebhooksPage), /external-tools (component: ExternalToolsPage). Import all five new page components at the top. Do not modify any existing routes or the Layout/CartProvider wrapper. Ensure routes are sibling routes to existing pages."
+          "description": "Add a new collapsible navigation group titled 'AI Agent' to the sidebar below the existing 'Digital Marketing' section. Include two navigation links: (1) 'Smart Task Agent' linking to '/smart-task-agent' and (2) 'Campaign Autopilot' linking to '/campaign-autopilot'. Use a bot or robot icon (e.g., Bot from lucide-react) for both links, consistent with the dark teal design system. Follow the existing sidebar structure pattern used for 'Social Media' and 'Digital Marketing' groups with SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarMenu, SidebarMenuItem, and SidebarMenuButton components. Ensure the collapsible behavior matches existing groups and icons are properly imported from lucide-react."
         }
       ]
     }

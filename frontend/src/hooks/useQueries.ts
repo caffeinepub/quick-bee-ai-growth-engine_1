@@ -1,7 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { ExportPayload, SocialMediaPost, SocialMediaMetrics, WebhookLog } from '../backend';
-import { SocialMediaPlatform, PostStatus } from '../backend';
+import type {
+  ExportPayload, SocialMediaPost, SocialMediaMetrics, WebhookLog,
+  SEOEntry, EmailCampaign, AdCampaign, LandingPage,
+} from '../backend';
+import {
+  SocialMediaPlatform, PostStatus, AdPlatform, LandingPageStatus, Variant_active_sent_draft,
+} from '../backend';
 
 // ---- Local types for legacy pages (Lead/Service no longer in backend) ----
 export interface Package {
@@ -358,5 +363,309 @@ export function useClearExternalWebhookLogs() {
       return actor.clearExternalWebhookLogs();
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['externalWebhookLogs'] }),
+  });
+}
+
+// ---- Digital Marketing: SEO Entries ----
+export function useSEOEntries() {
+  const { actor, isFetching } = useActor();
+  return useQuery<SEOEntry[]>({
+    queryKey: ['seoEntries'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllSEOEntries();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useCreateSEOEntry() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      pageUrl: string;
+      targetKeywords: string[];
+      metaTitle: string;
+      metaDescription: string;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.createSEOEntry(
+        data.pageUrl,
+        data.targetKeywords,
+        data.metaTitle,
+        data.metaDescription
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['seoEntries'] }),
+  });
+}
+
+export function useUpdateSEOEntry() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      id: bigint;
+      pageUrl: string;
+      targetKeywords: string[];
+      metaTitle: string;
+      metaDescription: string;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.updateSEOEntry(
+        data.id,
+        data.pageUrl,
+        data.targetKeywords,
+        data.metaTitle,
+        data.metaDescription
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['seoEntries'] }),
+  });
+}
+
+export function useDeleteSEOEntry() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.deleteSEOEntry(id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['seoEntries'] }),
+  });
+}
+
+// ---- Digital Marketing: Email Campaigns ----
+export function useEmailCampaigns() {
+  const { actor, isFetching } = useActor();
+  return useQuery<EmailCampaign[]>({
+    queryKey: ['emailCampaigns'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllEmailCampaigns();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useCreateEmailCampaign() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      campaignName: string;
+      subjectLine: string;
+      bodyContent: string;
+      targetAudience: string;
+      status: Variant_active_sent_draft;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.createEmailCampaign(
+        data.campaignName,
+        data.subjectLine,
+        data.bodyContent,
+        data.targetAudience,
+        data.status
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['emailCampaigns'] }),
+  });
+}
+
+export function useUpdateEmailCampaign() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      id: bigint;
+      campaignName: string;
+      subjectLine: string;
+      bodyContent: string;
+      targetAudience: string;
+      status: Variant_active_sent_draft;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.updateEmailCampaign(
+        data.id,
+        data.campaignName,
+        data.subjectLine,
+        data.bodyContent,
+        data.targetAudience,
+        data.status
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['emailCampaigns'] }),
+  });
+}
+
+export function useDeleteEmailCampaign() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.deleteEmailCampaign(id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['emailCampaigns'] }),
+  });
+}
+
+// ---- Digital Marketing: Ad Campaigns ----
+export function useAdCampaigns() {
+  const { actor, isFetching } = useActor();
+  return useQuery<AdCampaign[]>({
+    queryKey: ['adCampaigns'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllAdCampaigns();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useCreateAdCampaign() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      campaignName: string;
+      platform: AdPlatform;
+      budget: number;
+      spend: number;
+      impressions: bigint;
+      clicks: bigint;
+      conversions: bigint;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.createAdCampaign(
+        data.campaignName,
+        data.platform,
+        data.budget,
+        data.spend,
+        data.impressions,
+        data.clicks,
+        data.conversions
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['adCampaigns'] }),
+  });
+}
+
+export function useUpdateAdCampaign() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      id: bigint;
+      campaignName: string;
+      platform: AdPlatform;
+      budget: number;
+      spend: number;
+      impressions: bigint;
+      clicks: bigint;
+      conversions: bigint;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.updateAdCampaign(
+        data.id,
+        data.campaignName,
+        data.platform,
+        data.budget,
+        data.spend,
+        data.impressions,
+        data.clicks,
+        data.conversions
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['adCampaigns'] }),
+  });
+}
+
+export function useDeleteAdCampaign() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.deleteAdCampaign(id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['adCampaigns'] }),
+  });
+}
+
+// ---- Digital Marketing: Landing Pages ----
+export function useLandingPages() {
+  const { actor, isFetching } = useActor();
+  return useQuery<LandingPage[]>({
+    queryKey: ['landingPages'],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getAllLandingPages();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useCreateLandingPage() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      name: string;
+      url: string;
+      associatedCampaign: string;
+      conversionGoal: string;
+      status: LandingPageStatus;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.createLandingPage(
+        data.name,
+        data.url,
+        data.associatedCampaign,
+        data.conversionGoal,
+        data.status
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['landingPages'] }),
+  });
+}
+
+export function useUpdateLandingPage() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: {
+      id: bigint;
+      name: string;
+      url: string;
+      associatedCampaign: string;
+      conversionGoal: string;
+      status: LandingPageStatus;
+    }) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.updateLandingPage(
+        data.id,
+        data.name,
+        data.url,
+        data.associatedCampaign,
+        data.conversionGoal,
+        data.status
+      );
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['landingPages'] }),
+  });
+}
+
+export function useDeleteLandingPage() {
+  const { actor } = useActor();
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: bigint) => {
+      if (!actor) throw new Error('Actor not ready');
+      return actor.deleteLandingPage(id);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['landingPages'] }),
   });
 }

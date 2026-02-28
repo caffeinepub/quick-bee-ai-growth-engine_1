@@ -1,17 +1,19 @@
 # Specification
 
 ## Summary
-**Goal:** Add a Social Media Management Suite to the Quick Bee AI Growth Engine, including a post scheduler, content calendar, metrics dashboard, external webhook receiver, and external tools reference page.
+**Goal:** Add two new AI Agent pages (Smart Task Agent and Campaign Autopilot) to the Quick Bee AI Growth Engine, along with a new sidebar navigation group to access them.
 
 **Planned changes:**
-- Add backend data model and CRUD operations for social media post ideas (fields: id, title, caption, platform, status, scheduledDate, tags, notes, timestamps)
-- Add backend data model and CRUD operations for manually logged social media metrics (followers, impressions, reach, engagements, clicks, etc.)
-- Add backend external webhook receiver functions (receiveExternalWebhook, getExternalWebhookLogs, clearExternalWebhookLogs) stored in a separate stable map
-- Create `/social-scheduler` page with list/grid toggle, platform/status filters, and modal form for creating/editing/deleting post ideas
-- Create `/content-calendar` page with monthly calendar grid showing scheduled posts as colored platform badges, month navigation, and click-to-edit functionality
-- Create `/social-metrics` page with KPI summary cards, Recharts bar/line charts, a log entry modal form, and a filterable table of logged metric entries
-- Create `/external-webhooks` page showing a table of received webhook payloads with expand toggle, refresh/clear buttons, and the canister endpoint URL
-- Create `/external-tools` page with cards for Zapier, Make, n8n, Buffer, Hootsuite, and Later, plus a how-to-connect section
-- Add a "Social Media" group to the AppSidebar with links to all five new pages and register all new routes in App.tsx
+- Add a new "AI Agent" collapsible group to the AppSidebar (below the Digital Marketing section) with links to Smart Task Agent and Campaign Autopilot, using a bot/robot icon matching the dark teal design system
+- Create a `/smart-task-agent` page with:
+  - A goal input form that breaks down the goal into actionable sub-tasks shown as a checklist
+  - A priority queue panel where tasks display priority (High/Medium/Low) and due date, and can be marked complete or reordered
+  - A "Next Step" suggestion banner that appears when a task is marked complete
+  - All task data persisted to localStorage
+- Create a `/campaign-autopilot` page with:
+  - A content auto-scheduler section for defining posting windows (day + time) per platform, displaying scheduled posts sorted by those windows
+  - A campaign health monitor panel showing color-coded status badges (Healthy / At Risk / Underperforming) based on user-defined CTR and conversion thresholds
+  - An on-demand performance summary card generator with a configurable daily/weekly schedule
+  - All configuration persisted to localStorage
 
-**User-visible outcome:** Users can manage social media post ideas on a scheduler and calendar, manually log and visualize platform metrics, view incoming external webhook payloads, and reference recommended external tools for automation integrations — all within the existing app navigation.
+**User-visible outcome:** Users can navigate to two new AI Agent pages from the sidebar — one for breaking down goals into prioritized tasks with next-step suggestions, and one for managing content schedules, monitoring campaign health, and generating performance summaries.

@@ -5,6 +5,8 @@ import {
   Zap, GitBranch, BarChart3, PenTool, Webhook, ShoppingCart,
   ChevronLeft, ChevronRight, Menu, X, Download,
   CalendarDays, CalendarRange, TrendingUp, Radio, Plug,
+  Search, Mail, Megaphone, Globe, LineChart,
+  ListChecks, Cpu,
 } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 
@@ -30,6 +32,19 @@ const socialMediaItems = [
   { path: '/social-metrics', label: 'Metrics Dashboard', icon: TrendingUp },
   { path: '/external-webhooks', label: 'External Webhooks', icon: Radio },
   { path: '/external-tools', label: 'External Tools', icon: Plug },
+];
+
+const digitalMarketingItems = [
+  { path: '/digital-marketing/seo', label: 'SEO Manager', icon: Search },
+  { path: '/digital-marketing/email-campaigns', label: 'Email Campaigns', icon: Mail },
+  { path: '/digital-marketing/ads-tracker', label: 'Ads Tracker', icon: Megaphone },
+  { path: '/digital-marketing/landing-pages', label: 'Landing Pages', icon: Globe },
+  { path: '/digital-marketing/analytics', label: 'DM Analytics', icon: LineChart },
+];
+
+const aiAgentItems = [
+  { path: '/smart-task-agent', label: 'Smart Task Agent', icon: ListChecks },
+  { path: '/campaign-autopilot', label: 'Campaign Autopilot', icon: Cpu },
 ];
 
 export function AppSidebar() {
@@ -111,6 +126,36 @@ export function AppSidebar() {
           </div>
         )}
         {socialMediaItems.map(item => (
+          <NavLink key={item.path} {...item} />
+        ))}
+
+        {/* Digital Marketing Group */}
+        {!collapsed && (
+          <div className="pt-3 pb-1 px-3">
+            <span className="text-xs font-semibold text-white/25 uppercase tracking-wider">Digital Marketing</span>
+          </div>
+        )}
+        {collapsed && (
+          <div className="pt-2 pb-1">
+            <div className="border-t border-teal/10 mx-2" />
+          </div>
+        )}
+        {digitalMarketingItems.map(item => (
+          <NavLink key={item.path} {...item} />
+        ))}
+
+        {/* AI Agent Group */}
+        {!collapsed && (
+          <div className="pt-3 pb-1 px-3">
+            <span className="text-xs font-semibold text-white/25 uppercase tracking-wider">AI Agent</span>
+          </div>
+        )}
+        {collapsed && (
+          <div className="pt-2 pb-1">
+            <div className="border-t border-teal/10 mx-2" />
+          </div>
+        )}
+        {aiAgentItems.map(item => (
           <NavLink key={item.path} {...item} />
         ))}
       </nav>

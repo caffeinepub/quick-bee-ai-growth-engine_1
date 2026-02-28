@@ -2,11 +2,34 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-social-media-scheduler-page-route-social-scheduler-that-allows-users-to-create-view-edit-and-delete-social-media-post-ideas-include-a-list-grid-toggle-filter-by-platform-and-status-and-a-modal-form-for-adding-editing-posts-with-all-fields-defined-in-req-1",
-      "featureTitle": "Create a Social Media Scheduler page (route: /social-scheduler) that allows users to create, view, edit, and delete social media post ideas. Include a list/grid toggle, filter by platform and status, and a modal form for adding/editing posts with all fields defined in REQ-1.",
+      "featureId": "feature-create-a-smart-task-agent-page-at-route-smart-task-agent-the-page-must-include-1-an-auto-task-generator-form-where-the-user-enters-a-goal-and-the-app-breaks-it-down-into-actionable-steps-displayed-as-a-checklist-2-a-priority-queue-panel-that-lists-tasks-ranked-by-deadline-and-dependency-tasks-can-be-marked-complete-reordered-by-priority-high-medium-low-and-have-a-due-date-3-a-task-completion-tracker-that-when-a-task-is-marked-done-auto-suggests-the-next-logical-step-from-the-remaining-queue-all-task-data-must-be-persisted-to-localstorage",
+      "featureTitle": "Create a Smart Task Agent page at route '/smart-task-agent'. The page must include: (1) An auto-task generator form where the user enters a goal and the app breaks it down into actionable steps displayed as a checklist. (2) A priority queue panel that lists tasks ranked by deadline and dependency — tasks can be marked complete, reordered by priority (High/Medium/Low), and have a due date. (3) A task completion tracker that, when a task is marked done, auto-suggests the next logical step from the remaining queue. All task data must be persisted to localStorage.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/SocialSchedulerPage.tsx"
+        "frontend/src/App.tsx",
+        "frontend/src/pages/SmartTaskAgentPage.tsx",
+        "frontend/src/utils/taskStorage.ts"
+      ],
+      "components": [
+        "blob-storage@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-a-campaign-autopilot-page-at-route-campaign-autopilot-the-page-must-include-1-a-content-auto-scheduler-section-where-the-user-defines-optimal-posting-windows-day-of-week-time-of-day-per-platform-and-scheduled-posts-from-the-backend-are-surfaced-in-that-order-2-a-campaign-health-monitor-panel-that-reads-existing-ad-campaign-data-spend-ctr-conversions-and-flags-campaigns-as-healthy-at-risk-or-underperforming-based-on-user-defined-thresholds-3-a-performance-summary-generator-that-on-demand-or-on-a-set-daily-weekly-schedule-stored-in-localstorage-produces-a-plain-text-summary-card-of-campaign-activity-all-configuration-must-be-persisted-to-localstorage",
+      "featureTitle": "Create a Campaign Autopilot page at route '/campaign-autopilot'. The page must include: (1) A content auto-scheduler section where the user defines optimal posting windows (day of week + time of day) per platform, and scheduled posts from the backend are surfaced in that order. (2) A campaign health monitor panel that reads existing ad campaign data (spend, CTR, conversions) and flags campaigns as Healthy, At Risk, or Underperforming based on user-defined thresholds. (3) A performance summary generator that, on demand or on a set daily/weekly schedule stored in localStorage, produces a plain-text summary card of campaign activity. All configuration must be persisted to localStorage.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pages/CampaignAutopilotPage.tsx",
+        "frontend/src/utils/campaignAutopilotStorage.ts"
       ],
       "components": [
         "blob-storage@4.0.0",
@@ -23,94 +46,9 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-create-a-content-calendar-page-route-content-calendar-that-displays-scheduled-and-planned-posts-in-a-monthly-calendar-grid-view-each-calendar-day-cell-shows-post-entries-with-colored-badges-per-platform-clicking-a-post-opens-its-detail-edit-modal-include-a-month-navigation-control-and-a-legend-for-platform-colors",
-      "featureTitle": "Create a Content Calendar page (route: /content-calendar) that displays scheduled and planned posts in a monthly calendar grid view. Each calendar day cell shows post entries with colored badges per platform. Clicking a post opens its detail/edit modal. Include a month navigation control and a legend for platform colors.",
+      "featureId": "feature-add-an-ai-agent-navigation-group-to-the-appsidebar-containing-links-to-smart-task-agent-smart-task-agent-and-campaign-autopilot-campaign-autopilot-the-group-should-appear-after-the-existing-digital-marketing-section-and-use-a-bot-robot-icon-consistent-with-the-app-s-dark-teal-design-system",
+      "featureTitle": "Add an 'AI Agent' navigation group to the AppSidebar containing links to '/smart-task-agent' (Smart Task Agent) and '/campaign-autopilot' (Campaign Autopilot). The group should appear after the existing Digital Marketing section and use a bot/robot icon consistent with the app's dark teal design system.",
       "files": [
-        "frontend/src/components/PostFormModal.tsx",
-        "frontend/src/pages/ContentCalendarPage.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-create-a-social-media-metrics-dashboard-page-route-social-metrics-where-users-can-manually-log-platform-metrics-per-day-display-aggregated-totals-and-per-platform-comparison-charts-bar-line-using-recharts-include-a-log-entry-form-modal-and-a-table-of-all-logged-entries-with-edit-delete-actions-add-platform-filter-and-date-range-filter",
-      "featureTitle": "Create a Social Media Metrics Dashboard page (route: /social-metrics) where users can manually log platform metrics per day. Display aggregated totals and per-platform comparison charts (bar/line using Recharts). Include a log entry form modal and a table of all logged entries with edit/delete actions. Add platform filter and date range filter.",
-      "files": [
-        "frontend/src/components/MetricsFormModal.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/SocialMetricsPage.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-create-an-external-webhook-receiver-page-route-external-webhooks-that-displays-all-incoming-external-webhook-payloads-logged-in-the-backend-show-a-table-with-columns-id-tool-source-name-timestamp-payload-preview-truncated-and-full-payload-expand-toggle-include-refresh-and-clear-buttons-display-the-app-s-canister-endpoint-url-as-the-webhook-receiver-address-users-should-configure-in-external-tools",
-      "featureTitle": "Create an External Webhook Receiver page (route: /external-webhooks) that displays all incoming external webhook payloads logged in the backend. Show a table with columns: ID, Tool/Source name, timestamp, payload preview (truncated), and full payload expand toggle. Include refresh and clear buttons. Display the app's canister endpoint URL as the webhook receiver address users should configure in external tools.",
-      "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/ExternalWebhooksPage.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-create-an-external-tools-integrations-reference-page-route-external-tools-that-lists-recommended-external-automation-and-social-media-management-tools-include-cards-for-zapier-make-integromat-n8n-buffer-hootsuite-and-later-each-card-should-show-the-tool-name-a-short-description-key-use-case-and-a-link-to-the-tool-s-website-add-a-section-explaining-how-to-connect-these-tools-to-the-app-s-webhook-receiver",
-      "featureTitle": "Create an External Tools & Integrations reference page (route: /external-tools) that lists recommended external automation and social media management tools. Include cards for: Zapier, Make (Integromat), n8n, Buffer, Hootsuite, and Later. Each card should show the tool name, a short description, key use case, and a link to the tool's website. Add a section explaining how to connect these tools to the app's webhook receiver.",
-      "files": [
-        "frontend/src/pages/ExternalToolsPage.tsx"
-      ],
-      "components": [
-        "blob-storage@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0",
-        "authorization@4.0.0"
-      ],
-      "testIds": [
-        "REQ-8"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-the-four-new-pages-social-scheduler-content-calendar-social-metrics-dashboard-external-webhooks-external-tools-to-the-appsidebar-navigation-under-a-new-social-media-group-and-register-all-new-routes-in-app-tsx-do-not-remove-or-reorder-any-existing-sidebar-items-or-routes",
-      "featureTitle": "Add the four new pages (Social Scheduler, Content Calendar, Social Metrics Dashboard, External Webhooks, External Tools) to the AppSidebar navigation under a new 'Social Media' group, and register all new routes in App.tsx. Do not remove or reorder any existing sidebar items or routes.",
-      "files": [
-        "frontend/src/App.tsx",
         "frontend/src/components/AppSidebar.tsx"
       ],
       "components": [
@@ -123,7 +61,7 @@
         "authorization@4.0.0"
       ],
       "testIds": [
-        "REQ-9"
+        "REQ-3"
       ],
       "confidence": "high"
     }

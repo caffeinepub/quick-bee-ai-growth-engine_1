@@ -24,6 +24,53 @@ export const UserRole = IDL.Variant({
   'user' : IDL.Null,
   'guest' : IDL.Null,
 });
+export const AdPlatform = IDL.Variant({
+  'linkedin' : IDL.Null,
+  'meta' : IDL.Null,
+  'googleAds' : IDL.Null,
+  'youtube' : IDL.Null,
+});
+export const AdCampaign = IDL.Record({
+  'id' : IDL.Nat,
+  'clicks' : IDL.Nat,
+  'createdAt' : IDL.Int,
+  'impressions' : IDL.Nat,
+  'platform' : AdPlatform,
+  'spend' : IDL.Float64,
+  'updatedAt' : IDL.Int,
+  'conversions' : IDL.Nat,
+  'budget' : IDL.Float64,
+  'campaignName' : IDL.Text,
+});
+export const EmailCampaign = IDL.Record({
+  'id' : IDL.Nat,
+  'status' : IDL.Variant({
+    'active' : IDL.Null,
+    'sent' : IDL.Null,
+    'draft' : IDL.Null,
+  }),
+  'bodyContent' : IDL.Text,
+  'subjectLine' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'targetAudience' : IDL.Text,
+  'updatedAt' : IDL.Int,
+  'campaignName' : IDL.Text,
+});
+export const LandingPageStatus = IDL.Variant({
+  'active' : IDL.Null,
+  'draft' : IDL.Null,
+  'paused' : IDL.Null,
+});
+export const LandingPage = IDL.Record({
+  'id' : IDL.Nat,
+  'url' : IDL.Text,
+  'status' : LandingPageStatus,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'associatedCampaign' : IDL.Text,
+  'updatedAt' : IDL.Int,
+  'conversionGoal' : IDL.Text,
+});
 export const SocialMediaPlatform = IDL.Variant({
   'linkedin' : IDL.Null,
   'tiktok' : IDL.Null,
@@ -64,6 +111,15 @@ export const SocialMediaPost = IDL.Record({
   'updatedAt' : IDL.Int,
   'notes' : IDL.Text,
   'caption' : IDL.Text,
+});
+export const SEOEntry = IDL.Record({
+  'id' : IDL.Nat,
+  'metaDescription' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'updatedAt' : IDL.Int,
+  'pageUrl' : IDL.Text,
+  'targetKeywords' : IDL.Vec(IDL.Text),
+  'metaTitle' : IDL.Text,
 });
 export const WebhookLog = IDL.Record({
   'id' : IDL.Nat,
@@ -109,6 +165,39 @@ export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
   'clearExternalWebhookLogs' : IDL.Func([], [], []),
+  'createAdCampaign' : IDL.Func(
+      [
+        IDL.Text,
+        AdPlatform,
+        IDL.Float64,
+        IDL.Float64,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+      ],
+      [AdCampaign],
+      [],
+    ),
+  'createEmailCampaign' : IDL.Func(
+      [
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Variant({
+          'active' : IDL.Null,
+          'sent' : IDL.Null,
+          'draft' : IDL.Null,
+        }),
+      ],
+      [EmailCampaign],
+      [],
+    ),
+  'createLandingPage' : IDL.Func(
+      [IDL.Text, IDL.Text, IDL.Text, IDL.Text, LandingPageStatus],
+      [LandingPage],
+      [],
+    ),
   'createMetrics' : IDL.Func(
       [
         SocialMediaPlatform,
@@ -137,16 +226,33 @@ export const idlService = IDL.Service({
       [SocialMediaPost],
       [],
     ),
+  'createSEOEntry' : IDL.Func(
+      [IDL.Text, IDL.Vec(IDL.Text), IDL.Text, IDL.Text],
+      [SEOEntry],
+      [],
+    ),
+  'deleteAdCampaign' : IDL.Func([IDL.Nat], [], []),
+  'deleteEmailCampaign' : IDL.Func([IDL.Nat], [], []),
+  'deleteLandingPage' : IDL.Func([IDL.Nat], [], []),
   'deleteMetrics' : IDL.Func([IDL.Nat], [], []),
   'deletePost' : IDL.Func([IDL.Nat], [], []),
+  'deleteSEOEntry' : IDL.Func([IDL.Nat], [], []),
   'exportData' : IDL.Func([], [ExportPayload], ['query']),
+  'getAdCampaign' : IDL.Func([IDL.Nat], [IDL.Opt(AdCampaign)], ['query']),
+  'getAllAdCampaigns' : IDL.Func([], [IDL.Vec(AdCampaign)], ['query']),
+  'getAllEmailCampaigns' : IDL.Func([], [IDL.Vec(EmailCampaign)], ['query']),
+  'getAllLandingPages' : IDL.Func([], [IDL.Vec(LandingPage)], ['query']),
   'getAllMetrics' : IDL.Func([], [IDL.Vec(SocialMediaMetrics)], ['query']),
   'getAllPosts' : IDL.Func([], [IDL.Vec(SocialMediaPost)], ['query']),
+  'getAllSEOEntries' : IDL.Func([], [IDL.Vec(SEOEntry)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getEmailCampaign' : IDL.Func([IDL.Nat], [IDL.Opt(EmailCampaign)], ['query']),
   'getExternalWebhookLogs' : IDL.Func([], [IDL.Vec(WebhookLog)], ['query']),
+  'getLandingPage' : IDL.Func([IDL.Nat], [IDL.Opt(LandingPage)], ['query']),
   'getMetrics' : IDL.Func([IDL.Nat], [IDL.Opt(SocialMediaMetrics)], ['query']),
   'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(SocialMediaPost)], ['query']),
+  'getSEOEntry' : IDL.Func([IDL.Nat], [IDL.Opt(SEOEntry)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
@@ -159,6 +265,41 @@ export const idlService = IDL.Service({
       [],
     ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'updateAdCampaign' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        AdPlatform,
+        IDL.Float64,
+        IDL.Float64,
+        IDL.Nat,
+        IDL.Nat,
+        IDL.Nat,
+      ],
+      [AdCampaign],
+      [],
+    ),
+  'updateEmailCampaign' : IDL.Func(
+      [
+        IDL.Nat,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Text,
+        IDL.Variant({
+          'active' : IDL.Null,
+          'sent' : IDL.Null,
+          'draft' : IDL.Null,
+        }),
+      ],
+      [EmailCampaign],
+      [],
+    ),
+  'updateLandingPage' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, LandingPageStatus],
+      [LandingPage],
+      [],
+    ),
   'updateMetrics' : IDL.Func(
       [
         IDL.Nat,
@@ -189,6 +330,11 @@ export const idlService = IDL.Service({
       [SocialMediaPost],
       [],
     ),
+  'updateSEOEntry' : IDL.Func(
+      [IDL.Nat, IDL.Text, IDL.Vec(IDL.Text), IDL.Text, IDL.Text],
+      [SEOEntry],
+      [],
+    ),
 });
 
 export const idlInitArgs = [];
@@ -209,6 +355,53 @@ export const idlFactory = ({ IDL }) => {
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
+  });
+  const AdPlatform = IDL.Variant({
+    'linkedin' : IDL.Null,
+    'meta' : IDL.Null,
+    'googleAds' : IDL.Null,
+    'youtube' : IDL.Null,
+  });
+  const AdCampaign = IDL.Record({
+    'id' : IDL.Nat,
+    'clicks' : IDL.Nat,
+    'createdAt' : IDL.Int,
+    'impressions' : IDL.Nat,
+    'platform' : AdPlatform,
+    'spend' : IDL.Float64,
+    'updatedAt' : IDL.Int,
+    'conversions' : IDL.Nat,
+    'budget' : IDL.Float64,
+    'campaignName' : IDL.Text,
+  });
+  const EmailCampaign = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : IDL.Variant({
+      'active' : IDL.Null,
+      'sent' : IDL.Null,
+      'draft' : IDL.Null,
+    }),
+    'bodyContent' : IDL.Text,
+    'subjectLine' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'targetAudience' : IDL.Text,
+    'updatedAt' : IDL.Int,
+    'campaignName' : IDL.Text,
+  });
+  const LandingPageStatus = IDL.Variant({
+    'active' : IDL.Null,
+    'draft' : IDL.Null,
+    'paused' : IDL.Null,
+  });
+  const LandingPage = IDL.Record({
+    'id' : IDL.Nat,
+    'url' : IDL.Text,
+    'status' : LandingPageStatus,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'associatedCampaign' : IDL.Text,
+    'updatedAt' : IDL.Int,
+    'conversionGoal' : IDL.Text,
   });
   const SocialMediaPlatform = IDL.Variant({
     'linkedin' : IDL.Null,
@@ -250,6 +443,15 @@ export const idlFactory = ({ IDL }) => {
     'updatedAt' : IDL.Int,
     'notes' : IDL.Text,
     'caption' : IDL.Text,
+  });
+  const SEOEntry = IDL.Record({
+    'id' : IDL.Nat,
+    'metaDescription' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'updatedAt' : IDL.Int,
+    'pageUrl' : IDL.Text,
+    'targetKeywords' : IDL.Vec(IDL.Text),
+    'metaTitle' : IDL.Text,
   });
   const WebhookLog = IDL.Record({
     'id' : IDL.Nat,
@@ -295,6 +497,39 @@ export const idlFactory = ({ IDL }) => {
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
     'clearExternalWebhookLogs' : IDL.Func([], [], []),
+    'createAdCampaign' : IDL.Func(
+        [
+          IDL.Text,
+          AdPlatform,
+          IDL.Float64,
+          IDL.Float64,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+        ],
+        [AdCampaign],
+        [],
+      ),
+    'createEmailCampaign' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Variant({
+            'active' : IDL.Null,
+            'sent' : IDL.Null,
+            'draft' : IDL.Null,
+          }),
+        ],
+        [EmailCampaign],
+        [],
+      ),
+    'createLandingPage' : IDL.Func(
+        [IDL.Text, IDL.Text, IDL.Text, IDL.Text, LandingPageStatus],
+        [LandingPage],
+        [],
+      ),
     'createMetrics' : IDL.Func(
         [
           SocialMediaPlatform,
@@ -323,20 +558,41 @@ export const idlFactory = ({ IDL }) => {
         [SocialMediaPost],
         [],
       ),
+    'createSEOEntry' : IDL.Func(
+        [IDL.Text, IDL.Vec(IDL.Text), IDL.Text, IDL.Text],
+        [SEOEntry],
+        [],
+      ),
+    'deleteAdCampaign' : IDL.Func([IDL.Nat], [], []),
+    'deleteEmailCampaign' : IDL.Func([IDL.Nat], [], []),
+    'deleteLandingPage' : IDL.Func([IDL.Nat], [], []),
     'deleteMetrics' : IDL.Func([IDL.Nat], [], []),
     'deletePost' : IDL.Func([IDL.Nat], [], []),
+    'deleteSEOEntry' : IDL.Func([IDL.Nat], [], []),
     'exportData' : IDL.Func([], [ExportPayload], ['query']),
+    'getAdCampaign' : IDL.Func([IDL.Nat], [IDL.Opt(AdCampaign)], ['query']),
+    'getAllAdCampaigns' : IDL.Func([], [IDL.Vec(AdCampaign)], ['query']),
+    'getAllEmailCampaigns' : IDL.Func([], [IDL.Vec(EmailCampaign)], ['query']),
+    'getAllLandingPages' : IDL.Func([], [IDL.Vec(LandingPage)], ['query']),
     'getAllMetrics' : IDL.Func([], [IDL.Vec(SocialMediaMetrics)], ['query']),
     'getAllPosts' : IDL.Func([], [IDL.Vec(SocialMediaPost)], ['query']),
+    'getAllSEOEntries' : IDL.Func([], [IDL.Vec(SEOEntry)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getEmailCampaign' : IDL.Func(
+        [IDL.Nat],
+        [IDL.Opt(EmailCampaign)],
+        ['query'],
+      ),
     'getExternalWebhookLogs' : IDL.Func([], [IDL.Vec(WebhookLog)], ['query']),
+    'getLandingPage' : IDL.Func([IDL.Nat], [IDL.Opt(LandingPage)], ['query']),
     'getMetrics' : IDL.Func(
         [IDL.Nat],
         [IDL.Opt(SocialMediaMetrics)],
         ['query'],
       ),
     'getPost' : IDL.Func([IDL.Nat], [IDL.Opt(SocialMediaPost)], ['query']),
+    'getSEOEntry' : IDL.Func([IDL.Nat], [IDL.Opt(SEOEntry)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
@@ -349,6 +605,41 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'updateAdCampaign' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          AdPlatform,
+          IDL.Float64,
+          IDL.Float64,
+          IDL.Nat,
+          IDL.Nat,
+          IDL.Nat,
+        ],
+        [AdCampaign],
+        [],
+      ),
+    'updateEmailCampaign' : IDL.Func(
+        [
+          IDL.Nat,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Text,
+          IDL.Variant({
+            'active' : IDL.Null,
+            'sent' : IDL.Null,
+            'draft' : IDL.Null,
+          }),
+        ],
+        [EmailCampaign],
+        [],
+      ),
+    'updateLandingPage' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Text, IDL.Text, IDL.Text, LandingPageStatus],
+        [LandingPage],
+        [],
+      ),
     'updateMetrics' : IDL.Func(
         [
           IDL.Nat,
@@ -377,6 +668,11 @@ export const idlFactory = ({ IDL }) => {
           IDL.Text,
         ],
         [SocialMediaPost],
+        [],
+      ),
+    'updateSEOEntry' : IDL.Func(
+        [IDL.Nat, IDL.Text, IDL.Vec(IDL.Text), IDL.Text, IDL.Text],
+        [SEOEntry],
         [],
       ),
   });

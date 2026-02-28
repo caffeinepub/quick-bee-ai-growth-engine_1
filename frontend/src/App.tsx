@@ -28,6 +28,13 @@ import { ContentCalendarPage } from './pages/ContentCalendarPage';
 import { SocialMetricsPage } from './pages/SocialMetricsPage';
 import { ExternalWebhooksPage } from './pages/ExternalWebhooksPage';
 import { ExternalToolsPage } from './pages/ExternalToolsPage';
+import { SEOManagerPage } from './pages/SEOManagerPage';
+import { EmailCampaignsPage } from './pages/EmailCampaignsPage';
+import { AdsTrackerPage } from './pages/AdsTrackerPage';
+import { LandingPagesPage } from './pages/LandingPagesPage';
+import { DigitalMarketingAnalyticsPage } from './pages/DigitalMarketingAnalyticsPage';
+import { SmartTaskAgentPage } from './pages/SmartTaskAgentPage';
+import { CampaignAutopilotPage } from './pages/CampaignAutopilotPage';
 
 // Root route with Layout (sidebar + outlet)
 const rootRoute = createRootRoute({
@@ -160,6 +167,50 @@ const externalToolsRoute = createRoute({
   component: ExternalToolsPage,
 });
 
+// Digital Marketing routes
+const seoManagerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/digital-marketing/seo',
+  component: SEOManagerPage,
+});
+
+const emailCampaignsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/digital-marketing/email-campaigns',
+  component: EmailCampaignsPage,
+});
+
+const adsTrackerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/digital-marketing/ads-tracker',
+  component: AdsTrackerPage,
+});
+
+const landingPagesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/digital-marketing/landing-pages',
+  component: LandingPagesPage,
+});
+
+const digitalMarketingAnalyticsRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/digital-marketing/analytics',
+  component: DigitalMarketingAnalyticsPage,
+});
+
+// AI Agent routes
+const smartTaskAgentRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/smart-task-agent',
+  component: SmartTaskAgentPage,
+});
+
+const campaignAutopilotRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/campaign-autopilot',
+  component: CampaignAutopilotPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   leadsRoute,
@@ -181,6 +232,13 @@ const routeTree = rootRoute.addChildren([
   socialMetricsRoute,
   externalWebhooksRoute,
   externalToolsRoute,
+  seoManagerRoute,
+  emailCampaignsRoute,
+  adsTrackerRoute,
+  landingPagesRoute,
+  digitalMarketingAnalyticsRoute,
+  smartTaskAgentRoute,
+  campaignAutopilotRoute,
 ]);
 
 const router = createRouter({ routeTree });

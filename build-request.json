@@ -1,204 +1,87 @@
 {
   "kind": "build_request",
-  "title": "Add Social Media Management Suite (Scheduler, Content Calendar, Metrics Dashboard, Webhook Receiver)",
+  "title": "Smart Task Agent & Campaign Autopilot (Step 1 of 4)",
   "projectName": "Quick Bee AI Growth Engine",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a backend data model and CRUD operations for social media post ideas, including fields: id, title, caption, platform (Instagram, Facebook, Twitter/X, LinkedIn, TikTok, YouTube, Other), status (Idea, Draft, Scheduled, Published, Cancelled), scheduledDate (optional), tags (array of strings), notes, createdAt, and updatedAt timestamps.",
-      "target": "backend",
+      "text": "Create a Smart Task Agent page at route '/smart-task-agent'. The page must include: (1) An auto-task generator form where the user enters a goal and the app breaks it down into actionable steps displayed as a checklist. (2) A priority queue panel that lists tasks ranked by deadline and dependency — tasks can be marked complete, reordered by priority (High/Medium/Low), and have a due date. (3) A task completion tracker that, when a task is marked done, auto-suggests the next logical step from the remaining queue. All task data must be persisted to localStorage.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-recent"
         ],
         "quotes": [
-          "A scheduler/task manager that tracks social media post ideas and schedules"
+          "Smart Task Agent",
+          "Auto-task generator that breaks down goals into actionable steps",
+          "Priority queue that re-ranks tasks based on deadlines and dependencies",
+          "Task completion tracker with auto-suggestions for next steps"
         ]
       },
       "acceptanceCriteria": [
-        "Backend actor exposes createPost, getPost, getAllPosts, updatePost, deletePost functions",
-        "Posts are stored in a stable in-memory map with auto-incrementing IDs",
-        "Status field enforces the defined enum values",
-        "Platform field supports all listed platforms"
+        "User can enter a goal and generate a list of actionable sub-tasks",
+        "Tasks display priority (High/Medium/Low) and due date",
+        "Completing a task triggers a 'Next Step' suggestion banner",
+        "Tasks persist across page refreshes via localStorage",
+        "Page is linked in the AppSidebar under a new 'AI Agent' section"
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Create a Social Media Scheduler page (route: /social-scheduler) that allows users to create, view, edit, and delete social media post ideas. Include a list/grid toggle, filter by platform and status, and a modal form for adding/editing posts with all fields defined in REQ-1.",
+      "text": "Create a Campaign Autopilot page at route '/campaign-autopilot'. The page must include: (1) A content auto-scheduler section where the user defines optimal posting windows (day of week + time of day) per platform, and scheduled posts from the backend are surfaced in that order. (2) A campaign health monitor panel that reads existing ad campaign data (spend, CTR, conversions) and flags campaigns as Healthy, At Risk, or Underperforming based on user-defined thresholds. (3) A performance summary generator that, on demand or on a set daily/weekly schedule stored in localStorage, produces a plain-text summary card of campaign activity. All configuration must be persisted to localStorage.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-recent"
         ],
         "quotes": [
-          "A scheduler/task manager that tracks social media post ideas and schedules"
+          "Campaign Autopilot",
+          "Auto-schedule content based on optimal posting windows you define",
+          "Campaign health monitor that flags underperforming campaigns",
+          "Auto-generate performance summaries on a set schedule"
         ]
       },
       "acceptanceCriteria": [
-        "Page is accessible via /social-scheduler route",
-        "Users can create new post ideas via a modal form",
-        "Users can edit and delete existing posts",
-        "Posts can be filtered by platform and status",
-        "List and grid view modes are available",
-        "Scheduled date/time picker is available in the form"
+        "User can configure posting windows per platform and see posts sorted accordingly",
+        "Campaign health monitor displays color-coded status badges (Healthy/At Risk/Underperforming) for each ad campaign",
+        "User can set thresholds for CTR and conversions to drive health classification",
+        "Performance summary card is generated on demand with a single button click",
+        "Summary schedule (daily/weekly) is configurable and persisted to localStorage",
+        "Page is linked in the AppSidebar under the 'AI Agent' section"
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Create a Content Calendar page (route: /content-calendar) that displays scheduled and planned posts in a monthly calendar grid view. Each calendar day cell shows post entries with colored badges per platform. Clicking a post opens its detail/edit modal. Include a month navigation control and a legend for platform colors.",
+      "text": "Add an 'AI Agent' navigation group to the AppSidebar containing links to '/smart-task-agent' (Smart Task Agent) and '/campaign-autopilot' (Campaign Autopilot). The group should appear after the existing Digital Marketing section and use a bot/robot icon consistent with the app's dark teal design system.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-8"
+          "msg-recent"
         ],
         "quotes": [
-          "A content calendar to plan and organize posts across platforms"
+          "Smart Task Agent",
+          "Campaign Autopilot"
         ]
       },
       "acceptanceCriteria": [
-        "Page is accessible via /content-calendar route",
-        "Monthly calendar grid renders correctly with day cells",
-        "Posts with a scheduledDate appear on their corresponding calendar day",
-        "Each platform has a distinct color badge",
-        "Previous/next month navigation works",
-        "Clicking a post entry opens the edit modal",
-        "Empty days show a clickable '+' to create a new post for that date"
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Create a backend data model and CRUD operations for manually logged social media metrics. Each metric entry should include: id, platform, date, followers, impressions, reach, engagements, clicks, postsPublished, notes, and createdAt timestamp.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-8"
-        ],
-        "quotes": [
-          "A data aggregation dashboard where you manually log metrics from each platform"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Backend actor exposes createMetric, getAllMetrics, updateMetric, deleteMetric functions",
-        "Metrics are stored in a stable in-memory map with auto-incrementing IDs",
-        "All numeric fields are stored as integers or floats as appropriate"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Create a Social Media Metrics Dashboard page (route: /social-metrics) where users can manually log platform metrics per day. Display aggregated totals and per-platform comparison charts (bar/line using Recharts). Include a log entry form modal and a table of all logged entries with edit/delete actions. Add platform filter and date range filter.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-8"
-        ],
-        "quotes": [
-          "A data aggregation dashboard where you manually log metrics from each platform"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Page is accessible via /social-metrics route",
-        "Users can log new metric entries via a modal form",
-        "Users can edit and delete existing entries",
-        "Summary KPI cards show totals across all platforms",
-        "Bar or line charts compare metrics across platforms",
-        "Table lists all logged entries with platform, date, and key stats",
-        "Date range and platform filters are functional"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Extend the backend to accept and store incoming webhook payloads from external tools. Add a receiveExternalWebhook(toolName: Text, payload: Text, source: Text) function that stores the entry with a timestamp and auto-incremented ID. Also add a getExternalWebhookLogs and clearExternalWebhookLogs function. These are separate from the existing internal webhook logs.",
-      "target": "backend",
-      "source": {
-        "messageIds": [
-          "msg-8"
-        ],
-        "quotes": [
-          "A webhook receiver that accepts data pushed from external tools"
-        ]
-      },
-      "acceptanceCriteria": [
-        "receiveExternalWebhook function accepts toolName, payload, and source as text",
-        "Each received webhook is stored with timestamp and unique ID",
-        "getExternalWebhookLogs returns all stored external webhook entries",
-        "clearExternalWebhookLogs clears all stored external entries",
-        "Existing backend logic is not modified"
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Create an External Webhook Receiver page (route: /external-webhooks) that displays all incoming external webhook payloads logged in the backend. Show a table with columns: ID, Tool/Source name, timestamp, payload preview (truncated), and full payload expand toggle. Include refresh and clear buttons. Display the app's canister endpoint URL as the webhook receiver address users should configure in external tools.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-8"
-        ],
-        "quotes": [
-          "A webhook receiver that accepts data pushed from external tools"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Page is accessible via /external-webhooks route",
-        "Table lists all received external webhook entries",
-        "Each row shows tool name, timestamp, truncated payload with an expand toggle",
-        "Refresh button reloads the log from the backend",
-        "Clear button removes all external webhook log entries",
-        "The canister/app endpoint URL is displayed prominently as the receiver address"
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "Create an External Tools & Integrations reference page (route: /external-tools) that lists recommended external automation and social media management tools. Include cards for: Zapier, Make (Integromat), n8n, Buffer, Hootsuite, and Later. Each card should show the tool name, a short description, key use case, and a link to the tool's website. Add a section explaining how to connect these tools to the app's webhook receiver.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-8"
-        ],
-        "quotes": [
-          "add external"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Page is accessible via /external-tools route",
-        "At least 6 tool cards are displayed (Zapier, Make, n8n, Buffer, Hootsuite, Later)",
-        "Each card includes tool name, description, use case, and external link",
-        "A how-to-connect section explains configuring tools to POST to the webhook receiver",
-        "External links open in a new tab"
-      ]
-    },
-    {
-      "id": "REQ-9",
-      "text": "Add the four new pages (Social Scheduler, Content Calendar, Social Metrics Dashboard, External Webhooks, External Tools) to the AppSidebar navigation under a new 'Social Media' group, and register all new routes in App.tsx. Do not remove or reorder any existing sidebar items or routes.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-8"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A 'Social Media' group appears in the sidebar with links to all five new pages",
-        "All five new routes are registered and render the correct page components",
-        "Existing sidebar groups and routes remain unchanged",
-        "Active route highlighting works on all new links"
+        "A new 'AI Agent' collapsible group appears in the sidebar below the Digital Marketing section",
+        "Links to Smart Task Agent and Campaign Autopilot are visible and navigate correctly",
+        "Icons and styling match the existing sidebar design"
       ]
     }
   ],
   "constraints": [
-    "Do not modify, remove, or reorder any existing pages, routes, backend functions, or sidebar items",
-    "Do not alter existing data models (Lead, Service) or their CRUD functions",
-    "Do not change frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or any file under frontend/src/components/ui",
-    "All new backend state must be stored in separate stable maps, isolated from existing lead and service maps",
-    "Use Recharts for any new charts, consistent with the existing AnalyticsEnginePage pattern",
-    "Maintain the existing dark teal visual theme defined in frontend/src/index.css"
+    "Do not modify any existing pages, backend logic, or sidebar groups already present",
+    "Do not edit files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "All new state must use localStorage — no new backend schema changes required for this step"
   ],
   "nonGoals": [
-    "Direct integration with any social media platform APIs (Twitter/X, Instagram, Facebook, LinkedIn, TikTok, YouTube)",
-    "Real-time data streaming or WebSocket connections",
-    "OAuth authentication with external platforms",
-    "Automated posting to social media platforms",
-    "Modifying the existing Webhook Logs page or its underlying logger utility",
-    "Changing any existing page layouts, charts, or data structures"
+    "Intelligent Webhook Agent (deferred to Step 2)",
+    "Decision Support Engine (deferred to Step 3)",
+    "Workflow Automation Builder (deferred to Step 4)",
+    "Sending emails or posting to social media directly",
+    "Connecting to live external AI models"
   ],
   "imageRequirements": {
     "required": [],

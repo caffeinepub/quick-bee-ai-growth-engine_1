@@ -3,16 +3,14 @@ import Array "mo:core/Array";
 import Runtime "mo:core/Runtime";
 import Iter "mo:core/Iter";
 import Text "mo:core/Text";
-import Int "mo:core/Int";
-import Order "mo:core/Order";
+import Nat "mo:core/Nat";
 import Time "mo:core/Time";
+import Order "mo:core/Order";
 import Principal "mo:core/Principal";
 import MixinStorage "blob-storage/Mixin";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
 actor {
   include MixinStorage();
 
@@ -311,5 +309,362 @@ actor {
       metrics = metrics.values().toArray();
       webhookLogs = webhookLogs.values().toArray();
     };
+  };
+
+  // --- Digital Marketing (New State) ---
+
+  // --- SEO Manager ---
+
+  // Extension point for SEO fields (to match frontend)
+  type SEOEntry = {
+    id : Nat;
+    pageUrl : Text;
+    targetKeywords : [Text];
+    metaTitle : Text;
+    metaDescription : Text;
+    createdAt : Int;
+    updatedAt : Int;
+  };
+
+  // Extended State
+  // Must not be persisted in mutable var, otherwise modification would not be detected for runtime migration
+  let seoEntries = Map.empty<Nat, SEOEntry>();
+  var nextSEOEntryId = 1;
+
+  public shared ({ caller }) func createSEOEntry(pageUrl : Text, targetKeywords : [Text], metaTitle : Text, metaDescription : Text) : async SEOEntry {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create SEO entries");
+    };
+
+    let currentTime = timestampToNat(Time.now());
+
+    let newSEOEntry : SEOEntry = {
+      id = nextSEOEntryId;
+      pageUrl;
+      targetKeywords;
+      metaTitle;
+      metaDescription;
+      createdAt = currentTime;
+      updatedAt = currentTime;
+    };
+    seoEntries.add(nextSEOEntryId, newSEOEntry);
+    nextSEOEntryId += 1;
+    newSEOEntry;
+  };
+
+  public query ({ caller }) func getSEOEntry(id : Nat) : async ?SEOEntry {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view SEO entries");
+    };
+    seoEntries.get(id);
+  };
+
+  public query ({ caller }) func getAllSEOEntries() : async [SEOEntry] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view SEO entries");
+    };
+    seoEntries.values().toArray();
+  };
+
+  public shared ({ caller }) func updateSEOEntry(id : Nat, pageUrl : Text, targetKeywords : [Text], metaTitle : Text, metaDescription : Text) : async SEOEntry {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update SEO entries");
+    };
+    switch (seoEntries.get(id)) {
+      case (null) { Runtime.trap("SEO entry not found") };
+      case (?existingEntry) {
+        let updatedEntry : SEOEntry = {
+          id;
+          pageUrl;
+          targetKeywords;
+          metaTitle;
+          metaDescription;
+          createdAt = existingEntry.createdAt;
+          updatedAt = timestampToNat(Time.now());
+        };
+        seoEntries.add(id, updatedEntry);
+        updatedEntry;
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteSEOEntry(id : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete SEO entries");
+    };
+    if (not seoEntries.containsKey(id)) { Runtime.trap("SEO entry not found") };
+    seoEntries.remove(id);
+  };
+
+  // --- Email Campaign Manager ---
+
+  type EmailCampaign = {
+    id : Nat;
+    campaignName : Text;
+    subjectLine : Text;
+    bodyContent : Text;
+    targetAudience : Text;
+    status : {
+      #draft;
+      #active;
+      #sent;
+    };
+    createdAt : Int;
+    updatedAt : Int;
+  };
+
+  let emailCampaigns = Map.empty<Nat, EmailCampaign>();
+  var nextEmailCampaignId = 1;
+
+  public shared ({ caller }) func createEmailCampaign(campaignName : Text, subjectLine : Text, bodyContent : Text, targetAudience : Text, status : { #draft; #active; #sent }) : async EmailCampaign {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create email campaigns");
+    };
+
+    let currentTime = timestampToNat(Time.now());
+
+    let newCampaign : EmailCampaign = {
+      id = nextEmailCampaignId;
+      campaignName;
+      subjectLine;
+      bodyContent;
+      targetAudience;
+      status;
+      createdAt = currentTime;
+      updatedAt = currentTime;
+    };
+    emailCampaigns.add(nextEmailCampaignId, newCampaign);
+    nextEmailCampaignId += 1;
+    newCampaign;
+  };
+
+  public query ({ caller }) func getEmailCampaign(id : Nat) : async ?EmailCampaign {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view email campaigns");
+    };
+    emailCampaigns.get(id);
+  };
+
+  public query ({ caller }) func getAllEmailCampaigns() : async [EmailCampaign] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view email campaigns");
+    };
+    emailCampaigns.values().toArray();
+  };
+
+  public shared ({ caller }) func updateEmailCampaign(id : Nat, campaignName : Text, subjectLine : Text, bodyContent : Text, targetAudience : Text, status : { #draft; #active; #sent }) : async EmailCampaign {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update email campaigns");
+    };
+    switch (emailCampaigns.get(id)) {
+      case (null) { Runtime.trap("Email campaign not found") };
+      case (?existingCampaign) {
+        let updatedCampaign : EmailCampaign = {
+          id;
+          campaignName;
+          subjectLine;
+          bodyContent;
+          targetAudience;
+          status;
+          createdAt = existingCampaign.createdAt;
+          updatedAt = timestampToNat(Time.now());
+        };
+        emailCampaigns.add(id, updatedCampaign);
+        updatedCampaign;
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteEmailCampaign(id : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete email campaigns");
+    };
+    if (not emailCampaigns.containsKey(id)) { Runtime.trap("Email campaign not found") };
+    emailCampaigns.remove(id);
+  };
+
+  // --- Paid Ads Tracker ---
+
+  type AdPlatform = {
+    #googleAds;
+    #meta;
+    #linkedin;
+    #youtube;
+  };
+
+  type AdCampaign = {
+    id : Nat;
+    campaignName : Text;
+    platform : AdPlatform;
+    budget : Float;
+    spend : Float;
+    impressions : Nat;
+    clicks : Nat;
+    conversions : Nat;
+    createdAt : Int;
+    updatedAt : Int;
+  };
+
+  let adCampaigns = Map.empty<Nat, AdCampaign>();
+  var nextAdCampaignId = 1;
+
+  public shared ({ caller }) func createAdCampaign(campaignName : Text, platform : AdPlatform, budget : Float, spend : Float, impressions : Nat, clicks : Nat, conversions : Nat) : async AdCampaign {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create ad campaigns");
+    };
+
+    let currentTime = timestampToNat(Time.now());
+
+    let newCampaign : AdCampaign = {
+      id = nextAdCampaignId;
+      campaignName;
+      platform;
+      budget;
+      spend;
+      impressions;
+      clicks;
+      conversions;
+      createdAt = currentTime;
+      updatedAt = currentTime;
+    };
+    adCampaigns.add(nextAdCampaignId, newCampaign);
+    nextAdCampaignId += 1;
+    newCampaign;
+  };
+
+  public query ({ caller }) func getAdCampaign(id : Nat) : async ?AdCampaign {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view ad campaigns");
+    };
+    adCampaigns.get(id);
+  };
+
+  public query ({ caller }) func getAllAdCampaigns() : async [AdCampaign] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view ad campaigns");
+    };
+    adCampaigns.values().toArray();
+  };
+
+  public shared ({ caller }) func updateAdCampaign(id : Nat, campaignName : Text, platform : AdPlatform, budget : Float, spend : Float, impressions : Nat, clicks : Nat, conversions : Nat) : async AdCampaign {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update ad campaigns");
+    };
+    switch (adCampaigns.get(id)) {
+      case (null) { Runtime.trap("Ad campaign not found") };
+      case (?existingCampaign) {
+        let updatedCampaign : AdCampaign = {
+          id;
+          campaignName;
+          platform;
+          budget;
+          spend;
+          impressions;
+          clicks;
+          conversions;
+          createdAt = existingCampaign.createdAt;
+          updatedAt = timestampToNat(Time.now());
+        };
+        adCampaigns.add(id, updatedCampaign);
+        updatedCampaign;
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteAdCampaign(id : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete ad campaigns");
+    };
+    if (not adCampaigns.containsKey(id)) { Runtime.trap("Ad campaign not found") };
+    adCampaigns.remove(id);
+  };
+
+  // --- Landing Page Builder Tracker ---
+
+  type LandingPageStatus = {
+    #active;
+    #paused;
+    #draft;
+  };
+
+  type LandingPage = {
+    id : Nat;
+    name : Text;
+    url : Text;
+    associatedCampaign : Text;
+    conversionGoal : Text;
+    status : LandingPageStatus;
+    createdAt : Int;
+    updatedAt : Int;
+  };
+
+  let landingPages = Map.empty<Nat, LandingPage>();
+  var nextLandingPageId = 1;
+
+  public shared ({ caller }) func createLandingPage(name : Text, url : Text, associatedCampaign : Text, conversionGoal : Text, status : LandingPageStatus) : async LandingPage {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can create landing pages");
+    };
+
+    let currentTime = timestampToNat(Time.now());
+
+    let newLandingPage : LandingPage = {
+      id = nextLandingPageId;
+      name;
+      url;
+      associatedCampaign;
+      conversionGoal;
+      status;
+      createdAt = currentTime;
+      updatedAt = currentTime;
+    };
+    landingPages.add(nextLandingPageId, newLandingPage);
+    nextLandingPageId += 1;
+    newLandingPage;
+  };
+
+  public query ({ caller }) func getLandingPage(id : Nat) : async ?LandingPage {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view landing pages");
+    };
+    landingPages.get(id);
+  };
+
+  public query ({ caller }) func getAllLandingPages() : async [LandingPage] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view landing pages");
+    };
+    landingPages.values().toArray();
+  };
+
+  public shared ({ caller }) func updateLandingPage(id : Nat, name : Text, url : Text, associatedCampaign : Text, conversionGoal : Text, status : LandingPageStatus) : async LandingPage {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can update landing pages");
+    };
+    switch (landingPages.get(id)) {
+      case (null) { Runtime.trap("Landing page not found") };
+      case (?existingPage) {
+        let updatedPage : LandingPage = {
+          id;
+          name;
+          url;
+          associatedCampaign;
+          conversionGoal;
+          status;
+          createdAt = existingPage.createdAt;
+          updatedAt = timestampToNat(Time.now());
+        };
+        landingPages.add(id, updatedPage);
+        updatedPage;
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteLandingPage(id : Nat) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can delete landing pages");
+    };
+    if (not landingPages.containsKey(id)) { Runtime.trap("Landing page not found") };
+    landingPages.remove(id);
   };
 };

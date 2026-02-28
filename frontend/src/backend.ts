@@ -89,9 +89,33 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface _CaffeineStorageRefillResult {
-    success?: boolean;
-    topped_up_amount?: bigint;
+export interface WebhookLog {
+    id: bigint;
+    source: string;
+    timestamp: bigint;
+    toolName: string;
+    payload: string;
+}
+export interface _CaffeineStorageRefillInformation {
+    proposed_top_up_amount?: bigint;
+}
+export interface ExportPayload {
+    metrics: Array<SocialMediaMetrics>;
+    posts: Array<SocialMediaPost>;
+    webhookLogs: Array<WebhookLog>;
+}
+export interface SEOEntry {
+    id: bigint;
+    metaDescription: string;
+    createdAt: bigint;
+    updatedAt: bigint;
+    pageUrl: string;
+    targetKeywords: Array<string>;
+    metaTitle: string;
+}
+export interface _CaffeineStorageCreateCertificateResult {
+    method: string;
+    blob_hash: string;
 }
 export interface SocialMediaMetrics {
     id: bigint;
@@ -106,6 +130,18 @@ export interface SocialMediaMetrics {
     followers: bigint;
     reach: bigint;
 }
+export interface AdCampaign {
+    id: bigint;
+    clicks: bigint;
+    createdAt: bigint;
+    impressions: bigint;
+    platform: AdPlatform;
+    spend: number;
+    updatedAt: bigint;
+    conversions: bigint;
+    budget: number;
+    campaignName: string;
+}
 export interface SocialMediaPost {
     id: bigint;
     status: PostStatus;
@@ -118,28 +154,44 @@ export interface SocialMediaPost {
     notes: string;
     caption: string;
 }
-export interface _CaffeineStorageRefillInformation {
-    proposed_top_up_amount?: bigint;
+export interface LandingPage {
+    id: bigint;
+    url: string;
+    status: LandingPageStatus;
+    name: string;
+    createdAt: bigint;
+    associatedCampaign: string;
+    updatedAt: bigint;
+    conversionGoal: string;
 }
-export interface ExportPayload {
-    metrics: Array<SocialMediaMetrics>;
-    posts: Array<SocialMediaPost>;
-    webhookLogs: Array<WebhookLog>;
+export interface EmailCampaign {
+    id: bigint;
+    status: Variant_active_sent_draft;
+    bodyContent: string;
+    subjectLine: string;
+    createdAt: bigint;
+    targetAudience: string;
+    updatedAt: bigint;
+    campaignName: string;
 }
-export interface _CaffeineStorageCreateCertificateResult {
-    method: string;
-    blob_hash: string;
+export interface _CaffeineStorageRefillResult {
+    success?: boolean;
+    topped_up_amount?: bigint;
 }
 export interface UserProfile {
     bio: string;
     name: string;
 }
-export interface WebhookLog {
-    id: bigint;
-    source: string;
-    timestamp: bigint;
-    toolName: string;
-    payload: string;
+export enum AdPlatform {
+    linkedin = "linkedin",
+    meta = "meta",
+    googleAds = "googleAds",
+    youtube = "youtube"
+}
+export enum LandingPageStatus {
+    active = "active",
+    draft = "draft",
+    paused = "paused"
 }
 export enum PostStatus {
     scheduled = "scheduled",
@@ -162,6 +214,11 @@ export enum UserRole {
     user = "user",
     guest = "guest"
 }
+export enum Variant_active_sent_draft {
+    active = "active",
+    sent = "sent",
+    draft = "draft"
+}
 export interface backendInterface {
     _caffeineStorageBlobIsLive(hash: Uint8Array): Promise<boolean>;
     _caffeineStorageBlobsToDelete(): Promise<Array<Uint8Array>>;
@@ -172,26 +229,46 @@ export interface backendInterface {
     _initializeAccessControlWithSecret(userSecret: string): Promise<void>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     clearExternalWebhookLogs(): Promise<void>;
+    createAdCampaign(campaignName: string, platform: AdPlatform, budget: number, spend: number, impressions: bigint, clicks: bigint, conversions: bigint): Promise<AdCampaign>;
+    createEmailCampaign(campaignName: string, subjectLine: string, bodyContent: string, targetAudience: string, status: Variant_active_sent_draft): Promise<EmailCampaign>;
+    createLandingPage(name: string, url: string, associatedCampaign: string, conversionGoal: string, status: LandingPageStatus): Promise<LandingPage>;
     createMetrics(platform: SocialMediaPlatform, date: bigint, followers: bigint, impressions: bigint, reach: bigint, engagements: bigint, clicks: bigint, postsPublished: bigint, notes: string): Promise<SocialMediaMetrics>;
     createPost(title: string, caption: string, platform: SocialMediaPlatform, status: PostStatus, scheduledDate: bigint | null, tags: Array<string>, notes: string): Promise<SocialMediaPost>;
+    createSEOEntry(pageUrl: string, targetKeywords: Array<string>, metaTitle: string, metaDescription: string): Promise<SEOEntry>;
+    deleteAdCampaign(id: bigint): Promise<void>;
+    deleteEmailCampaign(id: bigint): Promise<void>;
+    deleteLandingPage(id: bigint): Promise<void>;
     deleteMetrics(id: bigint): Promise<void>;
     deletePost(id: bigint): Promise<void>;
+    deleteSEOEntry(id: bigint): Promise<void>;
     exportData(): Promise<ExportPayload>;
+    getAdCampaign(id: bigint): Promise<AdCampaign | null>;
+    getAllAdCampaigns(): Promise<Array<AdCampaign>>;
+    getAllEmailCampaigns(): Promise<Array<EmailCampaign>>;
+    getAllLandingPages(): Promise<Array<LandingPage>>;
     getAllMetrics(): Promise<Array<SocialMediaMetrics>>;
     getAllPosts(): Promise<Array<SocialMediaPost>>;
+    getAllSEOEntries(): Promise<Array<SEOEntry>>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
+    getEmailCampaign(id: bigint): Promise<EmailCampaign | null>;
     getExternalWebhookLogs(): Promise<Array<WebhookLog>>;
+    getLandingPage(id: bigint): Promise<LandingPage | null>;
     getMetrics(id: bigint): Promise<SocialMediaMetrics | null>;
     getPost(id: bigint): Promise<SocialMediaPost | null>;
+    getSEOEntry(id: bigint): Promise<SEOEntry | null>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     isCallerAdmin(): Promise<boolean>;
     receiveExternalWebhook(toolName: string, payload: string, source: string): Promise<bigint>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
+    updateAdCampaign(id: bigint, campaignName: string, platform: AdPlatform, budget: number, spend: number, impressions: bigint, clicks: bigint, conversions: bigint): Promise<AdCampaign>;
+    updateEmailCampaign(id: bigint, campaignName: string, subjectLine: string, bodyContent: string, targetAudience: string, status: Variant_active_sent_draft): Promise<EmailCampaign>;
+    updateLandingPage(id: bigint, name: string, url: string, associatedCampaign: string, conversionGoal: string, status: LandingPageStatus): Promise<LandingPage>;
     updateMetrics(id: bigint, platform: SocialMediaPlatform, date: bigint, followers: bigint, impressions: bigint, reach: bigint, engagements: bigint, clicks: bigint, postsPublished: bigint, notes: string): Promise<SocialMediaMetrics>;
     updatePost(id: bigint, title: string, caption: string, platform: SocialMediaPlatform, status: PostStatus, scheduledDate: bigint | null, tags: Array<string>, notes: string): Promise<SocialMediaPost>;
+    updateSEOEntry(id: bigint, pageUrl: string, targetKeywords: Array<string>, metaTitle: string, metaDescription: string): Promise<SEOEntry>;
 }
-import type { ExportPayload as _ExportPayload, PostStatus as _PostStatus, SocialMediaMetrics as _SocialMediaMetrics, SocialMediaPlatform as _SocialMediaPlatform, SocialMediaPost as _SocialMediaPost, UserProfile as _UserProfile, UserRole as _UserRole, WebhookLog as _WebhookLog, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
+import type { AdCampaign as _AdCampaign, AdPlatform as _AdPlatform, EmailCampaign as _EmailCampaign, ExportPayload as _ExportPayload, LandingPage as _LandingPage, LandingPageStatus as _LandingPageStatus, PostStatus as _PostStatus, SEOEntry as _SEOEntry, SocialMediaMetrics as _SocialMediaMetrics, SocialMediaPlatform as _SocialMediaPlatform, SocialMediaPost as _SocialMediaPost, UserProfile as _UserProfile, UserRole as _UserRole, WebhookLog as _WebhookLog, _CaffeineStorageRefillInformation as __CaffeineStorageRefillInformation, _CaffeineStorageRefillResult as __CaffeineStorageRefillResult } from "./declarations/backend.did.d.ts";
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
     async _caffeineStorageBlobIsLive(arg0: Uint8Array): Promise<boolean> {
@@ -320,32 +397,130 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async createMetrics(arg0: SocialMediaPlatform, arg1: bigint, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, arg7: bigint, arg8: string): Promise<SocialMediaMetrics> {
+    async createAdCampaign(arg0: string, arg1: AdPlatform, arg2: number, arg3: number, arg4: bigint, arg5: bigint, arg6: bigint): Promise<AdCampaign> {
         if (this.processError) {
             try {
-                const result = await this.actor.createMetrics(to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-                return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
+                const result = await this.actor.createAdCampaign(arg0, to_candid_AdPlatform_n10(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6);
+                return from_candid_AdCampaign_n12(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createMetrics(to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-            return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
+            const result = await this.actor.createAdCampaign(arg0, to_candid_AdPlatform_n10(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6);
+            return from_candid_AdCampaign_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async createEmailCampaign(arg0: string, arg1: string, arg2: string, arg3: string, arg4: Variant_active_sent_draft): Promise<EmailCampaign> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createEmailCampaign(arg0, arg1, arg2, arg3, to_candid_variant_n16(this._uploadFile, this._downloadFile, arg4));
+                return from_candid_EmailCampaign_n17(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createEmailCampaign(arg0, arg1, arg2, arg3, to_candid_variant_n16(this._uploadFile, this._downloadFile, arg4));
+            return from_candid_EmailCampaign_n17(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async createLandingPage(arg0: string, arg1: string, arg2: string, arg3: string, arg4: LandingPageStatus): Promise<LandingPage> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createLandingPage(arg0, arg1, arg2, arg3, to_candid_LandingPageStatus_n20(this._uploadFile, this._downloadFile, arg4));
+                return from_candid_LandingPage_n22(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createLandingPage(arg0, arg1, arg2, arg3, to_candid_LandingPageStatus_n20(this._uploadFile, this._downloadFile, arg4));
+            return from_candid_LandingPage_n22(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async createMetrics(arg0: SocialMediaPlatform, arg1: bigint, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, arg7: bigint, arg8: string): Promise<SocialMediaMetrics> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createMetrics(to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+                return from_candid_SocialMediaMetrics_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createMetrics(to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg0), arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+            return from_candid_SocialMediaMetrics_n28(this._uploadFile, this._downloadFile, result);
         }
     }
     async createPost(arg0: string, arg1: string, arg2: SocialMediaPlatform, arg3: PostStatus, arg4: bigint | null, arg5: Array<string>, arg6: string): Promise<SocialMediaPost> {
         if (this.processError) {
             try {
-                const result = await this.actor.createPost(arg0, arg1, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg2), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
-                return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
+                const result = await this.actor.createPost(arg0, arg1, to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg2), to_candid_PostStatus_n32(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n34(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+                return from_candid_SocialMediaPost_n35(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.createPost(arg0, arg1, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg2), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
-            return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
+            const result = await this.actor.createPost(arg0, arg1, to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg2), to_candid_PostStatus_n32(this._uploadFile, this._downloadFile, arg3), to_candid_opt_n34(this._uploadFile, this._downloadFile, arg4), arg5, arg6);
+            return from_candid_SocialMediaPost_n35(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async createSEOEntry(arg0: string, arg1: Array<string>, arg2: string, arg3: string): Promise<SEOEntry> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.createSEOEntry(arg0, arg1, arg2, arg3);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.createSEOEntry(arg0, arg1, arg2, arg3);
+            return result;
+        }
+    }
+    async deleteAdCampaign(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteAdCampaign(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteAdCampaign(arg0);
+            return result;
+        }
+    }
+    async deleteEmailCampaign(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteEmailCampaign(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteEmailCampaign(arg0);
+            return result;
+        }
+    }
+    async deleteLandingPage(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteLandingPage(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteLandingPage(arg0);
+            return result;
         }
     }
     async deleteMetrics(arg0: bigint): Promise<void> {
@@ -376,74 +551,172 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async deleteSEOEntry(arg0: bigint): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.deleteSEOEntry(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.deleteSEOEntry(arg0);
+            return result;
+        }
+    }
     async exportData(): Promise<ExportPayload> {
         if (this.processError) {
             try {
                 const result = await this.actor.exportData();
-                return from_candid_ExportPayload_n24(this._uploadFile, this._downloadFile, result);
+                return from_candid_ExportPayload_n40(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.exportData();
-            return from_candid_ExportPayload_n24(this._uploadFile, this._downloadFile, result);
+            return from_candid_ExportPayload_n40(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAdCampaign(arg0: bigint): Promise<AdCampaign | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAdCampaign(arg0);
+                return from_candid_opt_n44(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAdCampaign(arg0);
+            return from_candid_opt_n44(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllAdCampaigns(): Promise<Array<AdCampaign>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllAdCampaigns();
+                return from_candid_vec_n45(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllAdCampaigns();
+            return from_candid_vec_n45(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllEmailCampaigns(): Promise<Array<EmailCampaign>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllEmailCampaigns();
+                return from_candid_vec_n46(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllEmailCampaigns();
+            return from_candid_vec_n46(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllLandingPages(): Promise<Array<LandingPage>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllLandingPages();
+                return from_candid_vec_n47(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllLandingPages();
+            return from_candid_vec_n47(this._uploadFile, this._downloadFile, result);
         }
     }
     async getAllMetrics(): Promise<Array<SocialMediaMetrics>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getAllMetrics();
-                return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n42(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getAllMetrics();
-            return from_candid_vec_n26(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n42(this._uploadFile, this._downloadFile, result);
         }
     }
     async getAllPosts(): Promise<Array<SocialMediaPost>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getAllPosts();
-                return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
+                return from_candid_vec_n43(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getAllPosts();
-            return from_candid_vec_n27(this._uploadFile, this._downloadFile, result);
+            return from_candid_vec_n43(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getAllSEOEntries(): Promise<Array<SEOEntry>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllSEOEntries();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllSEOEntries();
+            return result;
         }
     }
     async getCallerUserProfile(): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserProfile();
-                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n48(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCallerUserProfile();
-            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n48(this._uploadFile, this._downloadFile, result);
         }
     }
     async getCallerUserRole(): Promise<UserRole> {
         if (this.processError) {
             try {
                 const result = await this.actor.getCallerUserRole();
-                return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
+                return from_candid_UserRole_n49(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getCallerUserRole();
-            return from_candid_UserRole_n29(this._uploadFile, this._downloadFile, result);
+            return from_candid_UserRole_n49(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getEmailCampaign(arg0: bigint): Promise<EmailCampaign | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getEmailCampaign(arg0);
+                return from_candid_opt_n51(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getEmailCampaign(arg0);
+            return from_candid_opt_n51(this._uploadFile, this._downloadFile, result);
         }
     }
     async getExternalWebhookLogs(): Promise<Array<WebhookLog>> {
@@ -460,46 +733,74 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async getLandingPage(arg0: bigint): Promise<LandingPage | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getLandingPage(arg0);
+                return from_candid_opt_n52(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getLandingPage(arg0);
+            return from_candid_opt_n52(this._uploadFile, this._downloadFile, result);
+        }
+    }
     async getMetrics(arg0: bigint): Promise<SocialMediaMetrics | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getMetrics(arg0);
-                return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n53(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getMetrics(arg0);
-            return from_candid_opt_n31(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n53(this._uploadFile, this._downloadFile, result);
         }
     }
     async getPost(arg0: bigint): Promise<SocialMediaPost | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getPost(arg0);
-                return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n54(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getPost(arg0);
-            return from_candid_opt_n32(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n54(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async getSEOEntry(arg0: bigint): Promise<SEOEntry | null> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getSEOEntry(arg0);
+                return from_candid_opt_n55(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getSEOEntry(arg0);
+            return from_candid_opt_n55(this._uploadFile, this._downloadFile, result);
         }
     }
     async getUserProfile(arg0: Principal): Promise<UserProfile | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.getUserProfile(arg0);
-                return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+                return from_candid_opt_n48(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.getUserProfile(arg0);
-            return from_candid_opt_n28(this._uploadFile, this._downloadFile, result);
+            return from_candid_opt_n48(this._uploadFile, this._downloadFile, result);
         }
     }
     async isCallerAdmin(): Promise<boolean> {
@@ -544,67 +845,150 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async updateMetrics(arg0: bigint, arg1: SocialMediaPlatform, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, arg7: bigint, arg8: bigint, arg9: string): Promise<SocialMediaMetrics> {
+    async updateAdCampaign(arg0: bigint, arg1: string, arg2: AdPlatform, arg3: number, arg4: number, arg5: bigint, arg6: bigint, arg7: bigint): Promise<AdCampaign> {
         if (this.processError) {
             try {
-                const result = await this.actor.updateMetrics(arg0, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-                return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
+                const result = await this.actor.updateAdCampaign(arg0, arg1, to_candid_AdPlatform_n10(this._uploadFile, this._downloadFile, arg2), arg3, arg4, arg5, arg6, arg7);
+                return from_candid_AdCampaign_n12(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updateMetrics(arg0, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-            return from_candid_SocialMediaMetrics_n12(this._uploadFile, this._downloadFile, result);
+            const result = await this.actor.updateAdCampaign(arg0, arg1, to_candid_AdPlatform_n10(this._uploadFile, this._downloadFile, arg2), arg3, arg4, arg5, arg6, arg7);
+            return from_candid_AdCampaign_n12(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updateEmailCampaign(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: string, arg5: Variant_active_sent_draft): Promise<EmailCampaign> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateEmailCampaign(arg0, arg1, arg2, arg3, arg4, to_candid_variant_n16(this._uploadFile, this._downloadFile, arg5));
+                return from_candid_EmailCampaign_n17(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateEmailCampaign(arg0, arg1, arg2, arg3, arg4, to_candid_variant_n16(this._uploadFile, this._downloadFile, arg5));
+            return from_candid_EmailCampaign_n17(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updateLandingPage(arg0: bigint, arg1: string, arg2: string, arg3: string, arg4: string, arg5: LandingPageStatus): Promise<LandingPage> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateLandingPage(arg0, arg1, arg2, arg3, arg4, to_candid_LandingPageStatus_n20(this._uploadFile, this._downloadFile, arg5));
+                return from_candid_LandingPage_n22(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateLandingPage(arg0, arg1, arg2, arg3, arg4, to_candid_LandingPageStatus_n20(this._uploadFile, this._downloadFile, arg5));
+            return from_candid_LandingPage_n22(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updateMetrics(arg0: bigint, arg1: SocialMediaPlatform, arg2: bigint, arg3: bigint, arg4: bigint, arg5: bigint, arg6: bigint, arg7: bigint, arg8: bigint, arg9: string): Promise<SocialMediaMetrics> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateMetrics(arg0, to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+                return from_candid_SocialMediaMetrics_n28(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateMetrics(arg0, to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg1), arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+            return from_candid_SocialMediaMetrics_n28(this._uploadFile, this._downloadFile, result);
         }
     }
     async updatePost(arg0: bigint, arg1: string, arg2: string, arg3: SocialMediaPlatform, arg4: PostStatus, arg5: bigint | null, arg6: Array<string>, arg7: string): Promise<SocialMediaPost> {
         if (this.processError) {
             try {
-                const result = await this.actor.updatePost(arg0, arg1, arg2, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg3), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg5), arg6, arg7);
-                return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
+                const result = await this.actor.updatePost(arg0, arg1, arg2, to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg3), to_candid_PostStatus_n32(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n34(this._uploadFile, this._downloadFile, arg5), arg6, arg7);
+                return from_candid_SocialMediaPost_n35(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.updatePost(arg0, arg1, arg2, to_candid_SocialMediaPlatform_n10(this._uploadFile, this._downloadFile, arg3), to_candid_PostStatus_n16(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n18(this._uploadFile, this._downloadFile, arg5), arg6, arg7);
-            return from_candid_SocialMediaPost_n19(this._uploadFile, this._downloadFile, result);
+            const result = await this.actor.updatePost(arg0, arg1, arg2, to_candid_SocialMediaPlatform_n26(this._uploadFile, this._downloadFile, arg3), to_candid_PostStatus_n32(this._uploadFile, this._downloadFile, arg4), to_candid_opt_n34(this._uploadFile, this._downloadFile, arg5), arg6, arg7);
+            return from_candid_SocialMediaPost_n35(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async updateSEOEntry(arg0: bigint, arg1: string, arg2: Array<string>, arg3: string, arg4: string): Promise<SEOEntry> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.updateSEOEntry(arg0, arg1, arg2, arg3, arg4);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.updateSEOEntry(arg0, arg1, arg2, arg3, arg4);
+            return result;
         }
     }
 }
-function from_candid_ExportPayload_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExportPayload): ExportPayload {
-    return from_candid_record_n25(_uploadFile, _downloadFile, value);
-}
-function from_candid_PostStatus_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PostStatus): PostStatus {
-    return from_candid_variant_n22(_uploadFile, _downloadFile, value);
-}
-function from_candid_SocialMediaMetrics_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaMetrics): SocialMediaMetrics {
+function from_candid_AdCampaign_n12(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AdCampaign): AdCampaign {
     return from_candid_record_n13(_uploadFile, _downloadFile, value);
 }
-function from_candid_SocialMediaPlatform_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaPlatform): SocialMediaPlatform {
+function from_candid_AdPlatform_n14(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _AdPlatform): AdPlatform {
     return from_candid_variant_n15(_uploadFile, _downloadFile, value);
 }
-function from_candid_SocialMediaPost_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaPost): SocialMediaPost {
-    return from_candid_record_n20(_uploadFile, _downloadFile, value);
+function from_candid_EmailCampaign_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _EmailCampaign): EmailCampaign {
+    return from_candid_record_n18(_uploadFile, _downloadFile, value);
 }
-function from_candid_UserRole_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
-    return from_candid_variant_n30(_uploadFile, _downloadFile, value);
+function from_candid_ExportPayload_n40(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _ExportPayload): ExportPayload {
+    return from_candid_record_n41(_uploadFile, _downloadFile, value);
+}
+function from_candid_LandingPageStatus_n24(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _LandingPageStatus): LandingPageStatus {
+    return from_candid_variant_n25(_uploadFile, _downloadFile, value);
+}
+function from_candid_LandingPage_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _LandingPage): LandingPage {
+    return from_candid_record_n23(_uploadFile, _downloadFile, value);
+}
+function from_candid_PostStatus_n37(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _PostStatus): PostStatus {
+    return from_candid_variant_n38(_uploadFile, _downloadFile, value);
+}
+function from_candid_SocialMediaMetrics_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaMetrics): SocialMediaMetrics {
+    return from_candid_record_n29(_uploadFile, _downloadFile, value);
+}
+function from_candid_SocialMediaPlatform_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaPlatform): SocialMediaPlatform {
+    return from_candid_variant_n31(_uploadFile, _downloadFile, value);
+}
+function from_candid_SocialMediaPost_n35(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _SocialMediaPost): SocialMediaPost {
+    return from_candid_record_n36(_uploadFile, _downloadFile, value);
+}
+function from_candid_UserRole_n49(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _UserRole): UserRole {
+    return from_candid_variant_n50(_uploadFile, _downloadFile, value);
 }
 function from_candid__CaffeineStorageRefillResult_n4(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: __CaffeineStorageRefillResult): _CaffeineStorageRefillResult {
     return from_candid_record_n5(_uploadFile, _downloadFile, value);
 }
-function from_candid_opt_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
+function from_candid_opt_n39(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n28(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
+function from_candid_opt_n44(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_AdCampaign]): AdCampaign | null {
+    return value.length === 0 ? null : from_candid_AdCampaign_n12(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n48(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_UserProfile]): UserProfile | null {
     return value.length === 0 ? null : value[0];
 }
-function from_candid_opt_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SocialMediaMetrics]): SocialMediaMetrics | null {
-    return value.length === 0 ? null : from_candid_SocialMediaMetrics_n12(_uploadFile, _downloadFile, value[0]);
+function from_candid_opt_n51(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_EmailCampaign]): EmailCampaign | null {
+    return value.length === 0 ? null : from_candid_EmailCampaign_n17(_uploadFile, _downloadFile, value[0]);
 }
-function from_candid_opt_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SocialMediaPost]): SocialMediaPost | null {
-    return value.length === 0 ? null : from_candid_SocialMediaPost_n19(_uploadFile, _downloadFile, value[0]);
+function from_candid_opt_n52(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_LandingPage]): LandingPage | null {
+    return value.length === 0 ? null : from_candid_LandingPage_n22(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n53(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SocialMediaMetrics]): SocialMediaMetrics | null {
+    return value.length === 0 ? null : from_candid_SocialMediaMetrics_n28(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n54(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SocialMediaPost]): SocialMediaPost | null {
+    return value.length === 0 ? null : from_candid_SocialMediaPost_n35(_uploadFile, _downloadFile, value[0]);
+}
+function from_candid_opt_n55(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [_SEOEntry]): SEOEntry | null {
+    return value.length === 0 ? null : value[0];
 }
 function from_candid_opt_n6(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [boolean]): boolean | null {
     return value.length === 0 ? null : value[0];
@@ -613,6 +997,108 @@ function from_candid_opt_n7(_uploadFile: (file: ExternalBlob) => Promise<Uint8Ar
     return value.length === 0 ? null : value[0];
 }
 function from_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    clicks: bigint;
+    createdAt: bigint;
+    impressions: bigint;
+    platform: _AdPlatform;
+    spend: number;
+    updatedAt: bigint;
+    conversions: bigint;
+    budget: number;
+    campaignName: string;
+}): {
+    id: bigint;
+    clicks: bigint;
+    createdAt: bigint;
+    impressions: bigint;
+    platform: AdPlatform;
+    spend: number;
+    updatedAt: bigint;
+    conversions: bigint;
+    budget: number;
+    campaignName: string;
+} {
+    return {
+        id: value.id,
+        clicks: value.clicks,
+        createdAt: value.createdAt,
+        impressions: value.impressions,
+        platform: from_candid_AdPlatform_n14(_uploadFile, _downloadFile, value.platform),
+        spend: value.spend,
+        updatedAt: value.updatedAt,
+        conversions: value.conversions,
+        budget: value.budget,
+        campaignName: value.campaignName
+    };
+}
+function from_candid_record_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    status: {
+        active: null;
+    } | {
+        sent: null;
+    } | {
+        draft: null;
+    };
+    bodyContent: string;
+    subjectLine: string;
+    createdAt: bigint;
+    targetAudience: string;
+    updatedAt: bigint;
+    campaignName: string;
+}): {
+    id: bigint;
+    status: Variant_active_sent_draft;
+    bodyContent: string;
+    subjectLine: string;
+    createdAt: bigint;
+    targetAudience: string;
+    updatedAt: bigint;
+    campaignName: string;
+} {
+    return {
+        id: value.id,
+        status: from_candid_variant_n19(_uploadFile, _downloadFile, value.status),
+        bodyContent: value.bodyContent,
+        subjectLine: value.subjectLine,
+        createdAt: value.createdAt,
+        targetAudience: value.targetAudience,
+        updatedAt: value.updatedAt,
+        campaignName: value.campaignName
+    };
+}
+function from_candid_record_n23(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    id: bigint;
+    url: string;
+    status: _LandingPageStatus;
+    name: string;
+    createdAt: bigint;
+    associatedCampaign: string;
+    updatedAt: bigint;
+    conversionGoal: string;
+}): {
+    id: bigint;
+    url: string;
+    status: LandingPageStatus;
+    name: string;
+    createdAt: bigint;
+    associatedCampaign: string;
+    updatedAt: bigint;
+    conversionGoal: string;
+} {
+    return {
+        id: value.id,
+        url: value.url,
+        status: from_candid_LandingPageStatus_n24(_uploadFile, _downloadFile, value.status),
+        name: value.name,
+        createdAt: value.createdAt,
+        associatedCampaign: value.associatedCampaign,
+        updatedAt: value.updatedAt,
+        conversionGoal: value.conversionGoal
+    };
+}
+function from_candid_record_n29(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     clicks: bigint;
     engagements: bigint;
@@ -644,14 +1130,14 @@ function from_candid_record_n13(_uploadFile: (file: ExternalBlob) => Promise<Uin
         date: value.date,
         createdAt: value.createdAt,
         impressions: value.impressions,
-        platform: from_candid_SocialMediaPlatform_n14(_uploadFile, _downloadFile, value.platform),
+        platform: from_candid_SocialMediaPlatform_n30(_uploadFile, _downloadFile, value.platform),
         notes: value.notes,
         postsPublished: value.postsPublished,
         followers: value.followers,
         reach: value.reach
     };
 }
-function from_candid_record_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n36(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     id: bigint;
     status: _PostStatus;
     title: string;
@@ -676,18 +1162,18 @@ function from_candid_record_n20(_uploadFile: (file: ExternalBlob) => Promise<Uin
 } {
     return {
         id: value.id,
-        status: from_candid_PostStatus_n21(_uploadFile, _downloadFile, value.status),
+        status: from_candid_PostStatus_n37(_uploadFile, _downloadFile, value.status),
         title: value.title,
-        scheduledDate: record_opt_to_undefined(from_candid_opt_n23(_uploadFile, _downloadFile, value.scheduledDate)),
+        scheduledDate: record_opt_to_undefined(from_candid_opt_n39(_uploadFile, _downloadFile, value.scheduledDate)),
         createdAt: value.createdAt,
         tags: value.tags,
-        platform: from_candid_SocialMediaPlatform_n14(_uploadFile, _downloadFile, value.platform),
+        platform: from_candid_SocialMediaPlatform_n30(_uploadFile, _downloadFile, value.platform),
         updatedAt: value.updatedAt,
         notes: value.notes,
         caption: value.caption
     };
 }
-function from_candid_record_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_record_n41(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     metrics: Array<_SocialMediaMetrics>;
     posts: Array<_SocialMediaPost>;
     webhookLogs: Array<_WebhookLog>;
@@ -697,8 +1183,8 @@ function from_candid_record_n25(_uploadFile: (file: ExternalBlob) => Promise<Uin
     webhookLogs: Array<WebhookLog>;
 } {
     return {
-        metrics: from_candid_vec_n26(_uploadFile, _downloadFile, value.metrics),
-        posts: from_candid_vec_n27(_uploadFile, _downloadFile, value.posts),
+        metrics: from_candid_vec_n42(_uploadFile, _downloadFile, value.metrics),
+        posts: from_candid_vec_n43(_uploadFile, _downloadFile, value.posts),
         webhookLogs: value.webhookLogs
     };
 }
@@ -717,6 +1203,35 @@ function from_candid_record_n5(_uploadFile: (file: ExternalBlob) => Promise<Uint
 function from_candid_variant_n15(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     linkedin: null;
 } | {
+    meta: null;
+} | {
+    googleAds: null;
+} | {
+    youtube: null;
+}): AdPlatform {
+    return "linkedin" in value ? AdPlatform.linkedin : "meta" in value ? AdPlatform.meta : "googleAds" in value ? AdPlatform.googleAds : "youtube" in value ? AdPlatform.youtube : value;
+}
+function from_candid_variant_n19(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    active: null;
+} | {
+    sent: null;
+} | {
+    draft: null;
+}): Variant_active_sent_draft {
+    return "active" in value ? Variant_active_sent_draft.active : "sent" in value ? Variant_active_sent_draft.sent : "draft" in value ? Variant_active_sent_draft.draft : value;
+}
+function from_candid_variant_n25(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    active: null;
+} | {
+    draft: null;
+} | {
+    paused: null;
+}): LandingPageStatus {
+    return "active" in value ? LandingPageStatus.active : "draft" in value ? LandingPageStatus.draft : "paused" in value ? LandingPageStatus.paused : value;
+}
+function from_candid_variant_n31(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+    linkedin: null;
+} | {
     tiktok: null;
 } | {
     twitter: null;
@@ -731,7 +1246,7 @@ function from_candid_variant_n15(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): SocialMediaPlatform {
     return "linkedin" in value ? SocialMediaPlatform.linkedin : "tiktok" in value ? SocialMediaPlatform.tiktok : "twitter" in value ? SocialMediaPlatform.twitter : "other" in value ? SocialMediaPlatform.other : "instagram" in value ? SocialMediaPlatform.instagram : "facebook" in value ? SocialMediaPlatform.facebook : "youtube" in value ? SocialMediaPlatform.youtube : value;
 }
-function from_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n38(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     scheduled: null;
 } | {
     cancelled: null;
@@ -744,7 +1259,7 @@ function from_candid_variant_n22(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): PostStatus {
     return "scheduled" in value ? PostStatus.scheduled : "cancelled" in value ? PostStatus.cancelled : "idea" in value ? PostStatus.idea : "published" in value ? PostStatus.published : "draft" in value ? PostStatus.draft : value;
 }
-function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
+function from_candid_variant_n50(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
     admin: null;
 } | {
     user: null;
@@ -753,17 +1268,32 @@ function from_candid_variant_n30(_uploadFile: (file: ExternalBlob) => Promise<Ui
 }): UserRole {
     return "admin" in value ? UserRole.admin : "user" in value ? UserRole.user : "guest" in value ? UserRole.guest : value;
 }
-function from_candid_vec_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SocialMediaMetrics>): Array<SocialMediaMetrics> {
-    return value.map((x)=>from_candid_SocialMediaMetrics_n12(_uploadFile, _downloadFile, x));
+function from_candid_vec_n42(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SocialMediaMetrics>): Array<SocialMediaMetrics> {
+    return value.map((x)=>from_candid_SocialMediaMetrics_n28(_uploadFile, _downloadFile, x));
 }
-function from_candid_vec_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SocialMediaPost>): Array<SocialMediaPost> {
-    return value.map((x)=>from_candid_SocialMediaPost_n19(_uploadFile, _downloadFile, x));
+function from_candid_vec_n43(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SocialMediaPost>): Array<SocialMediaPost> {
+    return value.map((x)=>from_candid_SocialMediaPost_n35(_uploadFile, _downloadFile, x));
 }
-function to_candid_PostStatus_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PostStatus): _PostStatus {
-    return to_candid_variant_n17(_uploadFile, _downloadFile, value);
+function from_candid_vec_n45(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_AdCampaign>): Array<AdCampaign> {
+    return value.map((x)=>from_candid_AdCampaign_n12(_uploadFile, _downloadFile, x));
 }
-function to_candid_SocialMediaPlatform_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SocialMediaPlatform): _SocialMediaPlatform {
+function from_candid_vec_n46(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_EmailCampaign>): Array<EmailCampaign> {
+    return value.map((x)=>from_candid_EmailCampaign_n17(_uploadFile, _downloadFile, x));
+}
+function from_candid_vec_n47(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_LandingPage>): Array<LandingPage> {
+    return value.map((x)=>from_candid_LandingPage_n22(_uploadFile, _downloadFile, x));
+}
+function to_candid_AdPlatform_n10(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: AdPlatform): _AdPlatform {
     return to_candid_variant_n11(_uploadFile, _downloadFile, value);
+}
+function to_candid_LandingPageStatus_n20(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: LandingPageStatus): _LandingPageStatus {
+    return to_candid_variant_n21(_uploadFile, _downloadFile, value);
+}
+function to_candid_PostStatus_n32(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PostStatus): _PostStatus {
+    return to_candid_variant_n33(_uploadFile, _downloadFile, value);
+}
+function to_candid_SocialMediaPlatform_n26(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SocialMediaPlatform): _SocialMediaPlatform {
+    return to_candid_variant_n27(_uploadFile, _downloadFile, value);
 }
 function to_candid_UserRole_n8(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: UserRole): _UserRole {
     return to_candid_variant_n9(_uploadFile, _downloadFile, value);
@@ -774,7 +1304,7 @@ function to_candid__CaffeineStorageRefillInformation_n2(_uploadFile: (file: Exte
 function to_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: _CaffeineStorageRefillInformation | null): [] | [__CaffeineStorageRefillInformation] {
     return value === null ? candid_none() : candid_some(to_candid__CaffeineStorageRefillInformation_n2(_uploadFile, _downloadFile, value));
 }
-function to_candid_opt_n18(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
+function to_candid_opt_n34(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: bigint | null): [] | [bigint] {
     return value === null ? candid_none() : candid_some(value);
 }
 function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: {
@@ -786,7 +1316,56 @@ function to_candid_record_n3(_uploadFile: (file: ExternalBlob) => Promise<Uint8A
         proposed_top_up_amount: value.proposed_top_up_amount ? candid_some(value.proposed_top_up_amount) : candid_none()
     };
 }
-function to_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SocialMediaPlatform): {
+function to_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: AdPlatform): {
+    linkedin: null;
+} | {
+    meta: null;
+} | {
+    googleAds: null;
+} | {
+    youtube: null;
+} {
+    return value == AdPlatform.linkedin ? {
+        linkedin: null
+    } : value == AdPlatform.meta ? {
+        meta: null
+    } : value == AdPlatform.googleAds ? {
+        googleAds: null
+    } : value == AdPlatform.youtube ? {
+        youtube: null
+    } : value;
+}
+function to_candid_variant_n16(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Variant_active_sent_draft): {
+    active: null;
+} | {
+    sent: null;
+} | {
+    draft: null;
+} {
+    return value == Variant_active_sent_draft.active ? {
+        active: null
+    } : value == Variant_active_sent_draft.sent ? {
+        sent: null
+    } : value == Variant_active_sent_draft.draft ? {
+        draft: null
+    } : value;
+}
+function to_candid_variant_n21(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: LandingPageStatus): {
+    active: null;
+} | {
+    draft: null;
+} | {
+    paused: null;
+} {
+    return value == LandingPageStatus.active ? {
+        active: null
+    } : value == LandingPageStatus.draft ? {
+        draft: null
+    } : value == LandingPageStatus.paused ? {
+        paused: null
+    } : value;
+}
+function to_candid_variant_n27(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: SocialMediaPlatform): {
     linkedin: null;
 } | {
     tiktok: null;
@@ -817,7 +1396,7 @@ function to_candid_variant_n11(_uploadFile: (file: ExternalBlob) => Promise<Uint
         youtube: null
     } : value;
 }
-function to_candid_variant_n17(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PostStatus): {
+function to_candid_variant_n33(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: PostStatus): {
     scheduled: null;
 } | {
     cancelled: null;
