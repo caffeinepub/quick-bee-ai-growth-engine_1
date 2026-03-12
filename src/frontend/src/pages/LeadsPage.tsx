@@ -9,6 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -31,12 +37,14 @@ import {
   Info,
   Loader2,
   Mail,
+  PenLine,
   Phone,
   Plus,
   Search,
   Trash2,
   Upload,
   User,
+  Zap,
 } from "lucide-react";
 import type React from "react";
 import { useRef, useState } from "react";
@@ -151,6 +159,12 @@ export default function LeadsPage() {
   const [showImportMenu, setShowImportMenu] = useState(false);
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showImportRules, setShowImportRules] = useState(false);
+  const [isAutoCaptureOpen, setIsAutoCaptureOpen] = useState(false);
+  const [autoCapture, setAutoCapture] = useState({
+    nameOrContact: "",
+    name: "",
+    source: "Website",
+  });
 
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
@@ -165,6 +179,38 @@ export default function LeadsPage() {
     setEditingLead(null);
     setFormData(defaultFormData);
     setIsModalOpen(true);
+  };
+
+  const handleAutoCapture = async () => {
+    if (!autoCapture.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
+    const isEmail = autoCapture.nameOrContact.includes("@");
+    const email = isEmail ? autoCapture.nameOrContact : "";
+    const phone = !isEmail ? autoCapture.nameOrContact : "";
+    const date = new Date().toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+    const notes = `Auto-captured via ${autoCapture.source} on ${date}`;
+    try {
+      await createLead.mutateAsync({
+        name: autoCapture.name,
+        email,
+        phone,
+        status: "new",
+        notes,
+      });
+      toast.success("Lead captured successfully");
+      setIsAutoCaptureOpen(false);
+      setAutoCapture({ nameOrContact: "", name: "", source: "Website" });
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "Failed to capture lead",
+      );
+    }
   };
 
   const openEdit = (lead: Lead) => {
@@ -497,14 +543,33 @@ export default function LeadsPage() {
             )}
           </div>
 
-          <Button
-            onClick={openCreate}
-            className="gap-2"
-            data-ocid="leads.add_lead_button"
-          >
-            <Plus className="w-4 h-4" />
-            Add Lead
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="gap-2" data-ocid="leads.add_lead_button">
+                <Plus className="w-4 h-4" />
+                Add Lead
+                <ChevronDown className="w-3 h-3 ml-1 opacity-70" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem
+                onClick={openCreate}
+                className="gap-2 cursor-pointer"
+                data-ocid="leads.manual_entry_button"
+              >
+                <PenLine className="w-4 h-4 text-primary" />
+                Manual Entry
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setIsAutoCaptureOpen(true)}
+                className="gap-2 cursor-pointer"
+                data-ocid="leads.auto_capture_button"
+              >
+                <Zap className="w-4 h-4 text-yellow-400" />
+                Auto Capture
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -1178,6 +1243,107 @@ export default function LeadsPage() {
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               )}
               Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Auto Capture Modal */}
+      <Dialog open={isAutoCaptureOpen} onOpenChange={setIsAutoCaptureOpen}>
+        <DialogContent
+          className="sm:max-w-md"
+          data-ocid="leads.auto_capture.dialog"
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-yellow-400" />
+              Quick Auto-Capture Lead
+            </DialogTitle>
+            <DialogDescription>
+              Paste a prospect&apos;s details — we&apos;ll auto-fill what we can
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="ac-name">
+                Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="ac-name"
+                placeholder="Prospect name"
+                value={autoCapture.name}
+                onChange={(e) =>
+                  setAutoCapture((p) => ({ ...p, name: e.target.value }))
+                }
+                data-ocid="leads.auto_capture.input"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ac-contact">Phone or Email</Label>
+              <Input
+                id="ac-contact"
+                placeholder="9876543210 or email@example.com"
+                value={autoCapture.nameOrContact}
+                onChange={(e) =>
+                  setAutoCapture((p) => ({
+                    ...p,
+                    nameOrContact: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ac-source">Source</Label>
+              <Select
+                value={autoCapture.source}
+                onValueChange={(v) =>
+                  setAutoCapture((p) => ({ ...p, source: v }))
+                }
+              >
+                <SelectTrigger
+                  id="ac-source"
+                  data-ocid="leads.auto_capture.select"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[
+                    "Website",
+                    "WhatsApp",
+                    "Instagram",
+                    "Referral",
+                    "Walk-in",
+                    "Other",
+                  ].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="rounded-md bg-muted/50 border border-border px-3 py-2 text-xs text-muted-foreground">
+              Status will be set to <strong>New</strong> automatically. Notes
+              will record the source and date.
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsAutoCaptureOpen(false)}
+              data-ocid="leads.auto_capture.cancel_button"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAutoCapture}
+              disabled={createLead.isPending}
+              data-ocid="leads.auto_capture.submit_button"
+            >
+              {createLead.isPending && (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              )}
+              <Zap className="w-4 h-4 mr-2" />
+              Capture Lead
             </Button>
           </DialogFooter>
         </DialogContent>

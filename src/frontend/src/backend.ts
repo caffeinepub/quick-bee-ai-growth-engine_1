@@ -1749,7 +1749,7 @@ function from_candid_variant_n72(_uploadFile: (file: ExternalBlob) => Promise<Ui
 } | {
     qualified: null;
 }): PublicLeadStatus {
-    return "new" in value ? PublicLeadStatus.new : "closed_won" in value ? PublicLeadStatus.closed_won : "contacted" in value ? PublicLeadStatus.contacted : "proposal_sent" in value ? PublicLeadStatus.proposal_sent : "qualified" in value ? PublicLeadStatus.qualified : value;
+    return "new" in value ? PublicLeadStatus.new_: "closed_won" in value ? PublicLeadStatus.closed_won : "contacted" in value ? PublicLeadStatus.contacted : "proposal_sent" in value ? PublicLeadStatus.proposal_sent : "qualified" in value ? PublicLeadStatus.qualified : value;
 }
 function from_candid_vec_n48(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: Array<_SocialMediaMetrics>): Array<SocialMediaMetrics> {
     return value.map((x)=>from_candid_SocialMediaMetrics_n34(_uploadFile, _downloadFile, x));
@@ -1998,7 +1998,7 @@ function to_candid_variant_n68(_uploadFile: (file: ExternalBlob) => Promise<Uint
 } | {
     qualified: null;
 } {
-    return value == PublicLeadStatus.new ? {
+    return value == PublicLeadStatus.new_? {
         new_: null
     } : value == PublicLeadStatus.closed_won ? {
         closed_won: null

@@ -27,6 +27,7 @@ import { DigitalMarketingAnalyticsPage } from "./pages/DigitalMarketingAnalytics
 import { EmailCampaignsPage } from "./pages/EmailCampaignsPage";
 import { ExternalToolsPage } from "./pages/ExternalToolsPage";
 import { ExternalWebhooksPage } from "./pages/ExternalWebhooksPage";
+import { HelpGuidePage } from "./pages/HelpGuidePage";
 import { LandingPagesPage } from "./pages/LandingPagesPage";
 import LeadsPage from "./pages/LeadsPage";
 import { PaymentFailurePage } from "./pages/PaymentFailurePage";
@@ -267,6 +268,12 @@ const webhookIntegrationRoute = createRoute({
   component: WebhookIntegrationPage,
 });
 
+const helpGuideRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/help",
+  component: HelpGuidePage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   leadsRoute,
@@ -303,6 +310,7 @@ const routeTree = rootRoute.addChildren([
   smartLeadCaptureRoute,
   clientOnboardingRoute,
   webhookIntegrationRoute,
+  helpGuideRoute,
 ]);
 
 const router = createRouter({ routeTree });

@@ -11,6 +11,7 @@ import {
   Download,
   GitBranch,
   Globe,
+  HelpCircle,
   LayoutDashboard,
   LineChart,
   ListChecks,
@@ -250,8 +251,12 @@ export function AppSidebar() {
         ))}
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="px-2 py-3 border-t border-teal/10">
+      {/* Bottom: Help + Collapse */}
+      <div className="px-2 pb-3 border-t border-teal/10 pt-2 space-y-0.5">
+        {/* Help Guide link */}
+        <NavLink path="/help" label="Help Guide" icon={HelpCircle} />
+
+        {/* Collapse toggle */}
         <button
           type="button"
           onClick={() => setCollapsed(!collapsed)}

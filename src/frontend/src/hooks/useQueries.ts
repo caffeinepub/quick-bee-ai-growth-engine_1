@@ -49,29 +49,34 @@ export enum LeadStatus {
 
 // Map local LeadStatus string → PublicLeadStatus enum for backend calls
 function toPublicLeadStatus(status: string): PublicLeadStatus {
-  // Import the enum value at runtime from the backend module.
-  // Since we can't import enum values from backend.d.ts (it's a .d.ts),
-  // we construct the variant objects matching what the Motoko candid expects.
+  // Motoko variants are serialized as objects like { new_: null } by the agent
   const map: Record<string, PublicLeadStatus> = {
-    new: "new" as unknown as PublicLeadStatus,
-    contacted: "contacted" as unknown as PublicLeadStatus,
-    qualified: "qualified" as unknown as PublicLeadStatus,
-    proposal_sent: "proposal_sent" as unknown as PublicLeadStatus,
-    closed_won: "closed_won" as unknown as PublicLeadStatus,
+    new: { new_: null } as unknown as PublicLeadStatus,
+    contacted: { contacted: null } as unknown as PublicLeadStatus,
+    qualified: { qualified: null } as unknown as PublicLeadStatus,
+    proposal_sent: { proposal_sent: null } as unknown as PublicLeadStatus,
+    closed_won: { closed_won: null } as unknown as PublicLeadStatus,
   };
-  return map[status] ?? ("new" as unknown as PublicLeadStatus);
+  return map[status] ?? ({ new_: null } as unknown as PublicLeadStatus);
 }
 
 // Map PublicLead from backend → local Lead interface
 function publicLeadToLead(p: PublicLead): Lead {
-  // PublicLeadStatus.new_ has value "new" — read the raw string value
-  const rawStatus = p.status as unknown as string;
+  // Motoko variants arrive as objects like { new_: null } or as plain strings
+  let statusStr = "new";
+  const rawStatus = p.status as unknown;
+  if (typeof rawStatus === "string") {
+    statusStr = rawStatus === "new_" ? "new" : rawStatus;
+  } else if (typeof rawStatus === "object" && rawStatus !== null) {
+    const key = Object.keys(rawStatus as object)[0];
+    statusStr = key === "new_" ? "new" : key;
+  }
   return {
     id: p.id,
     name: p.name,
     email: p.email,
     phone: p.phone,
-    status: rawStatus === "new_" ? "new" : rawStatus,
+    status: statusStr,
     notes: p.notes,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
