@@ -9,16 +9,20 @@ import { Layout } from "./components/Layout";
 import { CartProvider } from "./contexts/CartContext";
 import { AIContentCreatorPage } from "./pages/AIContentCreatorPage";
 import { AISmartSystemsPage } from "./pages/AISmartSystemsPage";
+import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { AdsTrackerPage } from "./pages/AdsTrackerPage";
 import { AnalyticsEnginePage } from "./pages/AnalyticsEnginePage";
 import AutomationDashboardPage from "./pages/AutomationDashboardPage";
 import { AutomationWorkflowsPage } from "./pages/AutomationWorkflowsPage";
+import { BookConsultationPage } from "./pages/BookConsultationPage";
 import { CampaignAutopilotPage } from "./pages/CampaignAutopilotPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
+import { ClientOnboardingPage } from "./pages/ClientOnboardingPage";
 import { ContentCalendarPage } from "./pages/ContentCalendarPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DataExportPage } from "./pages/DataExportPage";
 import { DataSyncPage } from "./pages/DataSyncPage";
+import { DemoPreviewPage } from "./pages/DemoPreviewPage";
 import { DigitalMarketingAnalyticsPage } from "./pages/DigitalMarketingAnalyticsPage";
 import { EmailCampaignsPage } from "./pages/EmailCampaignsPage";
 import { ExternalToolsPage } from "./pages/ExternalToolsPage";
@@ -31,10 +35,13 @@ import SEOManagerPage from "./pages/SEOManagerPage";
 import { SalesConfigPage } from "./pages/SalesConfigPage";
 import { ServiceManagementPage } from "./pages/ServiceManagementPage";
 import { ServicesCatalogPage } from "./pages/ServicesCatalogPage";
+import { SmartLeadCapturePage } from "./pages/SmartLeadCapturePage";
 import { SmartTaskAgentPage } from "./pages/SmartTaskAgentPage";
 import SocialMetricsPage from "./pages/SocialMetricsPage";
 import SocialSchedulerPage from "./pages/SocialSchedulerPage";
+import { WebhookIntegrationPage } from "./pages/WebhookIntegrationPage";
 import { WebhookLogsPage } from "./pages/WebhookLogsPage";
+import { WebsiteAuditPage } from "./pages/WebsiteAuditPage";
 
 // Root route with Layout (sidebar + outlet)
 const rootRoute = createRootRoute({
@@ -217,6 +224,49 @@ const dataSyncRoute = createRoute({
   component: DataSyncPage,
 });
 
+// Growth Tools routes
+const websiteAuditRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/website-audit",
+  component: WebsiteAuditPage,
+});
+
+const demoPreviewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/demo-preview",
+  component: DemoPreviewPage,
+});
+
+const bookConsultationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/book-consultation",
+  component: BookConsultationPage,
+});
+
+const adminDashboardRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/admin-dashboard",
+  component: AdminDashboardPage,
+});
+
+const smartLeadCaptureRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/smart-lead-capture",
+  component: SmartLeadCapturePage,
+});
+
+const clientOnboardingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/client-onboarding",
+  component: ClientOnboardingPage,
+});
+
+const webhookIntegrationRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/webhook-integration",
+  component: WebhookIntegrationPage,
+});
+
 const routeTree = rootRoute.addChildren([
   indexRoute,
   leadsRoute,
@@ -246,6 +296,13 @@ const routeTree = rootRoute.addChildren([
   smartTaskAgentRoute,
   campaignAutopilotRoute,
   dataSyncRoute,
+  websiteAuditRoute,
+  demoPreviewRoute,
+  bookConsultationRoute,
+  adminDashboardRoute,
+  smartLeadCaptureRoute,
+  clientOnboardingRoute,
+  webhookIntegrationRoute,
 ]);
 
 const router = createRouter({ routeTree });

@@ -17,6 +17,7 @@ import {
   Mail,
   Megaphone,
   Menu,
+  Monitor,
   PenTool,
   Plug,
   Radio,
@@ -25,7 +26,9 @@ import {
   Settings,
   Settings2,
   ShoppingCart,
+  Target,
   TrendingUp,
+  UserCheck,
   Users,
   Webhook,
   X,
@@ -87,6 +90,20 @@ const digitalMarketingItems = [
 const aiAgentItems = [
   { path: "/smart-task-agent", label: "Smart Task Agent", icon: ListChecks },
   { path: "/campaign-autopilot", label: "Campaign Autopilot", icon: Cpu },
+];
+
+const growthToolsItems = [
+  { path: "/website-audit", label: "Website Audit", icon: Search },
+  { path: "/demo-preview", label: "Demo Previews", icon: Monitor },
+  {
+    path: "/book-consultation",
+    label: "Book Consultation",
+    icon: CalendarDays,
+  },
+  { path: "/admin-dashboard", label: "Admin Dashboard", icon: LayoutDashboard },
+  { path: "/smart-lead-capture", label: "Lead Capture", icon: Target },
+  { path: "/client-onboarding", label: "Client Onboarding", icon: UserCheck },
+  { path: "/webhook-integration", label: "Webhook Settings", icon: Webhook },
 ];
 
 export function AppSidebar() {
@@ -214,6 +231,23 @@ export function AppSidebar() {
         {aiAgentItems.map((item) => (
           <NavLink key={item.path} {...item} />
         ))}
+
+        {/* Growth Tools Group */}
+        {!collapsed && (
+          <div className="pt-3 pb-1 px-3">
+            <span className="text-xs font-semibold text-white/25 uppercase tracking-wider">
+              Growth Tools
+            </span>
+          </div>
+        )}
+        {collapsed && (
+          <div className="pt-2 pb-1">
+            <div className="border-t border-teal/10 mx-2" />
+          </div>
+        )}
+        {growthToolsItems.map((item) => (
+          <NavLink key={item.path} {...item} />
+        ))}
       </nav>
 
       {/* Collapse toggle */}
@@ -269,10 +303,9 @@ export function AppSidebar() {
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          width: "240px",
-          background: "rgba(8,12,12,0.98)",
-          borderRight: "1px solid rgba(0,180,166,0.15)",
-          backdropFilter: "blur(20px)",
+          width: 260,
+          background: "#0a1212",
+          borderRight: "1px solid rgba(0,212,200,0.12)",
         }}
       >
         <SidebarContent />
@@ -282,10 +315,9 @@ export function AppSidebar() {
       <aside
         className="hidden lg:flex flex-col h-screen sticky top-0 flex-shrink-0 transition-all duration-300"
         style={{
-          width: collapsed ? "64px" : "220px",
-          background: "rgba(8,12,12,0.95)",
-          borderRight: "1px solid rgba(0,180,166,0.12)",
-          backdropFilter: "blur(20px)",
+          width: collapsed ? 64 : 240,
+          background: "#0a1212",
+          borderRight: "1px solid rgba(0,212,200,0.12)",
         }}
       >
         <SidebarContent />

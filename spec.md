@@ -1,33 +1,27 @@
 # Quick Bee AI Growth Engine
 
 ## Current State
-- Leads and Services are stored in browser localStorage (device-local only)
-- Backend has Lead and Service CRUD methods but all are protected by `#user` / `#admin` auth checks
-- The app bypasses authentication entirely, so backend calls for leads/services are rejected
-- Data is not shared across devices — each browser has its own isolated copy
-- All UI, design, and features of Version 30 are intact
+The app has: Dashboard, Lead Management, Service Management, Services Catalog, AI Smart Systems, Sales Config, Automation, Workflows, Analytics, AI Content, Webhook Logs, Checkout, Data Export, Cross-Device Sync, Social Media tools, Digital Marketing tools, AI Agent tools, and Growth Tools (Website Audit, Demo Previews, Book Consultation, Admin Dashboard). All using dark teal/gold glassmorphism theme.
 
 ## Requested Changes (Diff)
 
 ### Add
-- New open (no-auth) backend endpoints for leads: `publicCreateLead`, `publicGetAllLeads`, `publicUpdateLead`, `publicDeleteLead`, `publicImportLeads`
-- New open backend endpoints for services: `publicCreateService`, `publicGetAllServices`, `publicUpdateService`, `publicDeleteService`, `publicSetServiceVisibility`, `publicDuplicateService`
-- A `ServiceRecord` type in backend for full service data (title, category, description, packages, addons, imageUrl, isVisible)
-- Auto-polling in frontend (every 30s) to refresh leads and services from backend
-- An "online indicator" badge on Lead and Service pages showing data is live from backend
+- **SmartLeadCapturePage** (`/smart-lead-capture`): A dedicated page with a prominent lead capture form capturing: name, email, phone, business name, website URL. On submit, saves to the leads localStorage array (same format as LeadsPage). Shows success confirmation. Also includes a section explaining the AI Growth services with multiple CTA buttons that open the form.
+- **ClientOnboardingPage** (`/client-onboarding`): Shows a list of "Closed Won" leads from localStorage. For each, allows creating a client record with a project checklist (6 steps: Welcome Call, Requirements Gathering, Strategy Doc, Project Kickoff, Deliverables, Final Review). Shows onboarding progress per client. All stored in localStorage.
+- **WebhookIntegrationPage** (`/webhook-integration`): Settings page with 4 webhook URL slots (Lead Capture, Website Audit, Demo Request, Booking). Each has: label, URL input, toggle active/inactive, test button (fires sample payload). Config saved in localStorage.
+- Add all 3 new routes to App.tsx
+- Add all 3 new sidebar items under "Growth Tools" group in AppSidebar.tsx
 
 ### Modify
-- `useGetAllLeads`, `useCreateLead`, `useUpdateLead`, `useDeleteLead`, `useImportLeads` — switch from localStorage to backend actor calls
-- `useServices`, `useCreateService`, `useUpdateService`, `useDeleteService`, `useDuplicateService`, `useSetServiceVisibilityById` — switch from localStorage to backend actor calls
-- `backend.d.ts` — add type declarations for all new public endpoints
+- AppSidebar.tsx: Add 3 new items to growthToolsItems array
+- App.tsx: Add 3 new route definitions and include in routeTree
 
 ### Remove
-- Dependency on `leadStore` and `serviceStore` localStorage for the primary lead/service data (localStorage still used as offline fallback cache)
+- Nothing removed
 
 ## Implementation Plan
-1. Add new Motoko types and public functions to `main.mo` for leads (no auth check) and services (full CRUD, no auth check)
-2. Regenerate / update `backend.d.ts` with new function signatures
-3. Rewrite `useQueries.ts` hooks for leads and services to call the backend actor, with localStorage as an offline fallback cache
-4. Add a `LiveDataBadge` component showing "Live Data" indicator
-5. Add polling via `refetchInterval` on lead and service queries
-6. Keep all UI files (LeadsPage.tsx, ServiceManagementPage.tsx, ServicesCatalogPage.tsx, etc.) unchanged
+1. Create SmartLeadCapturePage.tsx
+2. Create ClientOnboardingPage.tsx
+3. Create WebhookIntegrationPage.tsx
+4. Update App.tsx with 3 new routes
+5. Update AppSidebar.tsx with 3 new sidebar items
